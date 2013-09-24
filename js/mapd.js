@@ -1081,8 +1081,20 @@ var Animation = {
       var numLayersVisible = this.mapd.services.settings.getNumLayersVisible();
       this.numLayersLoaded++;
       if (this.numLayersLoaded >= numLayersVisible) {
-          this.numLayersLoaded = 0;
-          this.animFunc();
+        //console.log (this.numLayersLoaded + " " + numLayersVisible);
+        this.numLayersLoaded = 0;
+        /*
+        if (screenshot == true) {
+          console.log("making request");
+          $.ajax({
+            url: "http://127.0.0.1:8081",
+            data:"hi",
+            success: function() {console.log("hi")},
+            async: false
+          });
+        }
+        */
+        this.animFunc();
       }
     }
   },

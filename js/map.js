@@ -8,6 +8,7 @@ var pointLayer;
 var heatLayer;
 var baseLayers;
 var clickControl;
+var screenshot = true;
 
 function init()
 { 
