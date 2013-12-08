@@ -11,7 +11,7 @@
 #chart {
   position: fixed;
   //height: 20%;
-  bottom: 0px;
+  bottom: 30px;
   left: 400px;
   right: 0px;
   font: 10px sans-serif;
@@ -129,7 +129,7 @@ rect.pane {
   position: absolute;
 }
 
-.chart-settings {
+/*.chart-settings {
   float: left;
   width:100%;
   background-image: linear-gradient(#4f4f4f, #232323);
@@ -142,7 +142,12 @@ rect.pane {
   //height:100%;
   //margin-top:0px;
 }
+*/
 
+.chart-settings {
+  float: left;
+  width:100%;
+}
 
 #animControls {
   float:left;

@@ -170,12 +170,6 @@
         <div id="sortOrder"></div>
         <div id="tweets"></div> 
             <div id="cloudBox">
-                <div id="toolbar">
-                  <div class="data-menu" id="dataDisplay" data-dropdown="#dataDisplayDropdown" title="Visualization type"><span class="category-text">Chart:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>
-                  <div class="data-menu" id="dataSource" data-dropdown="#dataSourceDropdown" title="Variable to group by"><span class="category-text">Variable:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>
-                  <div class="data-menu" id="dataMode" data-dropdown="#dataModeDropdown" title="How variable is sorted"><span class="category-text">Scale:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>
-                  <button id="lock">unlocked</button>
-                </div>
 
 
                         <!--<span id="displayMode">
@@ -201,6 +195,16 @@
       </div>
       <div id="chart"></div>
     </div>
+    <div id="bottomBar">
+      <div id="analysisControls">
+                <div class="data-menu" data-vertical-offset="-145" id="dataDisplay" data-dropdown="#dataDisplayDropdown" title="Visualization type"><span class="category-text">Chart:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>
+                <div class="data-menu" data-vertical-offset="-255"  id="dataSource" data-dropdown="#dataSourceDropdown" title="Variable to group by"><span class="category-text">Variable:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>
+                <div class="data-menu" data-vertical-offset="-255"  id="dataMode" data-dropdown="#dataModeDropdown" title="How variable is sorted"><span class="category-text">Scale:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>
+              <button id="lock">unlocked</button>
+        </div>
+      <div id="timeControls"></div>
+   </div>
+  </div>
     <div id="link-dialog" title="Link to this map view"> </div>
 
     <div id="advSearchDropdown" class="dropdown dropdown-anchor-right">

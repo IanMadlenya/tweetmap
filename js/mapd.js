@@ -30,7 +30,7 @@ var MapD = {
   map: null,
   //host: "http://127.0.0.1:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
-  host: "http://mapd2.csail.mit.edu:8080/",
+  host: "http://mapd.csail.mit.edu:8080/",
   //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://140.221.141.152:8080/",
   //host: "http://www.velocidy.net:7000/",
@@ -110,10 +110,10 @@ var MapD = {
             $("#control").hide();
             //$("#chart").hide();
             //$("#chart").css({left: 0, bottom:0});
-
-            $("#mapview").css({left: 0, bottom:160});
+            $("#mapview").css({left: 0, bottom:150});
             //$("#mapAnimControls").show();
             $("#chart").css({left: 0});
+            $("#analysisControls").hide();
         }
         else {
             this.fullScreen=false;
@@ -121,9 +121,10 @@ var MapD = {
             $("#sizeButton").removeClass("collapseImg").addClass("expandImg");
             $("#control").show();
             //$("#chart").show();
-            $("#mapview").css({left: 400, bottom:180});
+            $("#mapview").css({left: 400, bottom:170});
             //$("#mapAnimControls").hide();
             $("#chart").css({left: 400});
+            $("#analysisControls").show();
             //$("#chart").css({left: 400, bottom: 200});
         }
         this.map.updateSize();

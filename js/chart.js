@@ -34,7 +34,8 @@ var LineChart =
     animDiv: null,
     optionsDiv: null,
     compareDiv: null,
-    detailsDiv: null
+    detailsDiv: null,
+    barDiv: null
   },
   color: ["#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#3b3eac", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395", "#994499", "#22aa99", "#aaaa11", "#6633cc", "#e67300"],
   colorUsed: {},
@@ -50,14 +51,13 @@ var LineChart =
     this.compareCallback = compareCallback;
     this.chartHeight = chartHeight;
     this.brushExtent = null;
+    //this.elems.settingsDiv = $("#timeControls");
+    this.elems.barDiv = d3.select($("#timeControls").get(0));
     
     this.margin = {top: 25, right: 80, bottom: 25, left: 25};
-        //width = 400 - this.margin.left - this.margin.right,
-        var cont =  $($(this.elems.container).get(0));
-        //console.log("Chart width: " + cont.width());
-        this.width = cont.width() - this.margin.left - this.margin.right;
-        //this.width = cont.width() - cont.offset().left - this.margin.left - this.margin.right;
-         this.height = this.chartHeight - this.margin.top - this.margin.bottom;
+    var cont =  $($(this.elems.container).get(0));
+    this.width = cont.width() - this.margin.left - this.margin.right;
+    this.height = this.chartHeight - this.margin.top - this.margin.bottom;
 
     this.x = d3.time.scale().range([0, this.width]);
     this.y = d3.scale.linear().range([this.height, 0]);
@@ -143,7 +143,11 @@ var LineChart =
 //         .attr("class", "sprites trends")
 //         .attr("title", "trends")
 //        .style("this.margin-top", "5px")
-    this.elems.settingsDiv = container.append("div").attr("class", "chart-settings");
+//
+//
+//
+    this.elems.settingsDiv = this.elems.barDiv.append("div").attr("class", "chart-settings");
+    //this.elems.settingsDiv = $("<div></div>").attr("class", "chart-settings").appendTo($("#timeControls"))
     this.elems.animDiv = this.elems.settingsDiv.append("div").attr("id", "animControls");
     //$("#animControls").css("margin-left", this.margin.left + 34);
     this.elems.animDiv.html("<button class='play-pause anim-input play-icon' type='button' title='Play/Pause'></button><button class='stop anim-input stop-icon' type='button' title='Stop'></button>");
@@ -160,6 +164,32 @@ var LineChart =
 
     this.elems.detailsDiv = this.elems.settingsDiv.append("div")
         .attr("class", "chart-details");
+    /*
+    this.elems.animDiv = $("<div></div>").attr("id", "animControls").appendTo($(this.elems.settingsDiv));
+    //$("#animControls").css("margin-left", this.margin.left + 34);
+    this.elems.animDiv.html("<button class='play-pause anim-input play-icon' type='button' title='Play/Pause'></button><button class='stop anim-input stop-icon' type='button' title='Stop'></button>");
+    //this.elems.compareDiv = $(this.elems.settingsDiv).append("div")
+    this.elems.compareDiv = $("<div></div>").attr("class", "chart-compare").appendTo( $(this.elems.settingsDiv));
+
+    var form =  this.elems.compareDiv.append("<form></form>")
+        .on("submit", $.proxy(this.compare, this));
+
+    var compareInput = $("<input></input>")
+        .attr("class", "compare-input")
+        .attr("type", "text")
+        .attr("placeholder", " Compare").appendTo($(form));
+    //var compareInput = $(form).append("<input></input>")
+        //.attr("class", "compare-input")
+        //.attr("type", "text")
+        //.attr("placeholder", " Compare");
+
+    //this.elems.detailsDiv = this.elems.settingsDiv.append("<div></div>")
+     //   .attr("class", "chart-details");
+    this.elems.detailsDiv = $("<div></div>").appendTo($(this.elems.settingsDiv));
+            
+    //;  .elems.settingsDiv.append("<div></div>")
+    //this.elems.detailsDiv = $("<this.elems.settingsDiv.append("<div></div>")
+    */
 
   },
 
@@ -606,39 +636,8 @@ var LineChart =
   }
 }
 
-var gg = 
-{
-  host: "http://localhost:3000/",
-  params: {
-    request: "Graph",
-    sql: "select time from gt where time >= 1365998400 and time <= 1366084800",
-    bbox: "-16163382.546147,670006.412153,-5176018.353852,8487374.167847",
-    histstart: 1366059600,
-    histend: 1366074000,
-    histbins: 100
-  }
-}
 
 function zoomcb() {
   //console.log('zoom callback');
 }
 
-function test() {
-LineChart.init(d3.select("body").select("div#chart"), zoomcb);
-
-gg.params.sql = "select time from gt where time >= 1365998400 and time <= 1366084800 where tweet_text ilike 'obama'"
-var url = gg.host + '?' + buildURI(gg.params);
-$.getJSON(url).done($.proxy(LineChart.onLineChartJson, LineChart, 1));
-
-gg.params.sql = "select time from gt where time >= 1365998400 and time <= 1366084800 where tweet_text ilike 'prayforboston'"
-var url = gg.host + '?' + buildURI(gg.params);
-$.getJSON(url).done($.proxy(LineChart.onLineChartJson, LineChart, 2));
-  
-gg.params.sql = "select time from gt where time >= 1365998400 and time <= 1366084800 where tweet_text ilike 'new york'"
-var url = gg.host + '?' + buildURI(gg.params);
-$.getJSON(url).done($.proxy(LineChart.onLineChartJson, LineChart, 3));
-
-gg.params.sql = "select time from gt where time >= 1365998400 and time <= 1366084800 where tweet_text ilike 'boston'"
-var url = gg.host + '?' + buildURI(gg.params);
-$.getJSON(url).done($.proxy(LineChart.onLineChartJson, LineChart, 4));
-}
