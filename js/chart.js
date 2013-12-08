@@ -49,6 +49,7 @@ var LineChart =
     this.zoomCallback = zoomCallback;
     this.compareCallback = compareCallback;
     this.chartHeight = chartHeight;
+    this.brushExtent = null;
     
     this.margin = {top: 25, right: 80, bottom: 25, left: 25};
         //width = 400 - this.margin.left - this.margin.right,
@@ -163,6 +164,10 @@ var LineChart =
   },
 
   updateSize: function() {
+
+
+
+
     //console.log("updating");
     var cont =  $($(this.elems.container).get(0));
     this.width = cont.width() - this.margin.left - this.margin.right;

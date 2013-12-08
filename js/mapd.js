@@ -30,8 +30,8 @@ var MapD = {
   map: null,
   //host: "http://127.0.0.1:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
-  //host: "http://mapd2.csail.mit.edu:8080/",
   host: "http://mapd2.csail.mit.edu:8080/",
+  //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://140.221.141.152:8080/",
   //host: "http://www.velocidy.net:7000/",
   table: "tweets",
@@ -108,24 +108,36 @@ var MapD = {
             this.services.animation.stopFunc();
             $("#sizeButton").removeClass("expandImg").addClass("collapseImg");
             $("#control").hide();
-            $("#chart").hide();
-            $("#mapview").css({left: 0, bottom:0});
-            $("#mapAnimControls").show();
-            //$("#chart").css({left: 0});
+            //$("#chart").hide();
+            //$("#chart").css({left: 0, bottom:0});
+
+            $("#mapview").css({left: 0, bottom:160});
+            //$("#mapAnimControls").show();
+            $("#chart").css({left: 0});
         }
         else {
             this.fullScreen=false;
             this.services.animation.stopFunc();
             $("#sizeButton").removeClass("collapseImg").addClass("expandImg");
             $("#control").show();
-            $("#chart").show();
-            $("#mapview").css({left: 400, bottom:200});
-            $("#mapAnimControls").hide();
+            //$("#chart").show();
+            $("#mapview").css({left: 400, bottom:180});
+            //$("#mapAnimControls").hide();
+            $("#chart").css({left: 400});
             //$("#chart").css({left: 400, bottom: 200});
         }
         this.map.updateSize();
+        //this.chart.updateSize();
         //this.services.graph.updateSize();
-        //Chart.updateSize();
+        $('div#chart').empty();
+        Chart.init($('div#chart'));
+        Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
+        //Chart.reload();
+
+        //Chart.chart.setBrushExtent([this.timestart * 1000, this.timeend * 1000]);
+        //Chart.chart.redrawBrush();
+        //Chart.chart.draw();
+
 
     },this));
 
@@ -429,11 +441,11 @@ var MapD = {
 
   reload: function(e) {
 
+    this.services.graph.reload();
     if (this.fullScreen == false) {
       this.services.geotrends.reload();
       this.services.topktokens.reload();
       this.services.tweets.reload();
-      this.services.graph.reload();
     }
     if (e.type != "moveend") {
         //console.log("reloading");
@@ -2596,6 +2608,7 @@ var Animation = {
 
 
   playFunc: function () {
+    console.log("at play");
     if (this.playing == false) {
       this.playing = true;
       this.playPauseButton.removeClass("play-icon").addClass("pause-icon");
@@ -2865,7 +2878,11 @@ var Chart =
   init: function(viewDiv) {
     this.viewDiv = viewDiv;
     //this.viewDiv.html("");
-    this.chart.init(d3.select(this.viewDiv.get(0)),160,  $.proxy(this.onZoom, this), $.proxy(this.onCompare, this));
+    var height = 140;
+    if (this.mapd.fullScreen == true)
+      height = 120;
+    
+    this.chart.init(d3.select(this.viewDiv.get(0)),height,  $.proxy(this.onZoom, this), $.proxy(this.onCompare, this));
   },
   updateSize: function() {
     this.chart.updateSize();
