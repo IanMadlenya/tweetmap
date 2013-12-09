@@ -53,7 +53,9 @@ var LineChart =
     this.chartHeight = chartHeight;
     this.brushExtent = null;
     //this.elems.settingsDiv = $("#timeControls");
+    $("#timeControls").empty();
     this.elems.barDiv = d3.select($("#timeControls").get(0));
+    //$(this.elems.barDiv).empty();
     
     this.margin = {top: 25, right: 80, bottom: 25, left: 25};
     var cont =  $($(this.elems.container).get(0));
@@ -191,6 +193,11 @@ var LineChart =
     //;  .elems.settingsDiv.append("<div></div>")
     //this.elems.detailsDiv = $("<this.elems.settingsDiv.append("<div></div>")
     */
+    if (Animation.isInitted)
+      Animation.updateButtons($('.play-pause'), $('.stop'));
+    else
+      Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
+    //Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
 
   },
 

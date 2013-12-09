@@ -75,8 +75,9 @@ var MapD = {
       
     this.map = map;
     $("#control").resizable({handles:"e", helper: "control-resize-helper", stop: MapD.resizeControl, minWidth:352});
+    $("#tweets").resizable({handles:"s", helper: "tweets-resize-helper", stop: MapD.resizeCloud});
     $("#cloudBox").resizable({handles:"n", helper: "cloud-resize-helper", stop: MapD.resizeCloud});
-
+    $("#chart").resizable({handles:"n", helper: "chart-resize-helper", stop: MapD.resizeChart});
     //$("#tweets").resizable();
     //$("#cloudBox").resizable();
     
@@ -117,9 +118,11 @@ var MapD = {
             $("#control").hide();
             //$("#chart").hide();
             //$("#chart").css({left: 0, bottom:0});
-            $("#mapview").css({left: 0, bottom:150});
+            //$("#mapview").css({left: 0, bottom:150});
+            $("#mapview").css({left: 0});
             //$("#mapAnimControls").show();
-            $("#chart").css({left: 0});
+            var chartWidth = $("#mapview").width();
+            $("#chart").css({left: 0, width:chartWidth });
             $("#analysisControls").hide();
         }
         else {
@@ -128,9 +131,11 @@ var MapD = {
             $("#sizeButton").removeClass("collapseImg").addClass("expandImg");
             $("#control").show();
             //$("#chart").show();
-            $("#mapview").css({left: this.controlWidth, bottom:170});
+            $("#mapview").css({left: this.controlWidth});
+            var chartWidth = $("#mapview").width();
+            //$("#mapview").css({left: this.controlWidth, bottom:170});
             //$("#mapAnimControls").hide();
-            $("#chart").css({left: this.controlWidth});
+            $("#chart").css({left: this.controlWidth, width:chartWidth});
             $("#analysisControls").show();
             //$("#chart").css({left: 400, bottom: 200});
         }
@@ -139,7 +144,7 @@ var MapD = {
         //this.services.graph.updateSize();
         $('div#chart').empty();
         Chart.init($('div#chart'));
-        Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
+        //Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
         //Chart.reload();
 
         //Chart.chart.setBrushExtent([this.timestart * 1000, this.timeend * 1000]);
@@ -148,6 +153,16 @@ var MapD = {
 
 
     },this));
+
+    $(window).resize($.proxy(function() {
+      $("#cloud").height($("#cloudBox").height() - 70);
+      //TopKTokens.reload();
+      $('div#chart').empty();
+      Chart.init($('div#chart'));
+      //Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
+    },this));
+
+      
 
 
     $(".olControlZoomPanel").css("top",35);
@@ -211,11 +226,44 @@ var MapD = {
     //TopKTokens.reload();
     $('div#chart').empty();
     Chart.init($('div#chart'));
-    Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
+      $("#chart").resizable({handles:"n", helper: "chart-resize-helper", stop: MapD.resizeChart});
+    //Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
 
 
   },
-  
+
+  resizeChart: function(event, ui) {
+      var chartHeight = ui.size.height; 
+      var chartBarHeight = chartHeight + 30;
+      console.log("Chart bar height: " + chartBarHeight);
+      //$("#mapview").css("bottom", chartBarHeight);
+      $("#mapview").css("bottom", chartBarHeight);
+      $("#chart").height("height", chartHeight);
+      var height = $("#chart").height();
+      console.log("height: " + height);
+      console.log("chartHeight: " + chartHeight);
+      MapD.map.updateSize();
+      $('div#chart').empty();
+      Chart.init($('div#chart'));
+      $("#chart").resizable({handles:"n", helper: "chart-resize-helper", stop: MapD.resizeChart});
+      //Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
+   },
+
+
+
+
+
+  resizeTweets: function(event, ui) {
+      var comboHeight = $("#control").height() - 40;  
+      var tweetsHeight = ui.size.height;
+      var cloudHeight = comboHeight - tweetsHeight;
+      $("#tweets").height(tweetsHeight);
+      $("#cloudBox").height(cloudHeight);
+      $("#cloud").height(cloudHeight - 70);
+      TopKTokens.reload();
+  },
+
+
   resizeCloud: function(event, ui) {
       console.log(event);
       console.log(ui);
@@ -229,6 +277,11 @@ var MapD = {
       $("#cloudBox").height(cloudHeight);
       $("#cloud").height(cloudHeight - 70);
       TopKTokens.reload();
+      Chart.reload();
+      /*
+      $('div#chart').empty();
+      Chart.init($('div#chart'));
+      */
   },
 
 
@@ -1422,6 +1475,11 @@ var TopKTokens = {
             var tokenRatio = 1.0 / counts[2 + numResultsToExclude];
             for (var t = numResultsToExclude; t < numTokens; t++) {
               //$('<li>' + tokens[i] + '</li>').appendTo(cloud);
+                if (counts[t] == 0 && this.locked == false) {
+                    console.log("Breaking at: " + t);
+                    wordArray = wordArray.slice(0,t-numResultsToExclude);
+                    break;
+                }
                 var percent = counts[t] * percentFactor;
                 var textPercent = "%" + percent.toFixed(3);
                 wordArray[t - numResultsToExclude] = {text: this.tokens[t], html: {title: textPercent},  weight: Math.max(Math.min(40, Math.round(counts[t]* tokenRatio * 30.0)), 4)};
@@ -1444,10 +1502,16 @@ var TopKTokens = {
             }
         }
         $(this.displayDiv).empty();
+        console.log("Array length: " + wordArray.length);
         this.displayDiv.jQCloud(wordArray);
     }
     else if (this.displaySetting == "Bar") {
-        BarChart.init(this.displayDiv, $.proxy(this.barClickCallback, this));
+        var bottomMargin = 90;
+        if (this.sourceSetting == "Word" || this.sourceSetting == "State" || this.sourceSetting == "Os-App") {
+          bottomMargin = 50;
+        }
+
+        BarChart.init(this.displayDiv, bottomMargin, $.proxy(this.barClickCallback, this));
         var numResultsToExclude = 0;
         if (this.sourceSetting == "Word")
           numResultsToExclude = numQueryTerms; 
@@ -2654,6 +2718,7 @@ var Animation = {
   prevTime: null,
   frameWait: 80, // milliseconds - minimum
   numLayersLoaded: 0,
+  isInitted: false,
   formerGraphLockedState: false,
   formerGraphDisplayMode: "cloud",
 
@@ -2672,7 +2737,16 @@ var Animation = {
     this.stopButton = stopButton;
     $(this.playPauseButton).click($.proxy(this.playFunc, this));
     $(this.stopButton).click($.proxy(this.stopFunc, this));
+    this.isInitted = true;
   },
+
+  updateButtons: function(playPauseButton, stopButton) {
+    this.playPauseButton = playPauseButton;
+    this.stopButton = stopButton;
+    $(this.playPauseButton).click($.proxy(this.playFunc, this));
+    $(this.stopButton).click($.proxy(this.stopFunc, this));
+  },
+
 
   layerLoadEnd: function () {
     //console.log(this.numLayersLoaded);
@@ -2807,7 +2881,7 @@ var Animation = {
       if (this.wordGraph.modeSetting != "Trends" && this.formerGraphLockedState != this.wordGraph.locked) {
         this.wordGraph.lockClickFunction(true);
       }
-      this.wordGraph.reload();
+      //this.wordGraph.reload();
     }
   }
 }
@@ -2996,9 +3070,17 @@ var Chart =
   init: function(viewDiv) {
     this.viewDiv = viewDiv;
     //this.viewDiv.html("");
-    var height = 140;
-    if (this.mapd.fullScreen == true)
-      height = 120;
+    var height = $(this.viewDiv).height();
+    console.log("height of chart: " + height);
+    if (height == 0) {
+      height = 140;
+      /*
+      if (this.mapd.fullScreen == true)
+        height = 120;
+      */
+    }
+    console.log("new height of chart: " + height);
+
     
     this.chart.init(d3.select(this.viewDiv.get(0)),height,  $.proxy(this.onZoom, this), $.proxy(this.onCompare, this));
   },

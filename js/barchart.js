@@ -17,11 +17,11 @@ var BarChart =
     info: null,
   },
 
-  init: function(container, barCallback) {
+  init: function(container, bottomMargin, barCallback) {
     this.elems.container = $(container).get(0);
     this.barCallback = barCallback;
     //console.log(this.elems.container);
-    this.margin = {top: 10, right: 5, bottom: 90, left: 45};
+    this.margin = {top: 10, right: 5, bottom: bottomMargin, left: 45};
         //width = 400 - this.margin.left - this.margin.right,
     //var cont =  $($(this.elems.container).get(0));
     this.width = $(this.elems.container).width() - this.margin.left - this.margin.right;

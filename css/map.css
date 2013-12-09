@@ -14,7 +14,15 @@ a:hover {text-decoration:underline;}
 .control-resize-helper {
   border-right: 2px inset #EE1786 !important;
 }
+.tweets-resize-helper {
+  border-bottom: 2px inset #EE1786 !important;
+}
+
 .cloud-resize-helper {
+  border-top: 2px inset #EE1786 !important;
+}
+
+.chart-resize-helper {
   border-top: 2px inset #EE1786 !important;
 }
 
@@ -669,8 +677,8 @@ div#advSearchBar {
 
 div#tweets { 
   //border-radius: 5px;
-  border-top: 1px solid #888;
-  border-bottom: 3px solid #555;
+  //border-top: 1px solid #888;
+  border-bottom: 5px double #333;
   margin-top: 10px;
   height: 58%;
   overflow-y: scroll;
@@ -748,8 +756,8 @@ div#toolbar {
 }
 
 .choice-text {
-  //color:black;
-  color: #ee1786;
+  color:black;
+  //color: #ee1786;
   //color:#127DB1;
   //color: #7CC2E4;
   margin-left:10px;
@@ -912,7 +920,7 @@ div#numTokensText {
 }
 
 .tweet-time {
-  margin-left: 60%;
+  margin-left: 58%;
   color: #777;
 }
 
