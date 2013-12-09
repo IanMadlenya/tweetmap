@@ -28,9 +28,10 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  //host: "http://127.0.0.1:8080/",
+  host: "http://127.0.0.1:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
-  host: "http://mapd.csail.mit.edu:8080/",
+  //host: "http://mapd.csail.mit.edu:8080/",
+  //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://140.221.141.152:8080/",
   //host: "http://www.velocidy.net:7000/",
@@ -47,6 +48,7 @@ var MapD = {
   fullScreen: false,
   timeUpdates: 0,
   updateFlag: false,
+  controlWidth:400,
   services: {
     baseLayerName: "Dark",
     pointmap: null,
@@ -72,6 +74,11 @@ var MapD = {
         this.host = "http://sirubu.velocidy.net:8080";
       
     this.map = map;
+    $("#control").resizable({handles:"e", helper: "control-resize-helper", stop: MapD.resizeControl, minWidth:352});
+    $("#cloudBox").resizable({handles:"n", helper: "cloud-resize-helper", stop: MapD.resizeCloud});
+
+    //$("#tweets").resizable();
+    //$("#cloudBox").resizable();
     
     //$("#clipboard-share").click($.proxy(function() {
     $("#clipboard-share").click($.proxy(this.genLink,
@@ -121,9 +128,9 @@ var MapD = {
             $("#sizeButton").removeClass("collapseImg").addClass("expandImg");
             $("#control").show();
             //$("#chart").show();
-            $("#mapview").css({left: 400, bottom:170});
+            $("#mapview").css({left: this.controlWidth, bottom:170});
             //$("#mapAnimControls").hide();
-            $("#chart").css({left: 400});
+            $("#chart").css({left: this.controlWidth});
             $("#analysisControls").show();
             //$("#chart").css({left: 400, bottom: 200});
         }
@@ -190,7 +197,40 @@ var MapD = {
     window.open(
         'https://www.facebook.com/sharer/sharer.php?u=' + link, 'facebook-share-dialog', 'width=626,height=436');
     },
-        
+
+  resizeControl: function(event, ui) {
+    var width = $("#control").width();
+    console.log(width);
+    $("#mapview").css({left: width});
+    $("#chart").css({left: width});
+    $("#cloud").css({width:width});
+    $("#analysisControls").css({width: width});
+    //$("#control").css({width: width});
+    MapD.map.updateSize();
+    MapD.controlWidth=width;
+    //TopKTokens.reload();
+    $('div#chart').empty();
+    Chart.init($('div#chart'));
+    Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
+
+
+  },
+  
+  resizeCloud: function(event, ui) {
+      console.log(event);
+      console.log(ui);
+      var comboHeight = $("#control").height() - 40;  
+      console.log("Combo Height: " + comboHeight);
+      var cloudHeight = ui.size.height;
+      console.log("Cloud Height: " + cloudHeight);
+      var tweetsHeight = comboHeight - cloudHeight;
+      console.log("Tweets Height: " + tweetsHeight);
+      $("#tweets").height(tweetsHeight);
+      $("#cloudBox").height(cloudHeight);
+      $("#cloud").height(cloudHeight - 70);
+      TopKTokens.reload();
+  },
+
 
   sendTweet: function(response) {
     //var link = this.writeLink(true);
@@ -872,6 +912,12 @@ var TopKTokens = {
 
   init: function(displayDiv) {
     this.displayDiv = displayDiv;
+    /*
+    $(this.displayDiv).resize(function() {
+        console.log("resized!");
+    });
+    */
+
     $(".data-dropdown").click($.proxy(function(e) {
       var menu;
       var choice = this.getMenuItemClicked(e.target);
@@ -1096,6 +1142,8 @@ var TopKTokens = {
     },
 
   getURL: function(options) {
+
+
     var numQueryTerms = this.mapd.queryTerms.length;
     /*
     if (numQueryTerms > 0) { // hack - doesnt work for who
@@ -1165,10 +1213,16 @@ var TopKTokens = {
     else 
       this.params.sql += " from " + this.mapd.table; 
 
-    if (this.displaySetting == "Cloud")
-        this.params.k = this.defaultCloudK + numQueryTerms;
-    else if (this.displaySetting == "Bar")
-        this.params.k = this.defaultChartK ;
+    if (this.displaySetting == "Cloud") {
+        var area = this.displayDiv.width() * this.displayDiv.height();
+        var areaRatio = area/80000.0; 
+        var adjCloudK = Math.round(this.defaultCloudK * areaRatio);
+        this.params.k = adjCloudK + numQueryTerms;
+    }
+    else if (this.displaySetting == "Bar") {
+        var adjChartK = Math.round(this.defaultChartK * this.displayDiv.width() / 400.0);
+        this.params.k = adjChartK;
+    }
     else if (this.displaySetting == "Scatter") {
         this.params.k = this.defaultScatterK ;
         if (ScatterPlot.colorVar != null)
@@ -1352,6 +1406,8 @@ var TopKTokens = {
     var numQueryTerms = this.mapd.queryTerms.length;
     this.tokens = json.tokens;
     if (this.displaySetting == "Cloud") {
+        $("#cloud").empty();
+
         //var tokens = json.tokens; 
 
         var numResultsToExclude = 0;
@@ -1387,6 +1443,7 @@ var TopKTokens = {
                 wordArray[t - numResultsToExclude] = {text: this.tokens[t], html: {title: zScores[t]},  weight: Math.max(Math.min(40, Math.round(zScores[t]* tokenRatio * 30.0)), 4)};
             }
         }
+        $(this.displayDiv).empty();
         this.displayDiv.jQCloud(wordArray);
     }
     else if (this.displaySetting == "Bar") {
