@@ -228,10 +228,6 @@ var MapD = {
         this.services.search.userInput.val(params.who);
         $('#userInput').trigger('input');
       }
-      this.services.topktokens.setMenuItem("Source", mapParams.dataSource, false);
-      this.services.topktokens.setMenuItem("Mode", mapParams.dataMode, false);
-      this.services.topktokens.setMenuItem("Display", mapParams.dataDisplay, false);
-
       this.services.topktokens.xVar = mapParams.scatterXVar; 
       //console.log("xvar: " + this.services.topktokens.xVar);
       //console.log("Join attrs: " + this.services.topktokens.params.joinattrs);
@@ -241,8 +237,13 @@ var MapD = {
       }
       //$("#displayMode").addClass("grey-button"); 
       $(".data-buttons").buttonset();
-      $(".data-buttons label").css("background-image", "none").css("background-color", "gray").css("color", "black");
+      //$(".data-buttons").css("margin-right", "30px");
+      $(".data-buttons label").css("background-image", "none").css("background-color", "white").css("color", "black");
       $(".data-buttons .ui-button-text").css("padding-left", "5px").css("padding-top", "3px").css("padding-right", "5px").css("padding-bottom", "0px");
+      this.services.topktokens.setMenuItem("Source", mapParams.dataSource, false);
+      this.services.topktokens.setMenuItem("Mode", mapParams.dataMode, false);
+      this.services.topktokens.setMenuItem("Display", mapParams.dataDisplay, false);
+
 
       //this.services.topktokens.displayMode = mapParams.dataMode;
       /*
@@ -887,6 +888,23 @@ var TopKTokens = {
     }
     , this));  
 
+    $(".data-buttons input").click($.proxy(function(e) {
+         //console.log($(e.currentTarget.htmlFor));
+         var id = $(e.currentTarget).attr("id");
+         var menu = "Mode";
+         var choice;
+         var displayPos = id.search("Display");
+         if (id.search("Display") != -1) {
+            menu = "Display";
+            choice = id.substr(0,displayPos); 
+         }
+         else {
+            choice = id.substr(0,id.search("Mode")); 
+         }
+          this.setMenuItem(menu, choice, true);
+
+       }, this));
+        
     $("#lock").button({
         text:false,
         icons: {
@@ -947,30 +965,40 @@ var TopKTokens = {
 
   setMenuItem: function(menu, choice, reload) {   
     //console.log("menu: " + menu);
-    var menuDiv = "#data" + menu;
-    var dropdownDiv = menuDiv + "Dropdown";
-    var choiceDiv = menuDiv + choice;
-    //console.log(menuDiv);
-    //console.log(choiceDiv);
-    $(dropdownDiv + " span.checkmark").css("visibility", "hidden");
-    $(choiceDiv + " .checkmark").css("visibility","visible");
-    $(menuDiv + " span.choice-text").text(choice);
-    this[this.settingDict[menu]] = choice;
-    $(dropdownDiv).removeClass('dropdown-open');
-    /*
-    if (menu == "Source") {
-        console.log("source!!!");
-        if (choice == "Words") { 
-            if (this.modeSetting == "Percents") {
-                this.setMenuItem("Mode", "Counts", false); 
-            }
-            $("#dataModePercents").hide();
-        }
-        else {
-            $("#dataModePercents").show();
-        }
+    if (menu == "Mode" || menu == "Display") {
+        var buttonDiv = "#" + menu + "Buttons";
+        var choiceDiv = "#" + choice + menu; 
+        $(choiceDiv).prop('checked', 'checked');
+        $(buttonDiv).buttonset("refresh");
+
     }
-    */
+    else {
+
+        var menuDiv = "#data" + menu;
+        var dropdownDiv = menuDiv + "Dropdown";
+        var choiceDiv = menuDiv + choice;
+        //console.log(menuDiv);
+        //console.log(choiceDiv);
+        $(dropdownDiv + " span.checkmark").css("visibility", "hidden");
+        $(choiceDiv + " .checkmark").css("visibility","visible");
+        $(menuDiv + " span.choice-text").text(choice);
+        $(dropdownDiv).removeClass('dropdown-open');
+    }
+        this[this.settingDict[menu]] = choice;
+        /*
+        if (menu == "Source") {
+            console.log("source!!!");
+            if (choice == "Words") { 
+                if (this.modeSetting == "Percents") {
+                    this.setMenuItem("Mode", "Counts", false); 
+                }
+                $("#dataModePercents").hide();
+            }
+            else {
+                $("#dataModePercents").show();
+            }
+        }
+        */
 
     if (choice == "Cloud")
       $(this.displayDiv).click($.proxy(this.addClickedWord, this)); 
