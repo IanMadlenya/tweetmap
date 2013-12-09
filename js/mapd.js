@@ -239,7 +239,10 @@ var MapD = {
       if (mapParams.fullScreen == 1) {
         $("#sizeButton").click();
       }
-      
+      //$("#displayMode").addClass("grey-button"); 
+      $(".data-buttons").buttonset();
+      $(".data-buttons label").css("background-image", "none").css("background-color", "gray").css("color", "black");
+      $(".data-buttons .ui-button-text").css("padding-left", "5px").css("padding-top", "3px").css("padding-right", "5px").css("padding-bottom", "0px");
 
       //this.services.topktokens.displayMode = mapParams.dataMode;
       /*

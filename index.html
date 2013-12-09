@@ -118,14 +118,10 @@
      <div id="social-share" data-dropdown="#share-dropdown" title="Share a link to the current view with your current settings applied"> 
         <div id="share">Share this map ▾</div>
      </div>
-     <div class="fb-like" data-href="https://www.facebook.com/datarefined" data-width="120" data-height="30" data-colorscheme="dark" data-layout="button_count" data-action="like" data-show-faces="true" data-share="false"></div>
-     <!--<div class="fb-like" data-href="https://www.facebook.com/datarefined" data-width="120" data-height="30" data-colorscheme="dark" data-layout="button_count" data-action="like" data-show-faces="false" data-send="false"></div>-->
-
-    <a href="https://twitter.com/datarefined" id="twitter-follow" class="twitter-follow-button" data-show-count="false">Follow @datarefined</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-
-
    </div>
+
+
+
    </div>
       <!--
       <a href="https://twitter.com/share" class="twitter-share-button" data-via="datarefined" data-related="datarefined" data-hashtags="MapD" data-dnt="true">Tweet this map</a>
@@ -197,12 +193,37 @@
     </div>
     <div id="bottomBar">
       <div id="analysisControls">
-                <div class="data-menu" data-vertical-offset="-145" id="dataDisplay" data-dropdown="#dataDisplayDropdown" title="Visualization type"><span class="category-text">Chart:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>
-                <div class="data-menu" data-vertical-offset="-255"  id="dataSource" data-dropdown="#dataSourceDropdown" title="Variable to group by"><span class="category-text">Variable:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>
-                <div class="data-menu" data-vertical-offset="-255"  id="dataMode" data-dropdown="#dataModeDropdown" title="How variable is sorted"><span class="category-text">Scale:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>
+
+        <!--div class="data-menu" data-vertical-offset="-145" id="dataDisplay" data-dropdown="#dataDisplayDropdown" title="Visualization type"><span class="category-text">Chart:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>-->
+                  <div class="data-buttons" id="displayMode">
+
+                    <input type="radio" id="cloudDisplay" value="cloud" name="displayMode" /><label for="cloudDisplay"><img src="img/cloud-black.png" class="display-image"></label>
+                      <input type="radio" id="barDisplay" value="chart" name="displayMode"  /><label for="barDisplay"><img src="img/barchart-black.png" class="display-image"></label>
+                      <input type="radio" id="scatterDisplay" value="scatter" name="displayMode"  /><label for="scatterDisplay"><img src="img/scatterplot-black.png" class="display-image"></label>
+                  </div>
+                  <div id="aggChoice">
+                    <span>Aggregate by:</span>
+
+
+
+
+                  <div class="data-buttons" id="numberMode">
+                    <input type="radio" id="dataCounts" value="counts" name="dataNums" /><label for="dataCounts">#</label>
+                    <input type="radio" id="dataPercents" value="percents" name="dataNums"  /><label for="dataPercents">%</label>
+                  </div>
+
+                  <!--<div class="data-menu" data-vertical-offset="-255"  id="dataSource" data-dropdown="#dataSourceDropdown" title="Variable to group by"><span class="category-text">Aggregate By:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>-->
+                <!--<div class="data-menu" data-vertical-offset="-255"  id="dataMode" data-dropdown="#dataModeDropdown" title="How variable is sorted"><span class="category-text">Scale:</span><span class="choice-text"></span><span class="drop-triangle">▾</span></div>-->
               <button id="lock">unlocked</button>
         </div>
       <div id="timeControls"></div>
+      <div id="bottomSocial">
+       <div class="fb-like" data-href="https://www.facebook.com/datarefined" data-width="120" data-height="30" data-colorscheme="dark" data-layout="button_count" data-action="like" data-show-faces="true" data-share="false" style="padding-bottom:5px"></div>
+      <a href="https://twitter.com/datarefined" id="twitter-follow" class="twitter-follow-button" data-show-count="false">Follow @datarefined</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+      </div>
+
+
    </div>
   </div>
     <div id="link-dialog" title="Link to this map view"> </div>
