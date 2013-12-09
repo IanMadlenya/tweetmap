@@ -985,6 +985,29 @@ var TopKTokens = {
         $(dropdownDiv).removeClass('dropdown-open');
     }
         this[this.settingDict[menu]] = choice;
+        if (menu == "Source") {
+          if (Search.searchEmpty || choice == "Word") {
+          $("#PercentsMode").prop('disabled',true);
+          $("#ModeButtons").buttonset("refresh");
+          this.setMenuItem("Mode", "Counts", false);
+        }
+        else {
+          $("#PercentsMode").prop('disabled',false);
+          $("#ModeButtons").buttonset("refresh");
+         }
+         if (choice == "Word" || choice =="User" || choice == "Os-App") {
+          $("#ScatterDisplay").prop('disabled',true);
+          $("#DisplayButtons").buttonset("refresh");
+          this.setMenuItem("Display", "Cloud", false);
+        }
+         else {
+          $("#ScatterDisplay").prop('disabled',false);
+          $("#DisplayButtons").buttonset("refresh");
+        }
+
+
+    }
+
         /*
         if (menu == "Source") {
             console.log("source!!!");
@@ -2341,6 +2364,7 @@ var Search = {
   zoomTo: null, 
   zoomToChanged: false,
   io: null,
+  searchEmpty: true,
 
   init: function(map, form, zoomForm, curLoc, termsInput, userInput, locationCatMenu, locationInput, langInput, zoomInput, originInput) {
     $(document).on('propertychange keyup input paste', 'input.search-input', function() {
@@ -2461,15 +2485,20 @@ var Search = {
     var terms = this.termsInput.val();
     var origin = this.originInput.val();
     var lang = this.langInput.val(); 
-    if (terms == "" && this.userInput.val() == "" && origin == "" && lang == "" ) {
-      //$("#dataModePercents").prop('disabled',true);
+    this.searchEmpty = (terms == "" && this.userInput.val() == "" && origin == "" && lang == "");
+    if (this.searchEmpty || (this.mapd.services.topktokens.sourceSetting == "Word"))    {
+      $("#PercentsMode").prop('disabled',true);
+      $("#ModeButtons").buttonset("refresh");
       //$("#dataModePercents").children().prop('disabled',true);
-      $("#dataModePercents").hide();
+      //$("#dataModePercents").hide();
+      //$("#dataModePercents").hide();
       this.mapd.services.topktokens.setMenuItem("Mode", "Counts", false);
     }
     else {
       //$("#dataModePercents").prop('disabled',false);
-      $("#dataModePercents").show();
+      $("#PercentsMode").prop('disabled',false);
+      $("#ModeButtons").buttonset("refresh");
+      //$("#dataModePercents").show();
       //this.mapd.services.topktokens.setMenuItem("Mode", "Percents", false);
     }
 
