@@ -49,6 +49,7 @@ var MapD = {
   timeUpdates: 0,
   updateFlag: false,
   controlWidth:400,
+  streaming: false,
   services: {
     baseLayerName: "Dark",
     pointmap: null,
@@ -504,7 +505,7 @@ var MapD = {
 
   timeReload: function(e) {
 
-    if (this.services.animation.isAnimating() == false ) { 
+    if (this.streaming == true && this.services.animation.isAnimating() == false ) { 
 
            lastTime = newTime;
            newTime = new Date().getTime();
