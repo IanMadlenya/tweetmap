@@ -56,6 +56,7 @@ div#timeControls{
 .ui-state-active {
   //background-color: #7CC2E4 !important;
   border: 2px inset #EE1786 !important;
+  //border: 2px inset #00CCFF !important;
 
 }
 
@@ -759,6 +760,7 @@ div#toolbar {
   color:black;
   //color: #ee1786;
   //color:#127DB1;
+  //color: #00CCFF;
   //color: #7CC2E4;
   margin-left:10px;
   font-size: 12px;
@@ -781,11 +783,12 @@ div#toolbar {
 }
 
 .data-menu {
-  //color: #ee1786;
+  color: #ee1786;
   //color: #7CC2E4;
   //color:#127DB1;
+  //color: #00CCFF;
 
-  color:black;
+  //color:black;
   background-color:white;
   //background-color:#fee4d9;
   float:left;
