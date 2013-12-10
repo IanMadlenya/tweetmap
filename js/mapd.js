@@ -1,6 +1,4 @@
 // Events:
-// heatmapreload:    tell HeatMap to reload
-// geocodeend:       geocoding service is ready
 
 
 
@@ -183,6 +181,7 @@ var MapD = {
       //TopKTokens.reload();
       $('div#chart').empty();
       Chart.init($('div#chart'));
+      MapD.map.updateSize();
       //Animation.init(pointLayer, heatLayer, TopKTokens, Choropleth, $('.play-pause'), $('.stop'));
     },this));
 
@@ -341,10 +340,20 @@ var MapD = {
       if ("what" in mapParams) {
         this.services.search.termsInput.val(params.what);
         $('#termsInput').trigger('input');
-      } if ("who" in mapParams) {
+      } 
+      if ("who" in mapParams) {
         this.services.search.userInput.val(params.who);
         $('#userInput').trigger('input');
       }
+      if ("lang" in mapParams) {
+        this.services.search.langInput.val(params.lang);
+        $('#langInput').trigger('input');
+      }
+      if ("origin" in mapParams) {
+        this.services.search.originInput.val(params.origin);
+        $('#originInput').trigger('input');
+      }
+
       this.services.topktokens.xVar = mapParams.scatterXVar; 
       //console.log("xvar: " + this.services.topktokens.xVar);
       //console.log("Join attrs: " + this.services.topktokens.params.joinattrs);
@@ -450,6 +459,14 @@ var MapD = {
     var who = this.services.search.userInput.val();
     if (who != "") 
       uriParams.who = who;
+    var lang = this.services.search.langInput.val();
+    if (lang != "") 
+      uriParams.lang = lang;
+    var origin = this.services.search.originInput.val();
+    if (origin != "") 
+      uriParams.origin = origin;
+
+
     uriParams.baseOn = (Settings.baseOn ? 1 : 0);
     uriParams.baseLayer = BaseMap.currentLayer;
     uriParams.polyOn = (Settings.polyOn ? 1 : 0);
