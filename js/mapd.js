@@ -2,16 +2,38 @@
 // heatmapreload:    tell HeatMap to reload
 // geocodeend:       geocoding service is ready
 
+
+
 var timeUpdateInterval = 1500;
 newTime = 0
 lastTime = 0
 tweetNow = 0
 tweetLast = 0
 
+var Vars = {
+    selectedVar: "start",
+    start: {
+        time: "pickuptime",
+        x: "pickup_x",
+        y: "pickup_y",
+        text: "pickupaddress"
+    },
+    end: {
+        time: "droptime",
+        x: "drop_x",
+        y: "drop_y",
+        text: "dropaddress"
+    }
+};
+
+
 var BBOX = {
   //WORLD: "-19313026.92,-6523983.06,14187182.33,12002425.38",
   WORLD: "-19813026.92,-8523983.06, 19813026.92,12002425.38",
-  US: "-13888497.96,2817023.96,-7450902.94,6340356.62"
+  US: "-13888497.96,2817023.96,-7450902.94,6340356.62",
+  //BOSTON: "-7930396.9,5206138.3,-7893707.1,5220737.8"
+  BOSTON: "-7920070,5210793,-7903215,5218035"
+
 };
 
 function buildURI(params) {
@@ -28,14 +50,15 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  host: "http://127.0.0.1:8080/",
+  //host: "http://127.0.0.1:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
   //host: "http://mapd.csail.mit.edu:8080/",
-  //host: "http://mapd2.csail.mit.edu:8080/",
+  host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://140.221.141.152:8080/",
   //host: "http://www.velocidy.net:7000/",
-  table: "tweets",
+  table: "trips",
+
   timestart: null,
   timeend: null,
   queryTerms: [],
@@ -306,10 +329,10 @@ var MapD = {
 
   startCheck: function() {
     if (this.datastart != null && this.dataend != null) {
-      this.timeend = Math.round((this.dataend-this.datastart)*1.01 + this.datastart);
-      this.timestart = Math.max(this.dataend - 864000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
+      this.timeend = Math.round((this.dataend-this.datastart)*0.99 + this.datastart);
+      this.timestart = Math.max(this.dataend - 8640000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
 
-      var mapParams = {extent: new OpenLayers.Bounds(BBOX.WORLD.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", fullScreen: 0};
+      var mapParams = {extent: new OpenLayers.Bounds(BBOX.BOSTON.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", fullScreen: 1};
       mapParams = this.readLink(mapParams);
       //console.log("map params");
       //console.log(mapParams);
@@ -790,9 +813,9 @@ var MapD = {
   getTimeQuery: function (timestart, timeend) {
     var query = "";
     if (timestart)
-      query += "time >= " + timestart + " and ";
+      query +=  Vars[Vars.selectedVar].time + " >= " + timestart + " and ";
     if (timeend)
-      query += "time <= " + timeend + " and ";
+      query += Vars[Vars.selectedVar].time + " <= " + timeend + " and ";
     return query;
   },
 
@@ -921,7 +944,9 @@ var GeoTrends = {
   },
 
   getURL: function() {
-    this.params.sql = "select goog_x, goog_y, time, tweet_text from " + this.mapd.table;
+    //this.params.sql = "select goog_x, goog_y, time, tweet_text from " + this.mapd.table;
+    var selectedVar = Vars.selectedVar;
+    this.params.sql = "select " + Vars[selectedVar].x + "," + Vars[selectedVar].y +"," + Vars[selectedVar].time + "," + Vars[selectedVar].text + "," + duration + " from " + this.mapd.table;
     this.params.sql += this.mapd.getWhere();
     this.params.timestart = this.mapd.timestart;
     this.params.timeend = this.mapd.timeend;
@@ -1628,7 +1653,7 @@ var PointMap = {
   },
 
   getParams: function(options) {
-    this.params.sql = "select goog_x, goog_y";
+    this.params.sql = "select " + Vars[Vars.selectedVar].x + "," + Vars[Vars.selectedVar].y;
     if (this.colorBy != "none")
       this.params.sql += ", " + this.colorBy;
     this.params.sql += " from " + this.mapd.table;
@@ -1813,8 +1838,9 @@ var HeatMap = {
     else
       options.splitQuery = true;
 
+    this.params.sql = "select " + Vars[Vars.selectedVar].x + "," + Vars[Vars.selectedVar].y;
     //this.params.sql = "select goog_x, goog_y from " + this.mapd.table;
-    this.params.sql = "select goog_x, goog_y"; //from " + this.mapd.table;
+    //this.params.sql = "select goog_x, goog_y"; //from " + this.mapd.table;
     //var queryArray = this.mapd.getWhere({splitQuery: true});
     var queryArray = this.mapd.getWhere(options);
     if (queryArray[0])
@@ -1895,11 +1921,12 @@ var TweetClick =
 
         
       getURL: function(e) {
-        this.params.sql = "select goog_x, goog_y, time, sender_name, tweet_text from " + this.mapd.table;
+
+        this.params.sql = "select " + Vars[selectedVar].x + "," + Vars[selectedVar].y +"," + Vars[selectedVar].time + "," + Vars[selectedVar].text + "," + duration + " from " + this.mapd.table;
         this.params.sql += this.mapd.getWhere();
         var lonlat = this.mapd.map.getLonLatFromPixel(e.xy);
         //console.log(lonlat);
-        this.params.sql += " ORDER BY orddist(point(goog_x,goog_y), point(" + lonlat.lon +"," + lonlat.lat + ")) LIMIT 1";
+        this.params.sql += " ORDER BY orddist(point(" + Vars[selectedVar].x + "," +  Vars[selectedVar].y + "), point(" + lonlat.lon +"," + lonlat.lat + ")) LIMIT 1";
         //console.log(this.params.sql);
         var pointBuffer = this.mapd.map.resolution * this.pixelTolerance;
         //console.log("pointbuffer");
@@ -1916,7 +1943,7 @@ var TweetClick =
         //console.log(json);
         if (json != null) {
             var tweet = json.results[0];
-            this.addPopup(tweet.goog_x, tweet.goog_y, tweet);
+            this.addPopup(tweet[Vars[selectedVar].x], tweet[Vars[selectedVar].y], tweet);
         }
       },
 
@@ -1933,11 +1960,12 @@ var TweetClick =
         var content = $('<p></p>').addClass("tweet-content").appendTo(container);
         var profile = $('<a></a>').addClass("popup-profile").appendTo(header);
         //var profile = $('<a></a>').addClass("tweet-profile").appendTo(header);
-        var time = new Date(tweet.time * 1000);
+        var time = new Date(tweet[Vars[selectedVar].time] * 1000);
         var timeText = $('<div></div>').addClass("popup-time").appendTo(header);
         timeText.html(time.toLocaleString());
-        content.html(twttr.txt.autoLink(tweet.tweet_text, {targetBlank: true}));
-        profile.html(tweet.sender_name);
+        content.html(tweet[Vars[selectedVar].text]);
+        //content.html(twttr.txt.autoLink(tweet.tweet_text, {targetBlank: true}));
+        //profile.html(tweet.sender_name);
         profile.attr('href', 'https://twitter.com/' + tweet.sender_name);
         profile.attr('target', '_none');
 
@@ -1954,7 +1982,7 @@ var TweetClick =
 
         this.mapd.map.addPopup(this.popup);
         this.popup.updateSize();
-
+        /*
         $('.popup-profile, .username').click( $.proxy(function(e) {
           var userName = $(e.target).html();
           //console.log($(this).html());
@@ -1963,6 +1991,7 @@ var TweetClick =
           $('#userInput').trigger('input');
           this.mapd.services.search.form.submit();
         }, this));
+        */
 
       }
 
@@ -2142,7 +2171,7 @@ init: function(sortDiv, viewDiv) {
    },
 
   getTimeRangeURL: function() {
-    this.params.sql = "select min(time), max(time) from " + this.mapd.table;
+    this.params.sql = "select min(pickuptime), max(droptime) from " + this.mapd.table;
     this.params.bbox = this.mapd.map.getExtent().toBBOX();
     var url = this.mapd.host + '?' + buildURI(this.params);
     return url;
@@ -2177,7 +2206,7 @@ init: function(sortDiv, viewDiv) {
       options.minId =this.minId;
     }
     //console.log(options);
-    $.getJSON(this.getURL(options)).done($.proxy(this.onTweets, this));
+    //$.getJSON(this.getURL(options)).done($.proxy(this.onTweets, this));
   },
   //oldSortFunc :function () { 
   //    console.log("oldsort");
@@ -2532,7 +2561,7 @@ var Search = {
 
        //var text = this.locationCat + " ▾";
        //$("#locationSelect").html(text);
-       $.getJSON(this.getLocNamesURL()).done($.proxy(this.loadLocMenu, this));
+       //$.getJSON(this.getLocNamesURL()).done($.proxy(this.loadLocMenu, this));
        return false;
     }, this));
     
@@ -2999,11 +3028,11 @@ var Settings = {
     //console.log(this.polyOn);
     if (this.polyOn) {
       this.polyButton.removeClass("polyButtonOffImg").addClass("polyButtonOnImg");
-      Choropleth.activate();
+      //Choropleth.activate();
     }
     else {
       this.polyButton.removeClass("polyButtonOnImg").addClass("polyButtonOffImg");
-      Choropleth.deactivate();
+      //Choropleth.deactivate();
     }
   },
 
@@ -3094,7 +3123,8 @@ var Chart =
   },
   
   getURL: function(options) {
-    this.params.sql = "select time ";
+    this.params.sql = "select " + Vars[Vars.selectedVar].time + " ";
+
     if (options == undefined || options == null) 
       options = {splitQuery: true};
     else
