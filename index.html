@@ -25,7 +25,7 @@
     <script src="lib/js/twitter-text.js"></script>
     <script src="lib/js/d3.v3.min.js"></script>
     <!--<script src="http://d3js.org/d3.v3.min.js"></script>-->
-    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <!--<script src="http://d3js.org/topojson.v1.min.js"></script>-->
 
 
     <script src="lib/js/jsts.js"></script>
@@ -78,15 +78,17 @@
       <div id="promo"><a href="http://www.map-d.com" target="_blank"><img src="img/mapd_logo.png" class="logo-image"></a></div>
       <form id="search" class="search">
 	<div id="terms" class="search">
-	  <input id="termsInput" class="search-input" type="text" name="terms" placeholder=" What"/>
+	  <input id="termsInput" class="search-input" type="text" name="terms" placeholder=" Address"/>
       <span class="iconClear">X</span>
 	</div>
+    <!--
 	<div id="user" class="search">
 	  <input id="userInput" class="search-input" type="text" name="user" placeholder=" Who"/>
       <span class="iconClear">X</span>
 	</div>
+    -->
 	<div id="location" class="search">
-	  <input id="zoomInput" class="search-input" type="text" name="zoom" placeholder=" Where"/>
+	  <input id="zoomInput" class="search-input" type="text" name="zoom" placeholder=" Zoom To"/>
       <span class="iconClear">X</span>
 	</div>
 	<button id="submit" class="search-input" type="submit">
@@ -218,6 +220,12 @@
               <button id="lock">unlocked</button>
         </div>
       <div id="timeControls"></div>
+      <div class="dataset-buttons" id="DatasetButtons">
+        <input type="radio" id="PickupDisplay" value="pickups" name="dataset" /><label for="PickupDisplay">Pickups</label>
+        <input type="radio" id="DropoffDisplay" value="dropoffs" name="dataset" /><label for="DropoffDisplay">Dropoffs</label>
+        <input type="radio" id="TripDisplay" value="trips" name="dataset" /><label for="TripDisplay">Trips</label>
+      </div>
+
       <!--
       <div id="bottomSocial">
        <div class="fb-like" data-href="https://www.facebook.com/datarefined" data-width="120" data-height="30" data-colorscheme="dark" data-layout="button_count" data-action="like" data-show-faces="true" data-share="false" style="padding-bottom:5px"></div>

@@ -154,6 +154,7 @@ var LineChart =
     this.elems.animDiv = this.elems.settingsDiv.append("div").attr("id", "animControls");
     //$("#animControls").css("margin-left", this.margin.left + 34);
     this.elems.animDiv.html("<button class='play-pause anim-input play-icon' type='button' title='Play/Pause'></button><button class='stop anim-input stop-icon' type='button' title='Stop'></button>");
+    
     this.elems.compareDiv = this.elems.settingsDiv.append("div")
         .attr("class", "chart-compare");
 
@@ -167,6 +168,7 @@ var LineChart =
 
     this.elems.detailsDiv = this.elems.settingsDiv.append("div")
         .attr("class", "chart-details");
+    $(".compare-input").hide();
     /*
     this.elems.animDiv = $("<div></div>").attr("id", "animControls").appendTo($(this.elems.settingsDiv));
     //$("#animControls").css("margin-left", this.margin.left + 34);
@@ -439,7 +441,8 @@ var LineChart =
         .attr("x", 12)
         .attr("y", 4);
 
-    name = name || "All tweets";
+    //name = name || "All pickups";
+    name = Vars.selectedVar;
 
     detailMouseOver = function() {
       d3.select(this).select(".detail").select("span").classed("hover", true);

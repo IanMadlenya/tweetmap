@@ -9,19 +9,33 @@ tweetNow = 0
 tweetLast = 0
 
 var Vars = {
-    selectedVar: "start",
-    start: {
+    selectedVar: "pickups",
+    pickups: {
         time: "pickuptime",
         x: "pickup_x",
         y: "pickup_y",
-        text: "pickupaddress"
+        text: "pickupaddress",
+        layer: "point"
     },
-    end: {
+    dropoffs: {
         time: "droptime",
         x: "drop_x",
         y: "drop_y",
-        text: "dropaddress"
-    }
+        text: "dropaddress",
+        layer: "point"
+    },
+    trips: {
+        time: "pickuptime",
+        x: "pickup_x",
+        y: "pickup_y",
+        text: "pickupaddress",
+        x0: "pickup_x",
+        y0: "pickup_y",
+        x1: "drop_x",
+        y1: "drop_y",
+        table: "trips",
+        layer: "line"
+    },
 };
 
 
@@ -48,10 +62,10 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  //host: "http://127.0.0.1:8080/",
+  host: "http://127.0.0.1:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
   //host: "http://mapd.csail.mit.edu:8080/",
-  host: "http://mapd2.csail.mit.edu:8080/",
+  //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://140.221.141.152:8080/",
   //host: "http://www.velocidy.net:7000/",
@@ -94,7 +108,8 @@ var MapD = {
     //$("#dataDisplayBarchart").click(function() {console.log($(this).attr("id"));});  
     if (window.location.search == "?local")
         this.host = "http://sirubu.velocidy.net:8080";
-      
+
+    Vars.selectedVar = "pickups";
     this.map = map;
     $("#control").resizable({handles:"e", helper: "control-resize-helper", stop: MapD.resizeControl, minWidth:352});
     $("#tweets").resizable({handles:"s", helper: "tweets-resize-helper", stop: MapD.resizeCloud});
@@ -131,6 +146,7 @@ var MapD = {
     this.services.realtime = realtime;
     this.map.events.register('moveend', this, this.reload);
     //this.map.events.register('changebaselayer', this, this.moveBaseAttr);
+
 
     $("#sizeButton").click($.proxy(function() {
         if (this.fullScreen == false) {
@@ -204,6 +220,15 @@ var MapD = {
     $(".gmnoprint").hide();
   },
 
+
+  datasetClick: function(event) {
+
+
+
+
+
+
+  },
   displayLink: function(response) {
     //console.log(response.data.url);
     $("#link-dialog").html(response.data.url).dialog({width: 200, height: 70});
@@ -366,10 +391,24 @@ var MapD = {
       //$(".data-buttons").css("margin-right", "30px");
       $(".data-buttons label").css("background-image", "none").css("background-color", "white").css("color", "black");
       $(".data-buttons .ui-button-text").css("padding-left", "5px").css("padding-top", "3px").css("padding-right", "5px").css("padding-bottom", "0px");
+      $(".dataset-buttons").buttonset();
+      //$(".data-buttons").css("margin-right", "30px");
+      $(".dataset-buttons label").css("background-image", "none").css("background-color", "white").css("color", "black");
+      $(".dataset-buttons .ui-button-text").css("padding-left", "5px").css("padding-top", "3px").css("padding-right", "5px").css("padding-bottom", "0px");
       this.services.topktokens.setMenuItem("Source", mapParams.dataSource, false);
       this.services.topktokens.setMenuItem("Mode", mapParams.dataMode, false);
       this.services.topktokens.setMenuItem("Display", mapParams.dataDisplay, false);
 
+        $("#PickupDisplay").prop('checked', 'checked');
+        $("#DatasetButtons").buttonset("refresh");
+
+        $("input:radio[name=dataset]").click(function() {
+        Vars.selectedVar = $(this).val();
+        console.log(Vars.selectedVar);
+        //$(".detail-text").html("<i>All " + Vars.selectedVar + "</i>");
+
+        Search.form.submit();
+      });
 
       //this.services.topktokens.displayMode = mapParams.dataMode;
       /*
@@ -446,6 +485,9 @@ var MapD = {
       this.reload();
     }
   },
+
+
+
   writeLink: function(fullEncode) {
     var url = document.URL.split('?')[0] + "?";
     //var mapExtent = this.map.getExtent().toBBOX().split(',');
@@ -708,11 +750,11 @@ var MapD = {
         inQuote = !inQuote;
         if (inQuote) {
           if (atNot) {
-            searchString = "tweet_text not ilike '"  
+            searchString = Vars[Vars.selectedVar].text + " not ilike '"  
             atNot = false;
           }
           else
-            searchString = "tweet_text ilike '"  
+            searchString = Vars[Vars.selectedVar].text + " ilike '"  
         }
         else {
           console.log("At end quote");
@@ -737,11 +779,11 @@ var MapD = {
             //return null;
           }
           if (atNot) {
-            returnString += "tweet_text not ilike '" + token + "'";
+            returnString += Vars[Vars.selectedVar].text + " not ilike '" + token + "'";
             atNot = false;
           }
           else  {
-            returnString += "tweet_text ilike '" + token + "'";
+            returnString += Vars[Vars.selectedVar].text + " ilike '" + token + "'";
           }
           expectOperand = false;
         }
@@ -828,6 +870,8 @@ var MapD = {
 
 
   getTimeQuery: function (timestart, timeend) {
+    console.log("at get time query");
+    console.log(Vars.selectedVar);
     var query = "";
     if (timestart)
       query +=  Vars[Vars.selectedVar].time + " >= " + timestart + " and ";
@@ -1030,6 +1074,7 @@ var TopKTokens = {
     }
     , this));  
 
+    /*
     $(".data-buttons input").click($.proxy(function(e) {
          //console.log($(e.currentTarget.htmlFor));
          var id = $(e.currentTarget).attr("id");
@@ -1046,7 +1091,7 @@ var TopKTokens = {
           this.setMenuItem(menu, choice, true);
 
        }, this));
-        
+     */   
     $("#lock").button({
         text:false,
         icons: {
@@ -1491,7 +1536,7 @@ var TopKTokens = {
   },
 
   reload: function(options) {
-    $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this));
+    //$.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this));
   },
   onLoad: function(json) {
     this.displayDiv.empty();
@@ -1585,6 +1630,7 @@ var PointMap = {
   mapd: MapD,
   wms: null,
   colorBy: "none",
+
   params: {
     request: "GetMap",
     sql: null,
@@ -1595,10 +1641,17 @@ var PointMap = {
     r: 0,
     g: 0,
     b: 255,
+    x0: "pickup_x",
+    y0: "pickup_y",
+    x1: "drop_x",
+    y1: "drop_y",
+    table: "trips",
     rand:0,
     radius: 1,
     format: "image/png",
     transparent: true,
+    xVar: null,
+    yVar: null
   },
 
   init: function(wms) {
@@ -1670,6 +1723,9 @@ var PointMap = {
   },
 
   getParams: function(options) {
+    this.params.layers = Vars[Vars.selectedVar].layer; 
+    this.params.xVar = Vars[Vars.selectedVar].x;
+    this.params.yVar = Vars[Vars.selectedVar].y;
     this.params.sql = "select " + Vars[Vars.selectedVar].x + "," + Vars[Vars.selectedVar].y;
     if (this.colorBy != "none")
       this.params.sql += ", " + this.colorBy;
@@ -1736,7 +1792,9 @@ var HeatMap = {
     level: 50,
     colorramp: "green_red",
     format: "image/png",
-    transparent: true
+    transparent: true,
+    xVar: null,
+    yVar: null
   },
 
   init: function(wms) {
@@ -1850,6 +1908,8 @@ var HeatMap = {
   },
 
   getParams: function(options) {
+    this.params.xVar = Vars[Vars.selectedVar].x;
+    this.params.yVar = Vars[Vars.selectedVar].y;
     if (options == undefined || options == null) 
       options = {splitQuery: true};
     else
@@ -1891,6 +1951,9 @@ var TweetClick =
     request: "GetFeatureInfo",
     sql: null,
     bbox: null,
+    xVar: null,
+    yVar: null
+
   },
   clickControl: null,
   popup: null,
@@ -1938,12 +2001,13 @@ var TweetClick =
 
         
       getURL: function(e) {
-
-        this.params.sql = "select " + Vars[selectedVar].x + "," + Vars[selectedVar].y +"," + Vars[selectedVar].time + "," + Vars[selectedVar].text + "," + duration + " from " + this.mapd.table;
+        this.params.xVar = Vars[Vars.selectedVar].x;
+        this.params.yVar = Vars[Vars.selectedVar].y;
+        this.params.sql = "select " + Vars[Vars.selectedVar].x + "," + Vars[Vars.selectedVar].y +"," + Vars[Vars.selectedVar].time + "," + Vars[Vars.selectedVar].text + ",duration from " + this.mapd.table;
         this.params.sql += this.mapd.getWhere();
         var lonlat = this.mapd.map.getLonLatFromPixel(e.xy);
         //console.log(lonlat);
-        this.params.sql += " ORDER BY orddist(point(" + Vars[selectedVar].x + "," +  Vars[selectedVar].y + "), point(" + lonlat.lon +"," + lonlat.lat + ")) LIMIT 1";
+        this.params.sql += " ORDER BY orddist(point(" + Vars[Vars.selectedVar].x + "," +  Vars[Vars.selectedVar].y + "), point(" + lonlat.lon +"," + lonlat.lat + ")) LIMIT 1";
         //console.log(this.params.sql);
         var pointBuffer = this.mapd.map.resolution * this.pixelTolerance;
         //console.log("pointbuffer");
@@ -1960,7 +2024,7 @@ var TweetClick =
         //console.log(json);
         if (json != null) {
             var tweet = json.results[0];
-            this.addPopup(tweet[Vars[selectedVar].x], tweet[Vars[selectedVar].y], tweet);
+            this.addPopup(tweet[Vars[Vars.selectedVar].x], tweet[Vars[Vars.selectedVar].y], tweet);
         }
       },
 
@@ -1977,10 +2041,10 @@ var TweetClick =
         var content = $('<p></p>').addClass("tweet-content").appendTo(container);
         var profile = $('<a></a>').addClass("popup-profile").appendTo(header);
         //var profile = $('<a></a>').addClass("tweet-profile").appendTo(header);
-        var time = new Date(tweet[Vars[selectedVar].time] * 1000);
+        var time = new Date(tweet[Vars[Vars.selectedVar].time] * 1000);
         var timeText = $('<div></div>').addClass("popup-time").appendTo(header);
         timeText.html(time.toLocaleString());
-        content.html(tweet[Vars[selectedVar].text]);
+        content.html(tweet[Vars[Vars.selectedVar].text]);
         //content.html(twttr.txt.autoLink(tweet.tweet_text, {targetBlank: true}));
         //profile.html(tweet.sender_name);
         profile.attr('href', 'https://twitter.com/' + tweet.sender_name);
@@ -2027,6 +2091,8 @@ var Tweets =
     request: "GetFeatureInfo",
     sql: null,
     bbox: null,
+    xVar: null,
+    yVar: null
   },
   defaultPointStyle: null,
   tempPointStyle: null,
@@ -2195,6 +2261,8 @@ init: function(sortDiv, viewDiv) {
   },
 
   getURL: function(options) {
+    this.params.xVar = Vars[Vars.selectedVar].x;
+    this.params.yVar = Vars[Vars.selectedVar].y;
     if (options.minId != null) {
       this.params.sql = "select id, goog_x, goog_y, time, sender_name, tweet_text from " + this.mapd.table;
       this.append = true;
@@ -2669,10 +2737,11 @@ var Search = {
       //$("#dataModePercents").show();
       //this.mapd.services.topktokens.setMenuItem("Mode", "Percents", false);
     }
-
+    /*   
     if (this.userInput.val().length > 0) {
       this.mapd.services.topktokens.setMenuItem("Source", "Word", false);
     }
+    */
     /*
     else if (terms.substring(0,8) == "country:" || terms.substring(0,6) == "state:" || terms.substring(0,7) == "county:" || terms.substring(0,4) == "zip:") {
         var colonPosition = terms.indexOf(":");
@@ -3111,7 +3180,9 @@ var Chart =
     bbox: null,
     histstart: null,
     histend: null,
-    histbins: 100
+    histbins: 100,
+    xVar: null,
+    yVar: null
   },
 
   init: function(viewDiv) {
@@ -3140,6 +3211,8 @@ var Chart =
   },
   
   getURL: function(options) {
+    this.params.xVar = Vars[Vars.selectedVar].x;
+    this.params.yVar = Vars[Vars.selectedVar].y;
     this.params.sql = "select " + Vars[Vars.selectedVar].time + " ";
 
     if (options == undefined || options == null) 
