@@ -1,7 +1,5 @@
 // Events:
 
-
-
 var timeUpdateInterval = 1500;
 newTime = 0
 lastTime = 0
@@ -9,33 +7,43 @@ tweetNow = 0
 tweetLast = 0
 
 var Vars = {
-    selectedVar: "pickups",
-    pickups: {
-        time: "pickuptime",
-        x: "pickup_x",
-        y: "pickup_y",
-        text: "pickupaddress",
-        layer: "point"
-    },
-    dropoffs: {
-        time: "droptime",
-        x: "drop_x",
-        y: "drop_y",
-        text: "dropaddress",
-        layer: "point"
-    },
-    trips: {
-        time: "pickuptime",
-        x: "pickup_x",
-        y: "pickup_y",
-        text: "pickupaddress",
-        x0: "pickup_x",
-        y0: "pickup_y",
-        x1: "drop_x",
-        y1: "drop_y",
-        table: "trips",
-        layer: "line"
-    },
+    selectedVar: "cdr",
+    datasets: {
+        cdr: {
+            time: "epoch",
+            x: "goog_x",
+            y: "goog_y",
+            user: "user_id",
+            text: "user_id",
+            layer: "point"
+        },
+        pickups: {
+            time: "pickuptime",
+            x: "pickup_x",
+            y: "pickup_y",
+            text: "pickupaddress",
+            layer: "point"
+        },
+        dropoffs: {
+            time: "droptime",
+            x: "drop_x",
+            y: "drop_y",
+            text: "dropaddress",
+            layer: "point"
+        },
+        trips: {
+            time: "pickuptime",
+            x: "pickup_x",
+            y: "pickup_y",
+            text: "pickupaddress",
+            x0: "pickup_x",
+            y0: "pickup_y",
+            x1: "drop_x",
+            y1: "drop_y",
+            table: "trips",
+            layer: "line"
+        },
+    }
 };
 
 
@@ -69,7 +77,7 @@ var MapD = {
   //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://140.221.141.152:8080/",
   //host: "http://www.velocidy.net:7000/",
-  table: "trips",
+  table: "cdr",
 
   timestart: null,
   timeend: null,
@@ -109,7 +117,7 @@ var MapD = {
     if (window.location.search == "?local")
         this.host = "http://sirubu.velocidy.net:8080";
 
-    Vars.selectedVar = "pickups";
+    Vars.selectedVar = "cdr";
     this.map = map;
     $("#control").resizable({handles:"e", helper: "control-resize-helper", stop: MapD.resizeControl, minWidth:352});
     $("#tweets").resizable({handles:"s", helper: "tweets-resize-helper", stop: MapD.resizeCloud});
@@ -391,6 +399,18 @@ var MapD = {
       //$(".data-buttons").css("margin-right", "30px");
       $(".data-buttons label").css("background-image", "none").css("background-color", "white").css("color", "black");
       $(".data-buttons .ui-button-text").css("padding-left", "5px").css("padding-top", "3px").css("padding-right", "5px").css("padding-bottom", "0px");
+      for (key in Vars.datasets) {
+        var input = $("<input type='radio' id='" ); 
+        $("#DatasetButtons").append("input"
+
+
+
+      }
+
+
+
+
+
       $(".dataset-buttons").buttonset();
       //$(".data-buttons").css("margin-right", "30px");
       $(".dataset-buttons label").css("background-image", "none").css("background-color", "white").css("color", "black");
@@ -668,9 +688,11 @@ var MapD = {
 
 
   setDataTimeRange: function(json) {
-    this.datastart = json.results[0].min;
+    this.datastart = 1267405200 - 20000;
+    this.dataend = 1267419599 - 17000;
+    //this.datastart = json.results[0].min;
     //this.dataend = json.results[0].max + 86400;
-    this.dataend = json.results[0].max;
+    //this.dataend = json.results[0].max;
     this.startCheck();
   },
 
@@ -2254,7 +2276,7 @@ init: function(sortDiv, viewDiv) {
    },
 
   getTimeRangeURL: function() {
-    this.params.sql = "select min(pickuptime), max(droptime) from " + this.mapd.table;
+    this.params.sql = "select min(epoch), max(epoch) from " + this.mapd.table;
     this.params.bbox = this.mapd.map.getExtent().toBBOX();
     var url = this.mapd.host + '?' + buildURI(this.params);
     return url;
