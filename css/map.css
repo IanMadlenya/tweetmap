@@ -923,7 +923,8 @@ div#numTokensText {
 }
 
 .tweet-time {
-  margin-left: 58%;
+  float:left;
+  margin-left: 10px;
   color: #777;
 }
 
