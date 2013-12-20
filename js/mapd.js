@@ -2419,10 +2419,22 @@ init: function(sortDiv, viewDiv) {
 
   onClick: function(container) {
     var index = $(container).index();
+    var x = vectors.features[index].geometry.x;
+    var y = vectors.features[index].geometry.y;
+    var json = {}
+    json.x = x;
+    json.y = y;
+    var date = new Date($(".tweet-time",container).html());
+    json.time = date.getTime() / 1000;
+    json.sender_name=$(".tweet-profile",container).html();
+    json.tweet_text = $(".tweet-content",container).html(); 
+    TweetClick.addPopup(x,y,json);
+    /*
     if (OpenLayers.Util.indexOf(vectors.selectedFeatures,vectors.features[index]) == -1)
       this.selectFeatureControl.select(vectors.features[index]);
     else
       this.selectFeatureControl.unselect(vectors.features[index]);
+    */
   },
 
   // this points to <li> container 
