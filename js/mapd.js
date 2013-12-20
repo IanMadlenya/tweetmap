@@ -26,10 +26,10 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  host: "http://127.0.0.1:8080/",
+  //host: "http://127.0.0.1:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
   //host: "http://mapd.csail.mit.edu:8080/",
-  //host: "http://mapd2.csail.mit.edu:8080/",
+  host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://140.221.141.152:8080/",
   //host: "http://www.velocidy.net:7000/",
@@ -1272,6 +1272,9 @@ var TopKTokens = {
     else if (this.sourceSetting == "Zip") {
         this.params.sql = "select zip";
     }
+    else if (this.sourceSetting == "Language") {
+        this.params.sql = "select lang";
+    }
     else if (this.sourceSetting == "OS-App") {
         this.params.sql = "select origin";
     }
@@ -1366,6 +1369,10 @@ var TopKTokens = {
       $('#userInput').trigger('input');
       //this.setMenuItem("Source", "Words", false);
     }
+    else if (this.sourceSetting == "Language") {
+      this.mapd.services.search.langInput.val(token);
+      $('#langInput').trigger('input');
+    }
     else if (this.sourceSetting == "Country") {
       //this.mapd.services.search.termsInput.val("country: " + token);
       //this.mapd.services.search.locationCat = "Country";
@@ -1448,6 +1455,12 @@ var TopKTokens = {
       $('#locationInput').trigger('input');
       //this.setMenuItem("Source", "Words", false);
     }
+    else if (this.sourceSetting == "Language") {
+      //$("#locCounty").click();
+      this.mapd.services.search.langInput.val(token);
+      $('#langInput').trigger('input');
+      //this.setMenuItem("Source", "Words", false);
+    }
     /*
     else if (this.sourceSetting == "Zip") {
       this.mapd.services.search.termsInput.val("zip: " + token);
@@ -1525,7 +1538,7 @@ var TopKTokens = {
     }
     else if (this.displaySetting == "Bar") {
         var bottomMargin = 90;
-        if (this.sourceSetting == "Word" || this.sourceSetting == "State" || this.sourceSetting == "Os-App") {
+        if (this.sourceSetting == "Word" || this.sourceSetting == "State" || this.sourceSetting == "Os-App" || this.sourceSetting == "Language") {
           bottomMargin = 50;
         }
 
