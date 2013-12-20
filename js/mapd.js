@@ -2365,6 +2365,7 @@ init: function(sortDiv, viewDiv) {
     var timeText = $('<div></div>').addClass("tweet-time").appendTo(header);
     timeText.html(time.toLocaleString());
     content.html(twttr.txt.autoLink(text, {targetBlank: true}));
+    content.data({"text":text});
     profile.html(user);
     profile.attr('href', 'https://twitter.com/' + user);
     profile.attr('target', '_none');
@@ -2427,7 +2428,7 @@ init: function(sortDiv, viewDiv) {
     var date = new Date($(".tweet-time",container).html());
     json.time = date.getTime() / 1000;
     json.sender_name=$(".tweet-profile",container).html();
-    json.tweet_text = $(".tweet-content",container).html(); 
+    json.tweet_text = $(".tweet-content",container).data().text; 
     TweetClick.addPopup(x,y,json);
     /*
     if (OpenLayers.Util.indexOf(vectors.selectedFeatures,vectors.features[index]) == -1)
