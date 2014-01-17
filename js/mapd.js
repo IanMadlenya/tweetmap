@@ -26,10 +26,11 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  //host: "http://127.0.0.1:8080/",
+  host: "http://127.0.0.1:8080/",
+  //host: "http://172.16.20.32:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
   //host: "http://mapd.csail.mit.edu:8080/",
-  host: "http://mapd2.csail.mit.edu:8080/",
+  //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://mapd2.csail.mit.edu:8080/",
   //host: "http://140.221.141.152:8080/",
   //host: "http://www.velocidy.net:7000/",
@@ -308,7 +309,7 @@ var MapD = {
       this.timeend = Math.round((this.dataend-this.datastart)*1.01 + this.datastart);
       this.timestart = Math.max(this.dataend - 864000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
 
-      var mapParams = {extent: new OpenLayers.Bounds(BBOX.WORLD.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", fullScreen: 0};
+      var mapParams = {extent: new OpenLayers.Bounds(BBOX.WORLD.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Bar", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Blank", fullScreen: 0};
       mapParams = this.readLink(mapParams);
       //console.log("map params");
       //console.log(mapParams);
@@ -1702,8 +1703,6 @@ var BaseMap = {
       map.setBaseLayer(map.getLayersByName(this.currentLayer)[0]);
     }, this));
   }
-
-
 }
 
   
@@ -2822,7 +2821,6 @@ var Animation = {
   },
 
   animFunc: function() {
-     //console.log("animating");
      if (this.frameEnd < this.animEnd) {
         this.prevTime = new Date().getTime();
         var options = {time: {timestart: Math.floor(this.frameStart), timeend: Math.floor(this.frameEnd)}, heatMax: this.heatMax}; 
@@ -2838,6 +2836,8 @@ var Animation = {
           this.wordGraph.reload(graphOptions);
     }
     else {
+      //this.frameStart = this.animStart;
+      //this.frameEnd = this.animStart + this.frameWidth;
       this.stopFunc();
     }
   },
@@ -2856,7 +2856,7 @@ var Animation = {
         //this.frameWidth = this.frameStep * 4.0;
         this.frameWidth = this.mapd.timeend - this.mapd.timestart;
         if (this.frameWidth > (this.animEnd-this.animStart)*0.5)
-          this.frameWidth = 21600;
+          this.frameWidth = (this.animEnd-this.animStart)*0.15; 
         this.frameStart = this.animStart;
         this.frameEnd = this.animStart + this.frameWidth;
         this.heatMax = parseFloat($.cookie('max_value')) * 10.0;
