@@ -468,6 +468,8 @@ div#social-share:hover {
 }
 .ui-autocomplete {top:152px !important;}
 
+#recipientInput .ui-autocomplete {top:10px !important;}
+
 #locationSelect {
     float: left;
     margin-top:6px;
@@ -938,7 +940,8 @@ div#numTokensText {
 }
 
 .tweet-time {
-  margin-left: 58%;
+  float:left;
+  margin-left: 10px;
   color: #777;
 }
 

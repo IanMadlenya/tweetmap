@@ -84,7 +84,6 @@ function toHex(num) {
 var MapD = {
   map: null,
   host: "http://192.168.1.90:8080/",
-  //host: "http://mapd.csail.mit.edu:8080/",
   table: "donations",
 
   timestart: null,
@@ -371,8 +370,10 @@ var MapD = {
     if (this.datastart != null && this.dataend != null) {
       this.timeend = Math.round((this.dataend-this.datastart)*1.01 + this.datastart);
       this.timestart = Math.round(this.dataStart);
-      this.timestart = 1000000000;
-      this.timeend = 1300000000;
+      this.timestart = 1050000000; 
+      this.timeend = 1380000000; 
+      //this.timestart = 1000000000;
+      //this.timeend = 1300000000;
       //this.timestart = Math.max(this.dataend - 8640000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
 
       var mapParams = {extent: new OpenLayers.Bounds(BBOX.BOSTON.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", fullScreen: 1};
@@ -381,8 +382,10 @@ var MapD = {
       //console.log(mapParams);
       this.timestart = mapParams.t0;
       this.timeend = mapParams.t1;
-      this.timestart = 1000000000;
-      this.timeend =   1300000000;
+      this.timestart = 1050000000; 
+      this.timeend = 1380000000; 
+      //this.timestart = 1000000000;
+      //this.timeend =   1300000000;
       if ("what" in mapParams) {
         this.services.search.termsInput.val(params.what);
         $('#termsInput').trigger('input');
@@ -394,6 +397,10 @@ var MapD = {
       if ("lang" in mapParams) {
         this.services.search.langInput.val(params.lang);
         $('#langInput').trigger('input');
+      }
+      if ("party" in mapParams) {
+        this.services.search.partyInput.val(params.party);
+        $('#partyInput').trigger('input');
       }
       if ("origin" in mapParams) {
         this.services.search.originInput.val(params.origin);
@@ -487,7 +494,7 @@ var MapD = {
       }
       this.services.search.form.submit();
       this.services.pointmap.colorBy = mapParams.pointColorBy;
-      if (mapParams.pointColorBy == "sender_name" || mapParams.pointColorBy == "origin") 
+      if (mapParams.pointColorBy == "sender_name" || mapParams.pointColorBy == "origin" || mapParams.pointColorBy == "lang" || mapParams.pointColorBy == "party") 
           $("#pointStaticColor").hide();
       var radius = parseInt(mapParams.pointRadius);
       //console.log("radius: " + radius);
@@ -708,7 +715,8 @@ var MapD = {
     //this.dataend = 1267419599 - 17000;
     this.datastart = json.results[0].min;
     this.dataend = json.results[0].max + 86400;
-    this.datastart = 900000000; 
+    //this.datastart = 900000000; 
+    this.datastart = 1050000000; 
     this.dataend = 1380000000; 
     //this.dataend = json.results[0].max;
     this.startCheck();
@@ -726,6 +734,10 @@ var MapD = {
   setLang: function(lang) {
     this.lang = lang;
   },
+  setParty: function(party) {
+    this.party = party;
+  },
+
     
   setLocation:function(locationCat, location) {
     this.locationCat = locationCat;
@@ -790,11 +802,11 @@ var MapD = {
         inQuote = !inQuote;
         if (inQuote) {
           if (atNot) {
-            searchString = Vars.datasets[Vars.selectedVar].text + " not ilike '"  
+            searchString = Vars.datasets[Vars.selectedVar].aux.text + " not ilike '"  
             atNot = false;
           }
           else
-            searchString = Vars.datasets[Vars.selectedVar].text + " ilike '"  
+            searchString = Vars.datasets[Vars.selectedVar].aux.text + " ilike '"  
         }
         else {
           console.log("At end quote");
@@ -819,11 +831,11 @@ var MapD = {
             //return null;
           }
           if (atNot) {
-            returnString += Vars.datasets[Vars.selectedVar].text + " not ilike '" + token + "'";
+            returnString += Vars.datasets[Vars.selectedVar].aux.text + " not ilike '" + token + "'";
             atNot = false;
           }
           else  {
-            returnString += Vars.datasets[Vars.selectedVar].text + " ilike '" + token + "'";
+            returnString += Vars.datasets[Vars.selectedVar].aux.text + " ilike '" + token + "'";
           }
           expectOperand = false;
         }
@@ -835,6 +847,7 @@ var MapD = {
   
 
   setQueryTerms: function(queryTerms) {
+    console.log("Query terms: " + queryTerms);
     if (queryTerms != undefined) {
       if (queryTerms[0] != '"' && this.queryTerms[this.queryTerms.length -1] != '"')
           this.queryTerms = queryTerms.trim().split(" ").filter(function(d) {return d});
@@ -890,6 +903,15 @@ var MapD = {
     if (this.lang != undefined && this.lang != null && this.lang != "") {
       var query = "";
       query += "lang ilike '" + this.lang + "' and ";
+      return query;
+    }
+    return "";
+  },
+
+  getPartyQuery: function() {
+    if (this.party != undefined && this.party != null && this.party != "") {
+      var query = "";
+      query += "party ilike '" + this.party + "' and ";
       return query;
     }
     return "";
@@ -965,7 +987,7 @@ var MapD = {
           queryArray[0] = queryArray[0].substr(0, queryArray[0].length-5);
         }
         else {
-            queryArray[0] = this.getOriginQuery() + this.getLangQuery();
+            queryArray[0] = this.getOriginQuery() + this.getLangQuery() + this.getPartyQuery();
             queryArray[0] = queryArray[0].substr(0, queryArray[0].length-5);
             addedOrigin = true;
         }
@@ -1384,6 +1406,9 @@ var TopKTokens = {
     else if (this.sourceSetting == "Zip") {
         this.params.sql = "select zip";
     }
+    else if (this.sourceSetting == "Language") {
+        this.params.sql = "select lang";
+    }
     else if (this.sourceSetting == "OS-App") {
         this.params.sql = "select origin";
     }
@@ -1478,6 +1503,10 @@ var TopKTokens = {
       $('#userInput').trigger('input');
       //this.setMenuItem("Source", "Words", false);
     }
+    else if (this.sourceSetting == "Language") {
+      this.mapd.services.search.langInput.val(token);
+      $('#langInput').trigger('input');
+    }
     else if (this.sourceSetting == "Country") {
       //this.mapd.services.search.termsInput.val("country: " + token);
       //this.mapd.services.search.locationCat = "Country";
@@ -1560,6 +1589,12 @@ var TopKTokens = {
       $('#locationInput').trigger('input');
       //this.setMenuItem("Source", "Words", false);
     }
+    else if (this.sourceSetting == "Language") {
+      //$("#locCounty").click();
+      this.mapd.services.search.langInput.val(token);
+      $('#langInput').trigger('input');
+      //this.setMenuItem("Source", "Words", false);
+    }
     /*
     else if (this.sourceSetting == "Zip") {
       this.mapd.services.search.termsInput.val("zip: " + token);
@@ -1637,7 +1672,7 @@ var TopKTokens = {
     }
     else if (this.displaySetting == "Bar") {
         var bottomMargin = 90;
-        if (this.sourceSetting == "Word" || this.sourceSetting == "State" || this.sourceSetting == "Os-App") {
+        if (this.sourceSetting == "Word" || this.sourceSetting == "State" || this.sourceSetting == "Os-App" || this.sourceSetting == "Language") {
           bottomMargin = 50;
         }
 
@@ -1742,6 +1777,10 @@ var PointMap = {
           this.colorBy = "user_id";
           $("#pointStaticColor").hide();
           break;
+        case "pointColorParty":
+          this.colorBy = "party";
+          $("#pointStaticColor").hide();
+          break;
         case "pointColorOS":
           this.colorBy = "origin";
           $("#pointStaticColor").hide();
@@ -1813,8 +1852,6 @@ var BaseMap = {
       map.setBaseLayer(map.getLayersByName(this.currentLayer)[0]);
     }, this));
   }
-
-
 }
 
   
@@ -2490,6 +2527,7 @@ init: function(sortDiv, viewDiv) {
     var timeText = $('<div></div>').addClass("tweet-time").appendTo(header);
     timeText.html(time.toLocaleString());
     content.html(twttr.txt.autoLink(text, {targetBlank: true}));
+    content.data({"text":text});
     profile.html(user);
     profile.attr('href', 'https://twitter.com/' + user);
     profile.attr('target', '_none');
@@ -2544,10 +2582,22 @@ init: function(sortDiv, viewDiv) {
 
   onClick: function(container) {
     var index = $(container).index();
+    var x = vectors.features[index].geometry.x;
+    var y = vectors.features[index].geometry.y;
+    var json = {}
+    json.x = x;
+    json.y = y;
+    var date = new Date($(".tweet-time",container).html());
+    json.time = date.getTime() / 1000;
+    json.sender_name=$(".tweet-profile",container).html();
+    json.tweet_text = $(".tweet-content",container).data().text; 
+    TweetClick.addPopup(x,y,json);
+    /*
     if (OpenLayers.Util.indexOf(vectors.selectedFeatures,vectors.features[index]) == -1)
       this.selectFeatureControl.select(vectors.features[index]);
     else
       this.selectFeatureControl.unselect(vectors.features[index]);
+    */
   },
 
   // this points to <li> container 
@@ -2633,6 +2683,7 @@ var Search = {
   locationCatMenu: null,
   locationInput: null,
   langInput: null,
+  partyInput: null,
   zoomInput: null,
   originInput: null,
   terms: '',
@@ -2643,7 +2694,7 @@ var Search = {
   io: null,
   searchEmpty: true,
 
-  init: function(map, form, zoomForm, curLoc, termsInput, userInput, locationCatMenu, locationInput, langInput, zoomInput, originInput) {
+  init: function(map, form, zoomForm, curLoc, termsInput, userInput, locationCatMenu, locationInput, partyInput, langInput, zoomInput, originInput) {
     $(document).on('propertychange keyup input paste', 'input.search-input', function() {
       var io = $(this).val().length ? 1: 0;
       console.log("at icon clear");
@@ -2674,6 +2725,7 @@ var Search = {
     this.locationInput = locationInput;
     this.locationCatMenu = locationCatMenu;
     this.langInput = langInput;
+    this.partyInput = partyInput;
     this.zoomInput = zoomInput;
     this.originInput = originInput;
     this.geocoder.setMap(this.map);
@@ -2701,6 +2753,7 @@ var Search = {
     this.map.events.register('moveend', this, this.onMapMove);
 
      $.getJSON(this.getLocNamesURL()).done($.proxy(this.loadLocMenu, this));
+     $.getJSON(this.getRecNamesURL()).done($.proxy(this.loadRecMenu, this));
 
 
   },
@@ -2708,6 +2761,13 @@ var Search = {
   getLocNamesURL: function() {
      var params = {request:"GetFeatureInfo"};
      params.sql = "select name from " + this.locationCat + "_data";
+     var url = this.mapd.host + '?' + buildURI(params);
+     return url;
+  },
+
+  getRecNamesURL: function() {
+     var params = {request:"GetFeatureInfo"};
+     params.sql = "select recipient_name from recipient_data where n > 5000 order by n desc";
      var url = this.mapd.host + '?' + buildURI(params);
      return url;
   },
@@ -2738,6 +2798,15 @@ var Search = {
      });
     },
 
+    loadRecMenu: function(json) {
+     var names = [];
+     for (i in json.results)
+       names.push(json.results[i].recipient_name);
+ 
+     $("#recipientInput").autocomplete({
+         source:names
+     });
+    },
 
 
    getPosition: function() {
@@ -2758,11 +2827,13 @@ var Search = {
    },
 
   onSearch: function() {
-
+    console.log("on search"); 
     var terms = this.termsInput.val();
-    var origin = this.originInput.val();
+    //var origin = this.originInput.val();
+    var origin = "";
     var lang = this.langInput.val(); 
-    this.searchEmpty = (terms == "" && this.userInput.val() == "" && origin == "" && lang == "");
+    var party = this.partyInput.val();
+    this.searchEmpty = (terms == "" && this.userInput.val() == "" && origin == "" && lang == "" && party == "");
     if (this.searchEmpty || (this.mapd.services.topktokens.sourceSetting == "Word"))    {
       $("#PercentsMode").prop('disabled',true);
       $("#ModeButtons").buttonset("refresh");
@@ -2821,6 +2892,7 @@ var Search = {
     this.mapd.setUser(this.user);
     this.mapd.setOrigin(origin);
     this.mapd.setLang(lang);
+    this.mapd.setParty(party);
     this.mapd.setLocation(this.locationCat, this.location);
     //console.log ("user: " + this.user);
     if (this.zoomToChanged) {
@@ -2867,7 +2939,7 @@ var Animation = {
   playPauseButton: null,
   stopButton: null,
   playing: false,
-  numFrames: 60.0,
+  numFrames: 120.0,
   animStart: null,
   animEnd: null,
   frameStep: null,
@@ -2935,7 +3007,6 @@ var Animation = {
   },
 
   animFunc: function() {
-     //console.log("animating");
      if (this.frameEnd < this.animEnd) {
         this.prevTime = new Date().getTime();
         var options = {time: {timestart: Math.floor(this.frameStart), timeend: Math.floor(this.frameEnd)}, heatMax: this.heatMax}; 
@@ -2951,6 +3022,8 @@ var Animation = {
           this.wordGraph.reload(graphOptions);
     }
     else {
+      //this.frameStart = this.animStart;
+      //this.frameEnd = this.animStart + this.frameWidth;
       this.stopFunc();
     }
   },

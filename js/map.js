@@ -18,7 +18,7 @@ function init()
 
   //var darkStyle = [ { featureType: "all", elementType: "all", stylers: [ {visibility: "simplified" }, /*{hue: "#333"},*/ {saturation: -50}, {lightness: -50} ] } ];
   //var darkBlueStyle = [ { featureType: "all", elementType: "all", stylers: [ {visibility: "on" }, {hue: "#00c3ff"}, {saturation: -62}, {lightness: -83}, {gamma: 0.27} ] } ];
-  var darkBlueStyle = [ { featureType: "all", elementType: "all", stylers: [ {visibility: "on" }, {saturation: -62}, {hue: "#00c3ff"}, {"gamma": 0.27}, {lightness: -65} ] } ];
+  var darkBlueStyle = [ { featureType: "all", elementType: "all", stylers: [ {visibility: "on" }, {saturation: -62}, {hue: "#00c3ff"}, {"gamma": 0.27}, {lightness: -55} ] } ];
   var darkMap = new OpenLayers.Layer.Google("Dark", {type: 'styled'}, {isBaseLayer:true});
   var styledMapOptions = {
     name: "Dark Map"
@@ -38,7 +38,7 @@ function init()
   map.zoomToExtent(extent);
   BaseMap.init();
   MapD.init(map, PointMap, HeatMap, GeoTrends, TopKTokens, Tweets, Chart, Search, Settings, TweetClick, Animation, Choropleth, RealTimeOverlay);
-  //Choropleth.init("Country");
+  Choropleth.init("State");
   pointLayer = new OpenLayers.Layer.WMS("Point Map", PointMap.mapd.host, PointMap.getParams(), {singleTile: true, ratio: 1.0, "displayInLayerSwitcher": false, removeBackBufferDelay:0});
   heatLayer = new OpenLayers.Layer.WMS("Heat Map", HeatMap.mapd.host, HeatMap.getParams(), {singleTile: true, opacity: 0.55, ratio: 1.0, "displayInLayerSwitcher": false});
   pointLayer.setVisibility(false);
@@ -51,7 +51,7 @@ function init()
   TopKTokens.init($('div#cloud'));
   PointMap.init(pointLayer);
   HeatMap.init(heatLayer);
-  Search.init(map, $('form#search'), $('id#zoom'), $('#curLoc'), $('input#termsInput'), $('input#userInput'), $('#locationSelect'), $('input#locationInput'), $('input#langInput'), $('input#zoomInput'), $('input#originInput'));
+  Search.init(map, $('form#search'), $('id#zoom'), $('#curLoc'), $('input#recipientInput'), $('input#contributorInput'), $('#locationSelect'), $('input#locationInput'), $('input#partyInput'), $('input#langInput'), $('input#zoomInput'), $('input#originInput'));
   Settings.init(pointLayer, heatLayer, $('button#basemapButton'), $('button#pointButton'), $('button#heatButton'), $('button#polyButton'));
   //Settings.init($('button#gridSmall'), $('button#gridMedium'), $('button#gridLarge'));
   Chart.init($('div#chart'));
