@@ -101,7 +101,7 @@ var MapD = {
   controlWidth:400,
   streaming: false,
   services: {
-    baseLayerName: "Dark",
+    baseLayerName: "Light",
     pointmap: null,
     heatmap: null,
     geotrends: null,
@@ -376,7 +376,7 @@ var MapD = {
       //this.timeend = 1300000000;
       //this.timestart = Math.max(this.dataend - 8640000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
 
-      var mapParams = {extent: new OpenLayers.Bounds(BBOX.BOSTON.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", fullScreen: 1};
+      var mapParams = {extent: new OpenLayers.Bounds(BBOX.US.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:6,  pointG:90, pointB:199, pointRadius:1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Light", fullScreen: 1};
       mapParams = this.readLink(mapParams);
       //console.log("map params");
       //console.log(mapParams);
@@ -917,12 +917,17 @@ var MapD = {
     return "";
   },
 
-  getTermsAndUserQuery: function (queryTerms, user ) {
+  getTermsAndUserQuery: function (queryTerms, split, user  ) {
     var query = ""; 
     if (queryTerms.length) {
       //queryTerms = this.parseQueryTerms(queryTerms);
       console.log("Now doing parse Expression: ");
-      queryTerms = this.parseQueryExpression(this.services.search.termsInput.val());
+      if (split == true) {
+        queryTerms = this.parseQueryExpression(this.services.search.termsInput.val());
+      }
+      else  {
+        queryTerms = Vars.datasets[Vars.selectedVar].aux.text + " ilike '"+ this.services.search.termsInput.val() + "'";
+      }
       console.log(queryTerms);
 
       query += queryTerms + " and ";
@@ -981,7 +986,7 @@ var MapD = {
         }
       if (splitQuery) {
         var queryArray = new Array(2);
-        queryArray[0] = this.getTermsAndUserQuery(queryTerms, user);
+        queryArray[0] = this.getTermsAndUserQuery(queryTerms, false, user);
         console.log("Query array!: " + queryArray[0]);
         if (queryArray[0] != "") {
           queryArray[0] = queryArray[0].substr(0, queryArray[0].length-5);
@@ -1011,10 +1016,10 @@ var MapD = {
       else {
         var whereQuery ="";
         if (minId != null) {
-          whereQuery = "id > " + minId + " and " + locQuery + this.getTermsAndUserQuery(queryTerms, user);
+          whereQuery = "id > " + minId + " and " + locQuery + this.getTermsAndUserQuery(queryTerms, false, user);
         }
         else {
-            whereQuery = this.getTimeQuery(timestart, timeend) + locQuery + this.getTermsAndUserQuery(queryTerms, user) + this.getOriginQuery() + this.getLangQuery();
+            whereQuery = this.getTimeQuery(timestart, timeend) + locQuery + this.getTermsAndUserQuery(queryTerms, false, user) + this.getOriginQuery() + this.getLangQuery();
         }
         if (whereQuery)
           whereQuery = " where " + whereQuery.substr(0, whereQuery.length-5);
@@ -2083,7 +2088,7 @@ var TweetClick =
       getURL: function(e) {
         this.params.xVar = Vars.datasets[Vars.selectedVar].x;
         this.params.yVar = Vars.datasets[Vars.selectedVar].y;
-        this.params.sql = "select " + Vars.datasets[Vars.selectedVar].x + "," + Vars.datasets[Vars.selectedVar].y +"," + Vars.datasets[Vars.selectedVar].time + "," + Vars.datasets[Vars.selectedVar].aux.user + " from " + this.mapd.table;
+        this.params.sql = "select " + Vars.datasets[Vars.selectedVar].x + "," + Vars.datasets[Vars.selectedVar].y +"," + Vars.datasets[Vars.selectedVar].time + "," + Vars.datasets[Vars.selectedVar].aux.user + "," + Vars.datasets[Vars.selectedVar].aux.text + ", amount from " + this.mapd.table;
         this.params.sql += this.mapd.getWhere();
         var lonlat = this.mapd.map.getLonLatFromPixel(e.xy);
         //console.log(lonlat);
@@ -2116,15 +2121,20 @@ var TweetClick =
         //var html = "<p>" + tweet.tweet_text + "<\p>";
         var container = $('<div></div>').addClass("tweet-popup");
         //var container = $('<div></div>').addClass("tweet-container");
-        var header = $('<div></div>').addClass("tweet-header").appendTo(container);
-        $('<div style="clear: both;"></div>');
-        var content = $('<p></p>').addClass("tweet-content").appendTo(container);
+        var header = $('<div></div>').addClass("popup-header").appendTo(container);
+        var money = $('<span></span>').addClass("popup-money").appendTo(container);
+        var content = $('<a></a>').addClass("popup-content").appendTo(container);
         var profile = $('<a></a>').addClass("popup-profile").appendTo(header);
+
         //var profile = $('<a></a>').addClass("tweet-profile").appendTo(header);
         var time = new Date(tweet[Vars.datasets[Vars.selectedVar].time] * 1000);
         var timeText = $('<div></div>').addClass("popup-time").appendTo(header);
-        timeText.html(time.toLocaleString());
-        //content.html(tweet[Vars.datasets[Vars.selectedVar].text]);
+        timeText.html(time.toLocaleDateString());
+        $('<div style="clear: both;"></div>').appendTo(header);
+        money.html('$' + tweet.amount + ' --> ');
+        content.html(tweet[Vars.datasets[Vars.selectedVar].aux.text]);
+        $('<div style="clear: both;"></div>').appendTo(container);
+        console.log("Content: " + tweet[Vars.datasets[Vars.selectedVar].aux.text]);
         //content.html(twttr.txt.autoLink(tweet.tweet_text, {targetBlank: true}));
         profile.html(tweet[Vars.datasets[Vars.selectedVar].aux.user]);
         //profile.attr('href', 'https://twitter.com/' + tweet.sender_name);
@@ -2151,6 +2161,9 @@ var TweetClick =
           $('#userInput').trigger('input');
           this.mapd.services.search.form.submit();
         }, this));
+
+        
+
 
       }
 
@@ -2767,7 +2780,7 @@ var Search = {
 
   getRecNamesURL: function() {
      var params = {request:"GetFeatureInfo"};
-     params.sql = "select recipient_name from recipient_data where n > 5000 order by n desc";
+     params.sql = "select recipient_name from recipient_data where n > 1000 order by n desc";
      var url = this.mapd.host + '?' + buildURI(params);
      return url;
   },
