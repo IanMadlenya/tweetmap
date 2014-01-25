@@ -376,7 +376,7 @@ var MapD = {
       //this.timeend = 1300000000;
       //this.timestart = Math.max(this.dataend - 8640000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
 
-      var mapParams = {extent: new OpenLayers.Bounds(BBOX.US.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:6,  pointG:90, pointB:199, pointRadius:1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Light", fullScreen: 1};
+      var mapParams = {extent: new OpenLayers.Bounds(BBOX.US.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:6,  pointG:90, pointB:199, pointRadius:1, pointColorBy: "party", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Light", fullScreen: 1};
       mapParams = this.readLink(mapParams);
       //console.log("map params");
       //console.log(mapParams);
@@ -1712,6 +1712,7 @@ var PointMap = {
   mapd: MapD,
   wms: null,
   colorBy: "none",
+  colormap: {"R": [200,0,0], "D": [0,0,255], "I": [200,0,200],  "default": [0,200,0]},
 
   params: {
     request: "GetMap",
@@ -1723,6 +1724,7 @@ var PointMap = {
     r: 0,
     g: 0,
     b: 255,
+    colormap: null,
     x0: "pickup_x",
     y0: "pickup_y",
     x1: "drop_x",
@@ -1738,7 +1740,7 @@ var PointMap = {
 
   init: function(wms) {
     this.wms = wms;
-    this.wms.events.register('retile', this, this.setWMSParams);
+    //this.wms.events.register('retile', this, this.setWMSParams);
     $(document).on('pointmapreload', $.proxy(this.reload, this));
     //$(".circle").eq(this.params.radius - 1).addClass("circle-selected");
     $("#pointColorNone").addClass("color-by-cat-selected");
@@ -1812,12 +1814,12 @@ var PointMap = {
     //this.params.layers = Vars.datasets[Vars.selectedVar].layer; 
     //this.params.xVar = Vars.datasets[Vars.selectedVar].x;
     //this.params.yVar = Vars.datasets[Vars.selectedVar].y;
-    console.log(Vars);
     this.params.sql = "select " + Vars.datasets[Vars.selectedVar].x + "," + Vars.datasets[Vars.selectedVar].y;
     if (this.colorBy != "none")
       this.params.sql += ", " + this.colorBy;
     this.params.sql += " from " + this.mapd.table;
     this.params.sql += this.mapd.getWhere(options);
+    this.params.colormap = $.toJSON(this.colormap);
     //console.log(this.params.sql);
     return this.params;
   },
