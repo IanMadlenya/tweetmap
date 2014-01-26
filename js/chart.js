@@ -26,6 +26,7 @@ var LineChart =
   chartHeight: null,
   svg: null,
   path: null,
+  mode: "num",
   elems: {
     container: null,
     svg: null,
@@ -351,6 +352,9 @@ var LineChart =
     var range = this.x.range();
     return [this.x.invert(range[0]), this.x.invert(range[1])];
   },
+  setMode: function(mode) {
+    this.mode= mode;
+  },
 
   addSeries: function(id, name, data, frameStart, frameEnd) {
     var self = this;
@@ -491,6 +495,20 @@ var LineChart =
   draw: function() {
     //console.log('in draw', this);
     var svg = this.elems.svg;
+    var abbrFormat;
+    switch (this.mode) { 
+      case "num": 
+        abbrFormat = d3.format(".2s"); 
+        break;
+      case "percent":
+        abbrFormat = d3.format(".2%"); 
+        break;
+      case "money":
+        abbrFormat = d3.format("$,.2s");
+        break;
+    }
+
+    this.yAxis.tickFormat(abbrFormat);
     svg.select("g.x.axis").call(this.xAxis);
     svg.select("g.y.axis").call(this.yAxis);
     this.series.forEach(function(d) {svg.select("path.line#line" + d.id).attr("d", d.line)});

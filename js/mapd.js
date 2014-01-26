@@ -85,7 +85,7 @@ var MapD = {
   map: null,
   host: "http://192.168.1.90:8080/",
   table: "donations",
-
+  dataView: "counts",
   timestart: null,
   timeend: null,
   queryTerms: [],
@@ -376,7 +376,7 @@ var MapD = {
       //this.timeend = 1300000000;
       //this.timestart = Math.max(this.dataend - 8640000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
 
-      var mapParams = {extent: new OpenLayers.Bounds(BBOX.US.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:6,  pointG:90, pointB:199, pointRadius:1, pointColorBy: "party", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Light", fullScreen: 1};
+      var mapParams = {extent: new OpenLayers.Bounds(BBOX.US.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:6,  pointG:90, pointB:199, pointRadius:2, pointColorBy: "party", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Light", fullScreen: 1};
       mapParams = this.readLink(mapParams);
       //console.log("map params");
       //console.log(mapParams);
@@ -433,24 +433,32 @@ var MapD = {
 
 
 
-      $(".dataset-buttons").buttonset();
+      $(".dataview-buttons").buttonset();
       //$(".data-buttons").css("margin-right", "30px");
-      $(".dataset-buttons label").css("background-image", "none").css("background-color", "white").css("color", "black");
-      $(".dataset-buttons .ui-button-text").css("padding-left", "5px").css("padding-top", "3px").css("padding-right", "5px").css("padding-bottom", "0px");
+      $(".dataview-buttons label").css("background-image", "none").css("background-color", "white").css("color", "black");
+      $(".dataview-buttons .ui-button-text").css("padding-left", "5px").css("padding-top", "3px").css("padding-right", "5px").css("padding-bottom", "0px");
       this.services.topktokens.setMenuItem("Source", mapParams.dataSource, false);
       this.services.topktokens.setMenuItem("Mode", mapParams.dataMode, false);
       this.services.topktokens.setMenuItem("Display", mapParams.dataDisplay, false);
 
         $("#PickupDisplay").prop('checked', 'checked');
-        $("#DatasetButtons").buttonset("refresh");
+        $("#DataviewButtons").buttonset("refresh");
 
-        $("input:radio[name=dataset]").click(function() {
-        Vars.selectedVar = $(this).val();
-        console.log(Vars.selectedVar);
+        $("input:radio[name=dataview]").click(function() {
+          MapD.dataView = $(this).val();
+          if (MapD.dataView == "counts")
+            Chart.chart.setMode("num");
+          else
+            Chart.chart.setMode("money");
+          console.log(this.dataView);
+          //Vars.selectedVar = $(this).val();
+          //console.log(Vars.selectedVar);
         //$(".detail-text").html("<i>All " + Vars.selectedVar + "</i>");
 
         Search.form.submit();
       });
+
+        $("#CountsDisplay").click();
 
       //this.services.topktokens.displayMode = mapParams.dataMode;
       /*
@@ -3342,16 +3350,21 @@ var Chart =
   getURL: function(options) {
     this.params.xVar = Vars.datasets[Vars.selectedVar].x;
     this.params.yVar = Vars.datasets[Vars.selectedVar].y;
-    this.params.sql = "select " + Vars.datasets[Vars.selectedVar].time + " ";
+    this.params.sql = "select " + Vars.datasets[Vars.selectedVar].time + ", amount ";
 
+    /*
     if (options == undefined || options == null) 
       options = {splitQuery: true};
     else
       options.splitQuery = true;
-    var queryArray = this.getWhere(options);
+    */
+    var query = this.getWhere(options);
+    /*
     if (queryArray[0])
       this.params.sql += "," + queryArray[0];
     this.params.sql += " from " + this.mapd.table + queryArray[1];
+    */
+    this.params.sql += " from " + this.mapd.table + query;
     this.params.histstart = this.mapd.timestart > this.mapd.datastart? this.mapd.timestart : this.mapd.datastart;
     this.params.histend = this.mapd.timeend < this.mapd.dataend? this.mapd.timeend : this.mapd.dataend;
     if (options && options.time) {
@@ -3384,20 +3397,33 @@ var Chart =
     }
     this.queryTerms.push(queryTerms);
     var series = [];
-    if ("y" in json) { // means we have percent
+    console.log("MapD dataview: " + MapD.dataView);
+    var dayMult = Chart.params.histbins/((frameEnd - frameStart)/86400.0);
+    console.log("Day mult: " + dayMult);
+
+
+
+    if (MapD.dataView == "counts") {
       for (i in json.x) {
-        var time  = json.x[i];
-        var percent = json.y[i] * 100.0;
-        if (json.count[i] > 0)
-          series.push({date: new Date(time * 1000), value: percent});
+        series.push({date: new Date(json.x[i] * 1000), value: json.count[i] * dayMult});
       }
     }
-    else {
+    else if (MapD.dataView == "dollars") {
+      console.log("doing dollars");
       for (i in json.x) {
-        var time  = json.x[i];
-        //time = time - 4 * 60 * 60; // hack: original data set is ahead by 4 hours.
-        var count = json.count[i];
-        series.push({date: new Date(time * 1000), value: count});
+        if (json.count[i] > 0)
+          series.push({date: new Date(json.x[i] * 1000), value: json.count[i] * json.y[i] * dayMult});
+        else
+          series.push({date: new Date(json.x[i] * 1000), value: 0});
+
+      }
+    }
+    else if (MapD.dataView == "dollsperdon") {
+        console.log("doing dollarsperdon");
+      for (i in json.x) {
+        if (json.count[i] > 0) {
+          series.push({date: new Date(json.x[i] * 1000), value: json.y[i]});
+        }
       }
     }
     this.chart.addSeries(this.seriesId, queryTerms, series, frameStart, frameEnd);
@@ -3409,6 +3435,7 @@ var Chart =
     var end = (this.chart.brush.extent()[1] / 1000).toFixed(0);
     this.mapd.reloadByGraph(start, end);
   },
+
 
   onCompare: function(terms) {
     var queryTerms = terms.trim().split(" ").filter(function(d) {return d});
