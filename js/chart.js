@@ -356,7 +356,7 @@ var LineChart =
     this.mode= mode;
   },
 
-  addSeries: function(id, name, data, frameStart, frameEnd) {
+  addSeries: function(id, name, data, frameStart, frameEnd, color) {
     var self = this;
     var xDomain = d3.extent(data, function(d) { return d.date; });
     //var xDomain = [frameStart*1000, frameEnd*1000]; 
@@ -367,8 +367,8 @@ var LineChart =
         .x(function(d) { return self.x(d.date); })
         .y(function(d) { return self.y(d.value); });
 
-    var color = this.color.filter(function(color) { return !(color in self.colorUsed); })[0];
-    this.colorUsed[color] = true;
+    //var color = this.color.filter(function(color) { return !(color in self.colorUsed); })[0];
+    //this.colorUsed[color] = true;
     this.series.push({id: id, name: name, xDomain: xDomain, yDomain: yDomain, data: data, line: line, color: color});
     /*
     if (this.prevXDomain != null) {
@@ -446,7 +446,8 @@ var LineChart =
         .attr("y", 4);
 
     //name = name || "All pickups";
-    name = Vars.selectedVar;
+    //name = Vars.selectedVar;
+    name = name || "Donations"; 
 
     detailMouseOver = function() {
       d3.select(this).select(".detail").select("span").classed("hover", true);
@@ -661,6 +662,7 @@ var LineChart =
     this.elems.svg.selectAll("path.line").data([]).exit().remove();
     this.elems.svg.selectAll("g.focus").data([]).exit().remove();
     this.elems.info.selectAll("g.legend").data([]).exit().remove();
+    //$(".detail-container").remove();
     this.elems.detailsDiv.selectAll("li.detail-container").data([]).exit().remove();
   }
 }

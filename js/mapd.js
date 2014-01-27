@@ -1,5 +1,12 @@
 // Events:
 
+ function project (pos){
+      var point= map.getViewPortPxFromLonLat(new OpenLayers.LonLat(pos[0], pos[1])
+        .transform("EPSG:4326", "EPSG:900913"));
+      return [point.x, point.y];
+    };
+
+var clearCount = 0;
 var timeUpdateInterval = 1500;
 newTime = 0
 lastTime = 0
@@ -90,6 +97,7 @@ var MapD = {
   timeend: null,
   queryTerms: [],
   user: null,
+  party: null,
   location: null,
   locationCat: null,
   datastart: null,
@@ -680,7 +688,8 @@ var MapD = {
     }
     if (e.type != "moveend") {
         //console.log("reloading");
-        this.services.choropleth.reload();
+        //this.services.choropleth.reload();
+        this.services.choropleth.reset();
     }
   },
 
@@ -699,7 +708,8 @@ var MapD = {
       this.services.tweets.reload();
       this.services.pointmap.reload();
       this.services.heatmap.reload();
-      this.services.choropleth.reload();
+      //this.services.choropleth.reload();
+      this.services.choropleth.reset();
 
     }
     //this.timestart = oldStart;
@@ -916,10 +926,12 @@ var MapD = {
     return "";
   },
 
-  getPartyQuery: function() {
-    if (this.party != undefined && this.party != null && this.party != "") {
+  getPartyQuery: function(party) {
+    console.log("AT PARTY QUERY");
+    if (party != undefined && party != null && party != "") {
       var query = "";
-      query += "party ilike '" + this.party + "' and ";
+      query += "party ilike '" + party + "' and ";
+      console.log(query);
       return query;
     }
     return "";
@@ -961,6 +973,7 @@ var MapD = {
     var timestart = this.timestart;
     var timeend = this.timeend;
     var user = this.user;
+    var party = this.party;
     var origin = this.origin;
     var splitQuery = false; // don't split query into two parts 
     var queryTerms = this.queryTerms;
@@ -976,6 +989,8 @@ var MapD = {
       if ("user" in options) {
         user = options.user;
       }
+      if ("party" in options)
+        party = options.party;
       if ("splitQuery" in options) 
         splitQuery = options.splitQuery;
 
@@ -1000,13 +1015,13 @@ var MapD = {
           queryArray[0] = queryArray[0].substr(0, queryArray[0].length-5);
         }
         else {
-            queryArray[0] = this.getOriginQuery() + this.getLangQuery() + this.getPartyQuery();
+            queryArray[0] = this.getPartyQuery(party);
             queryArray[0] = queryArray[0].substr(0, queryArray[0].length-5);
             addedOrigin = true;
         }
         queryArray[1] = this.getTimeQuery(timestart, timeend);
-      if (!addedOrigin)
-        queryArray[1] += this.getOriginQuery() + this.getLangQuery();
+      //if (!addedOrigin)
+      //  queryArray[1] += this.getOriginQuery() + this.getLangQuery();
 
       if (locQuery != "") {
         if (queryArray[1] != "")
@@ -1027,7 +1042,7 @@ var MapD = {
           whereQuery = "id > " + minId + " and " + locQuery + this.getTermsAndUserQuery(queryTerms, false, user);
         }
         else {
-            whereQuery = this.getTimeQuery(timestart, timeend) + locQuery + this.getTermsAndUserQuery(queryTerms, false, user) + this.getOriginQuery() + this.getLangQuery();
+            whereQuery = this.getTimeQuery(timestart, timeend) + locQuery + this.getTermsAndUserQuery(queryTerms, false, user) + this.getPartyQuery(party);
         }
         if (whereQuery)
           whereQuery = " where " + whereQuery.substr(0, whereQuery.length-5);
@@ -1720,7 +1735,7 @@ var PointMap = {
   mapd: MapD,
   wms: null,
   colorBy: "none",
-  colormap: {"R": [200,0,0], "D": [0,0,255], "I": [200,0,200],  "default": [0,200,0]},
+  colormap: {"R": [200,0,0], "D": [0,0,255], "I": [200,0,200],  "default": [0,140,0]},
 
   params: {
     request: "GetMap",
@@ -3311,6 +3326,7 @@ var Chart =
   viewDiv: null,
   seriesId: 0,
   queryTerms: [],
+  requestId: 0,
   params: {
     request: "Graph",
     sql: null,
@@ -3318,6 +3334,7 @@ var Chart =
     histstart: null,
     histend: null,
     histbins: 100,
+    id: null,
     xVar: null,
     yVar: null
   },
@@ -3343,9 +3360,9 @@ var Chart =
     this.chart.updateSize();
   },
 
-  getWhere: function(options) {
-    return this.mapd.getWhere(options);
-  },
+  //getWhere: function(options) {
+  //  return this.mapd.getWhere(options);
+  //},
   
   getURL: function(options) {
     this.params.xVar = Vars.datasets[Vars.selectedVar].x;
@@ -3358,7 +3375,8 @@ var Chart =
     else
       options.splitQuery = true;
     */
-    var query = this.getWhere(options);
+    var query = this.mapd.getWhere(options);
+    console.log(query);
     /*
     if (queryArray[0])
       this.params.sql += "," + queryArray[0];
@@ -3372,30 +3390,56 @@ var Chart =
       this.params.histend = options.time.timeend;
     }
     this.params.bbox = this.mapd.map.getExtent().toBBOX();
+    this.params.id = options.id;
     var url = this.mapd.host + '?' + buildURI(this.params);
     return url;
   },
 
   reload: function() {
-    var queryTerms = this.queryTerms.slice(0);
+    //var queryTerms = this.queryTerms.slice(0);
+    var queryTerms = this.mapd.queryTerms;
     // for now, time range always corresponds to entire data range
-    var options = {queryTerms: this.mapd.queryTerms, user: this.mapd.user, time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend }};
-    $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, this.mapd.timestart, this.mapd.timeend, this.mapd.queryTerms, true));
+    var requestId = this.requestId++;
+    var options = {queryTerms: queryTerms, user: this.mapd.user, time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend, id: requestId}};
+    this.clearChart();
+    clearCount++;
+    console.log("Clear count: " + clearCount);
+    if (queryTerms == "") {
+      console.log("query terms empty");
+      //#e3d83d
+      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, "Total", "#fa7a39", false));
+      options.party = "D";
+      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Democrats", "#2255cc", false));
+      options.party = "R";
+      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 2, this.mapd.timestart, this.mapd.timeend, "Republicans", "#d22", false));
+    }
+    else {
+      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, this.mapd.queryTerms, "#fa7a39", true));
+    }
   },
 
   drawChart: function() {
     //console.log('in drawChart', this);
   },
 
-  onChart: function(frameStart, frameEnd, queryTerms, clear, json) {
+  clearChart: function () {
+      this.seriesId = 0;
+      this.queryTerms = [];
+      this.chart.removeAll();
+  },
+
+
+  onChart: function(seriesId, frameStart, frameEnd, queryTerms, color, clear, json) {
     //console.log('in onChart', queryTerms);
-    queryTerms = queryTerms.join(" ")
+    //queryTerms = queryTerms.join(" ")
+    /*
     if (clear) {
       this.seriesId = 0;
       this.queryTerms = [];
       this.chart.removeAll();
     }
-    this.queryTerms.push(queryTerms);
+    */
+    //this.queryTerms.push(queryTerms);
     var series = [];
     console.log("MapD dataview: " + MapD.dataView);
     var dayMult = Chart.params.histbins/((frameEnd - frameStart)/86400.0);
@@ -3426,7 +3470,7 @@ var Chart =
         }
       }
     }
-    this.chart.addSeries(this.seriesId, queryTerms, series, frameStart, frameEnd);
+    this.chart.addSeries(seriesId, queryTerms, series, frameStart, frameEnd, color);
     this.seriesId += 1;
   },
 
@@ -3444,3 +3488,69 @@ var Chart =
     $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, this.mapd.timestart, this.mapd.timeend, queryTerms, false));
   }
 }
+
+var Choropleth = {
+  mapD: MapD,
+  map: null,
+  svg: null,
+  overlay: null,
+  g: null,
+  path: null,
+  curLayer: null,
+  isTopo: true,
+
+  init: function() {
+    this.overlay = new OpenLayers.Layer.Vector("choroLayer");
+    //this.map = this.mapD.map.canvas;
+    this.map = map; 
+
+     this.overlay.afterAdd = $.proxy(function() {
+      //console.log("After add!");
+      var div = d3.selectAll("#" + this.overlay.div.id);
+      div.selectAll("svg").remove();
+      this.svg = div.append("svg").attr("class", "choropleth");
+      this.g = this.svg.append("g");
+      //this.path = d3.geo.path().projection(project);
+      this.colorScale = d3.scale.quantize().range(["rgb(255,255,229)","rgb(255,247,188)", "rgb(254,227,145)", "rgb(254,196,79)", "rgb(254,153,41)", "rgb(236,112,20)", "rgb(204,76,2)", "rgb(140,45,4)"]);
+      this.map.events.register("moveend", this.map, $.proxy(this.reset,this));
+    }, this);
+    this.map.addLayer(this.overlay);
+  },
+
+  setLayer: function(layer, isTopo) {
+    if (layer != this.curLayer) {
+      this.curLayer = layer; 
+      this.isTopo = isTopo;
+      this.addGeoData();
+    }
+  },
+
+  addGeoData: function() {
+      d3.select("g").remove();
+      this.g = this.svg.append("g");
+      var g = this.g;
+      this.path = d3.geo.path().projection(project);
+      var path = this.path;
+      var file = "data/" + this.curLayer + ".json";
+      if (this.isTopo) {
+        d3.json(file, function(error,json) {
+
+          Choropleth.features = g.selectAll("path")
+            .data(topojson.feature(json, json.objects.layer1).features)
+            .enter().append("path")
+            .attr("d",path);
+          Choropleth.reset();
+        });
+      }
+   },
+
+   reset: function() {
+     var size = this.map.getSize();
+     this.svg.attr("width", size.w)
+       .attr("height", size.h);
+     if (this.features != null)
+      this.features.attr("d", this.path);
+   }
+};
+
+
