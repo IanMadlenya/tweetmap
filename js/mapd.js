@@ -27,6 +27,7 @@ function toHex(num) {
 var MapD = {
   map: null,
   host: "http://127.0.0.1:8080/",
+  //host: "http://sirubu.velocidy.net:8080/",
   //host: "http://172.16.20.32:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
   //host: "http://mapd.csail.mit.edu:8080/",
@@ -309,7 +310,7 @@ var MapD = {
       this.timeend = Math.round((this.dataend-this.datastart)*1.01 + this.datastart);
       this.timestart = Math.max(this.dataend - 864000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
 
-      var mapParams = {extent: new OpenLayers.Bounds(BBOX.WORLD.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Bar", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Blank", fullScreen: 0};
+      var mapParams = {extent: new OpenLayers.Bounds(BBOX.WORLD.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Bar", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", fullScreen: 0};
       mapParams = this.readLink(mapParams);
       //console.log("map params");
       //console.log(mapParams);
@@ -731,6 +732,8 @@ var MapD = {
   
 
   setQueryTerms: function(queryTerms) {
+    this.queryTerms = queryTerms;
+    /*
     if (queryTerms[0] != '"' && this.queryTerms[this.queryTerms.length -1] != '"')
         this.queryTerms = queryTerms.trim().split(" ").filter(function(d) {return d});
     else {
@@ -738,6 +741,7 @@ var MapD = {
         this.queryTerms.push(queryTerms);
     }
 
+    */
 
   },
 
@@ -794,7 +798,9 @@ var MapD = {
     if (queryTerms.length) {
       //queryTerms = this.parseQueryTerms(queryTerms);
       console.log("Now doing parse Expression: ");
-      queryTerms = this.parseQueryExpression(this.services.search.termsInput.val());
+      console.log(queryTerms)
+      //queryTerms = this.parseQueryExpression(this.services.search.termsInput.val());
+      queryTerms = this.parseQueryExpression(queryTerms);
       console.log(queryTerms);
 
       query += queryTerms + " and ";
@@ -830,6 +836,7 @@ var MapD = {
       }
       if ("queryTerms" in options)
         queryTerms = options.queryTerms;
+
       if ("user" in options) {
         user = options.user;
       }
@@ -3158,7 +3165,7 @@ var Chart =
   },
 
   reload: function() {
-    var queryTerms = this.queryTerms.slice(0);
+    //var queryTerms = this.queryTerms.slice(0);
     // for now, time range always corresponds to entire data range
     var options = {queryTerms: this.mapd.queryTerms, user: this.mapd.user, time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend }};
     $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, this.mapd.timestart, this.mapd.timeend, this.mapd.queryTerms, true));
@@ -3170,7 +3177,7 @@ var Chart =
 
   onChart: function(frameStart, frameEnd, queryTerms, clear, json) {
     //console.log('in onChart', queryTerms);
-    queryTerms = queryTerms.join(" ")
+    //queryTerms = queryTerms.join(" ")
     if (clear) {
       this.seriesId = 0;
       this.queryTerms = [];
@@ -3204,8 +3211,9 @@ var Chart =
     this.mapd.reloadByGraph(start, end);
   },
 
-  onCompare: function(terms) {
-    var queryTerms = terms.trim().split(" ").filter(function(d) {return d});
+  onCompare: function(queryTerms) {
+    //var queryTerms = terms.trim().split(" ").filter(function(d) {return d});
+    console.log("New query terms: " + queryTerms);
     // for now, time range always corresponds to entire data range
     var options = {queryTerms: queryTerms, user: this.mapd.user,  time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend }};
     $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, this.mapd.timestart, this.mapd.timeend, queryTerms, false));
