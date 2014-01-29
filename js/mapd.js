@@ -26,8 +26,8 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  host: "http://127.0.0.1:8080/",
-  //host: "http://sirubu.velocidy.net:8080/",
+  //host: "http://127.0.0.1:8080/",
+  host: "http://sirubu.velocidy.net:8080/",
   //host: "http://172.16.20.32:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
   //host: "http://mapd.csail.mit.edu:8080/",
@@ -3168,6 +3168,7 @@ var Chart =
     //var queryTerms = this.queryTerms.slice(0);
     // for now, time range always corresponds to entire data range
     var options = {queryTerms: this.mapd.queryTerms, user: this.mapd.user, time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend }};
+    this.clearChart();
     $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, this.mapd.timestart, this.mapd.timeend, this.mapd.queryTerms, true));
   },
 
@@ -3175,26 +3176,39 @@ var Chart =
     //console.log('in drawChart', this);
   },
 
+  clearChart: function () {
+      this.seriesId = 0;
+      this.queryTerms = [];
+      this.chart.removeAll();
+      //this.chart.removePaths();
+  },
+
   onChart: function(frameStart, frameEnd, queryTerms, clear, json) {
     //console.log('in onChart', queryTerms);
     //queryTerms = queryTerms.join(" ")
+    /*
     if (clear) {
       this.seriesId = 0;
       this.queryTerms = [];
       this.chart.removeAll();
     }
+    */
     this.queryTerms.push(queryTerms);
     var series = [];
     if ("y" in json) { // means we have percent
       for (i in json.x) {
-        var time  = json.x[i];
-        var percent = json.y[i] * 100.0;
+        this.chart.setMode("percent");
+
+        //var time  = json.x[i];
+        //var percent = json.y[i] * 100.0;
         if (json.count[i] > 0)
-          series.push({date: new Date(time * 1000), value: percent});
+          series.push({date: new Date(json.x[i] * 1000), value: json.y[i]});
+          //series.push({date: new Date(time * 1000), value: percent});
       }
     }
     else {
       for (i in json.x) {
+        this.chart.setMode("num");
         var time  = json.x[i];
         //time = time - 4 * 60 * 60; // hack: original data set is ahead by 4 hours.
         var count = json.count[i];

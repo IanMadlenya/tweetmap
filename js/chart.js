@@ -15,6 +15,7 @@ var LineChart =
   margin: null,
   xAxis: null,
   yAxis: null,
+  backSeries: [],
   series: [],
   zoom: null,
   zoomScale: 1.0,
@@ -26,6 +27,7 @@ var LineChart =
   chartHeight: null,
   svg: null,
   path: null,
+  mode: "num",
   elems: {
     container: null,
     svg: null,
@@ -488,6 +490,20 @@ var LineChart =
   draw: function() {
     //console.log('in draw', this);
     var svg = this.elems.svg;
+    var abbrFormat;
+    switch (this.mode) { 
+      case "num": 
+        abbrFormat = d3.format(".2s"); 
+        break;
+      case "percent":
+        abbrFormat = d3.format(".2%"); 
+        break;
+      case "money":
+        abbrFormat = d3.format("$,.2s");
+        break;
+    }
+
+    this.yAxis.tickFormat(abbrFormat);
     svg.select("g.x.axis").call(this.xAxis);
     svg.select("g.y.axis").call(this.yAxis);
     this.series.forEach(function(d) {svg.select("path.line#line" + d.id).attr("d", d.line)});
@@ -620,6 +636,10 @@ var LineChart =
     this.compareCallback(terms);
   },
 
+  setMode: function(mode) {
+    this.mode= mode;
+  },
+
   removeSeries: function(id) {
     var self = this;
     var series = this.series.filter(function(s) { return (id == s.id); })[0]
@@ -634,6 +654,7 @@ var LineChart =
   },
 
   removeAll: function() {
+    this.backSeries = this.series;
     this.series = [];
     this.colorUsed = {}; 
     this.lastZoomTime = 0;
@@ -641,7 +662,15 @@ var LineChart =
     this.elems.svg.selectAll("g.focus").data([]).exit().remove();
     this.elems.info.selectAll("g.legend").data([]).exit().remove();
     this.elems.detailsDiv.selectAll("li.detail-container").data([]).exit().remove();
+  },
+
+  removePaths: function() {
+    this.elems.svg.selectAll("path.line").data([]).exit().remove();
+    this.elems.svg.selectAll("g.focus").data([]).exit().remove();
   }
+
+
+
 }
 
 
