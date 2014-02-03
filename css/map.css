@@ -149,7 +149,7 @@ div#topbar button:hover {
   float: left;
   height: 20px;
   //width:22%;
-  width: 100px;
+  width: 110px;
   margin: 4px 0 4px 10px;
   padding: 4px;
   //padding-right: 17px;
@@ -474,9 +474,16 @@ div#social-share:hover {
   left:5px;
   margin-right: 0px;
 }
-.ui-autocomplete {top:152px !important;}
+.ui-autocomplete {top:40px !important;}
 
-#recipientInput .ui-autocomplete {top:10px !important;}
+//#recipientInput .ui-autocomplete {top:10px !important;}
+
+.menu-select {
+    float: left;
+    height: 30px;
+    background-color: white;
+    width: 110px;
+}
 
 #locationSelect {
     float: left;
@@ -597,6 +604,26 @@ div#sizeButton {
   cursor:pointer;
 
 }
+
+div#legend {
+  position: absolute;
+  width: 120px;
+  //height: 200px !important;
+  z-index: 10000;
+  bottom: 30px;
+  right: 20px;
+  background-color: white;
+  opacity: 0.75;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.sub-legend {
+    font-weight: bold;
+    font-size: 12px;
+    border-top: 1px solid #222;
+}
+
 
 #zoom {
   position: absolute;

@@ -87,6 +87,22 @@
 	  <input id="recipientInput" class="search-input" type="text" name="user" placeholder=" Recipient"/>
       <span class="iconClear">X</span>
     </div>
+
+    <select id="partySelect" class="search-input menu-select">
+      <option value="">All parties</value>
+      <option value="D">Democrats</value>
+      <option value="R">Republicans</value>
+      <option value="I">Independents</value>
+      <option value="3">Greens</value>
+    </select>
+
+    <select id="raceSelect" class="search-input menu-select">
+      <option value="">All races</value>
+      <option value="federal:president">Presidential</value>
+      <option value="federal:senate">Senate</value>
+      <option value="federal:house">House</value>
+    </select>
+    
 	<div id="location" class="search">
 	  <input id="zoomInput" class="search-input" type="text" name="zoom" placeholder=" Zoom To"/>
       <span class="iconClear">X</span>
@@ -149,6 +165,11 @@
         </div>
         <div id="sizeButton"></div>
         <button id="curLoc"></button>
+        <div id="legend">
+          <div id="pointLegend" class="sub-legend"><span>Points</span><span class="checkmark">&#x2713</span></div>
+          <div id="heatLegend" class="sub-legend"><span>Heatmap</span><span class="checkmark">&#x2713</span></div>
+          <div id="heatLegend" class="sub-legend"><span>Choropleth</span><span class="checkmark">&#x2713</span></div>
+        </div>
         </div>
         
       </div>
@@ -334,11 +355,9 @@
     </div>
     <div id="polyDropdown" class="dropdown dropdown-anchor-right">
       <ul id="polyMenu" class="dropdown-menu drop-menu">
-         <li id="polyCountry"><span>Congress</span><span class="checkmark">&#x2713</span></li>
-         <!--
-         <li id="polyCountry"><span>Country</span><span class="checkmark">&#x2713</span></li>
          <li id="polyState"><span>State</span><span class="checkmark">&#x2713</span></li>
-         <li id="polyCounty"><span>County</span><span class="checkmark">&#x2713</span></li>-->
+         <li id="polyCounty"><span>County</span><span class="checkmark">&#x2713</span></li>
+         <li id="polyCongress"><span>Congress</span><span class="checkmark">&#x2713</span></li>
           <li id="polyMinOpt">
           <span style="float:left">Min Tweets</span>
           <div style=" margin-left: 70px;" id="polyMinSlider"></div>

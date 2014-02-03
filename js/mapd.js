@@ -14,7 +14,7 @@ tweetNow = 0
 tweetLast = 0
 
 var Vars = {
-    selectedVar: "donations",
+    selectedVar: "donations_ip",
     datasets: {
         cdr: {
             time: "epoch",
@@ -26,8 +26,8 @@ var Vars = {
             },
             layer: "point"
         },
-        donations: {
-            table: "donations",
+        donations_ip: {
+            table: "donations_ip",
             time: "date",
             x: "goog_x",
             y: "goog_y",
@@ -90,8 +90,8 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  host: "http://192.168.1.90:8080/",
-  table: "donations",
+  host: "http://sirubu.velocidy.net:8080/",
+  table: "donations_ip",
   dataView: "counts",
   timestart: null,
   timeend: null,
@@ -132,7 +132,7 @@ var MapD = {
     if (window.location.search == "?local")
         this.host = "http://sirubu.velocidy.net:8080";
 
-    Vars.selectedVar = "donations";
+    Vars.selectedVar = "donations_ip";
     this.map = map;
     $("#control").resizable({handles:"e", helper: "control-resize-helper", stop: MapD.resizeControl, minWidth:352});
     $("#tweets").resizable({handles:"s", helper: "tweets-resize-helper", stop: MapD.resizeCloud});
@@ -379,7 +379,7 @@ var MapD = {
       this.timeend = Math.round((this.dataend-this.datastart)*1.01 + this.datastart);
       this.timestart = Math.round(this.dataStart);
       this.timestart = 1050000000; 
-      this.timeend = 1380000000; 
+      this.timeend = 1352505600; 
       //this.timestart = 1000000000;
       //this.timeend = 1300000000;
       //this.timestart = Math.max(this.dataend - 8640000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
@@ -391,7 +391,7 @@ var MapD = {
       this.timestart = mapParams.t0;
       this.timeend = mapParams.t1;
       this.timestart = 1050000000; 
-      this.timeend = 1380000000; 
+      this.timeend = 1352505600;
       //this.timestart = 1000000000;
       //this.timeend =   1300000000;
       if ("what" in mapParams) {
@@ -734,8 +734,9 @@ var MapD = {
     this.datastart = json.results[0].min;
     this.dataend = json.results[0].max + 86400;
     //this.datastart = 900000000; 
-    this.datastart = 1050000000; 
-    this.dataend = 1380000000; 
+    this.datastart = 950000000; 
+    //this.dataend = 1352505600;
+    this.dataend = 1360505600;
     //this.dataend = json.results[0].max;
     this.startCheck();
   },
@@ -754,6 +755,10 @@ var MapD = {
   },
   setParty: function(party) {
     this.party = party;
+  },
+
+  setSeat: function(seat) {
+    this.seat = seat;
   },
 
     
@@ -926,6 +931,14 @@ var MapD = {
     return "";
   },
 
+  getGenericQuery: function(varName, value) {
+    if (value != undefined && value != null && value != "") {
+      var query = varName + " ilike '" + value + "' and "; 
+      return query;
+    }
+    return "";
+  },
+
   getPartyQuery: function(party) {
     console.log("AT PARTY QUERY");
     if (party != undefined && party != null && party != "") {
@@ -974,6 +987,7 @@ var MapD = {
     var timeend = this.timeend;
     var user = this.user;
     var party = this.party;
+    var seat = this.seat;
     var origin = this.origin;
     var splitQuery = false; // don't split query into two parts 
     var queryTerms = this.queryTerms;
@@ -991,6 +1005,8 @@ var MapD = {
       }
       if ("party" in options)
         party = options.party;
+      if ("seat" in options)
+        seat = options.seat;
       if ("splitQuery" in options) 
         splitQuery = options.splitQuery;
 
@@ -1015,7 +1031,7 @@ var MapD = {
           queryArray[0] = queryArray[0].substr(0, queryArray[0].length-5);
         }
         else {
-            queryArray[0] = this.getPartyQuery(party);
+            queryArray[0] = this.getGenericQuery("party", party) + this.getGenericQuery("seat", seat);
             queryArray[0] = queryArray[0].substr(0, queryArray[0].length-5);
             addedOrigin = true;
         }
@@ -1042,7 +1058,7 @@ var MapD = {
           whereQuery = "id > " + minId + " and " + locQuery + this.getTermsAndUserQuery(queryTerms, false, user);
         }
         else {
-            whereQuery = this.getTimeQuery(timestart, timeend) + locQuery + this.getTermsAndUserQuery(queryTerms, false, user) + this.getPartyQuery(party);
+            whereQuery = this.getTimeQuery(timestart, timeend) + locQuery + this.getTermsAndUserQuery(queryTerms, false, user) + this.getPartyQuery(party) + this.getGenericQuery("seat", seat);
         }
         if (whereQuery)
           whereQuery = " where " + whereQuery.substr(0, whereQuery.length-5);
@@ -1735,7 +1751,7 @@ var PointMap = {
   mapd: MapD,
   wms: null,
   colorBy: "none",
-  colormap: {"R": [200,0,0], "D": [0,0,255], "I": [200,0,200],  "default": [0,140,0]},
+  colormap: {"R": [200,0,0], "D": [0,0,255], "I": [200,200,0], "3": [0,200,0], "default": [140,140,140]},
 
   params: {
     request: "GetMap",
@@ -2722,6 +2738,7 @@ var Search = {
   locationInput: null,
   langInput: null,
   partyInput: null,
+  seatInput: null,
   zoomInput: null,
   originInput: null,
   terms: '',
@@ -2732,7 +2749,7 @@ var Search = {
   io: null,
   searchEmpty: true,
 
-  init: function(map, form, zoomForm, curLoc, termsInput, userInput, locationCatMenu, locationInput, partyInput, langInput, zoomInput, originInput) {
+  init: function(map, form, zoomForm, curLoc, termsInput, userInput, locationCatMenu, locationInput, partyInput, seatInput, langInput, zoomInput, originInput) {
     $(document).on('propertychange keyup input paste', 'input.search-input', function() {
       var io = $(this).val().length ? 1: 0;
       console.log("at icon clear");
@@ -2754,6 +2771,8 @@ var Search = {
 
         Search.form.submit();
       });
+
+
     this.map = map;
     this.form = form;
     this.zoomForm = zoomForm;
@@ -2764,6 +2783,7 @@ var Search = {
     this.locationCatMenu = locationCatMenu;
     this.langInput = langInput;
     this.partyInput = partyInput;
+    this.seatInput = seatInput;
     this.zoomInput = zoomInput;
     this.originInput = originInput;
     this.geocoder.setMap(this.map);
@@ -2781,6 +2801,9 @@ var Search = {
        return false;
     }, this));
     
+
+    $(this.partyInput).change($.proxy(this.onSearch, this));
+    $(this.seatInput).change($.proxy(this.onSearch, this));
 
     $("#searchMenu input").click(function() {
         return false;
@@ -2871,7 +2894,8 @@ var Search = {
     var origin = "";
     var lang = this.langInput.val(); 
     var party = this.partyInput.val();
-    this.searchEmpty = (terms == "" && this.userInput.val() == "" && origin == "" && lang == "" && party == "");
+    var seat = this.seatInput.val();
+    this.searchEmpty = (terms == "" && this.userInput.val() == "" && origin == "" && lang == "" && party == "" && seat == "");
     if (this.searchEmpty || (this.mapd.services.topktokens.sourceSetting == "Word"))    {
       $("#PercentsMode").prop('disabled',true);
       $("#ModeButtons").buttonset("refresh");
@@ -2931,6 +2955,7 @@ var Search = {
     this.mapd.setOrigin(origin);
     this.mapd.setLang(lang);
     this.mapd.setParty(party);
+    this.mapd.setSeat(seat);
     this.mapd.setLocation(this.locationCat, this.location);
     //console.log ("user: " + this.user);
     if (this.zoomToChanged) {
@@ -3073,16 +3098,17 @@ var Animation = {
       this.playing = true;
       this.playPauseButton.removeClass("play-icon").addClass("pause-icon");
       if (this.animStart == null) { // won't trigger if paused
-        this.animStart = this.mapd.datastart;
-        this.animEnd = this.mapd.dataend;
+        this.animStart = Number(this.mapd.timestart);
+        this.animEnd = Number(this.mapd.timeend);
+        console.log ("Anim start: " + this.animStart);
+        console.log ("Anim end: " + this.animEnd);
         this.frameStep = (this.animEnd - this.animStart) / this.numFrames;
+        this.frameWidth = this.frameStep * 4.0; 
         this.prevTime = 0;
-        //this.frameWidth = this.frameStep * 4.0;
-        this.frameWidth = this.mapd.timeend - this.mapd.timestart;
-        if (this.frameWidth > (this.animEnd-this.animStart)*0.5)
-          this.frameWidth = 10000000;
         this.frameStart = this.animStart;
         this.frameEnd = this.animStart + this.frameWidth;
+        console.log("Frame start: " + this.frameStart);
+        console.log("Frame end: " + this.frameEnd);
         this.heatMax = parseFloat($.cookie('max_value')) * 10.0;
         var numPoints = parseInt($.cookie('tweet_count'));
         this.oldRadius = this.mapd.services.pointmap.params.radius;
@@ -3176,6 +3202,10 @@ var Settings = {
     this.polyButton = polyButton;
     this.pointOn = pointLayer.getVisibility();
     this.heatOn = heatLayer.getVisibility();
+
+
+
+
     //console.log("settings point: " + this.pointOn);
     //console.log("settings heat: " + this.heatOn);
     //$("#pointButton").button().next().button().parent().buttonset().next().hide().menu();
@@ -3266,11 +3296,11 @@ var Settings = {
     //console.log(this.polyOn);
     if (this.polyOn) {
       this.polyButton.removeClass("polyButtonOffImg").addClass("polyButtonOnImg");
-      //Choropleth.activate();
+      Choropleth.activate();
     }
     else {
       this.polyButton.removeClass("polyButtonOnImg").addClass("polyButtonOffImg");
-      //Choropleth.deactivate();
+      Choropleth.deactivate();
     }
   },
 
@@ -3334,7 +3364,7 @@ var Chart =
     histstart: null,
     histend: null,
     histbins: 100,
-    id: null,
+    id: 1,
     xVar: null,
     yVar: null
   },
@@ -3368,7 +3398,6 @@ var Chart =
     this.params.xVar = Vars.datasets[Vars.selectedVar].x;
     this.params.yVar = Vars.datasets[Vars.selectedVar].y;
     this.params.sql = "select " + Vars.datasets[Vars.selectedVar].time + ", amount ";
-
     /*
     if (options == undefined || options == null) 
       options = {splitQuery: true};
@@ -3383,6 +3412,7 @@ var Chart =
     this.params.sql += " from " + this.mapd.table + queryArray[1];
     */
     this.params.sql += " from " + this.mapd.table + query;
+    //this.params.sql += " from " + this.mapd.table + " where " + query;
     this.params.histstart = this.mapd.timestart > this.mapd.datastart? this.mapd.timestart : this.mapd.datastart;
     this.params.histend = this.mapd.timeend < this.mapd.dataend? this.mapd.timeend : this.mapd.dataend;
     if (options && options.time) {
@@ -3391,6 +3421,7 @@ var Chart =
     }
     this.params.bbox = this.mapd.map.getExtent().toBBOX();
     this.params.id = options.id;
+    console.log("End query id " + this.params.id);
     var url = this.mapd.host + '?' + buildURI(this.params);
     return url;
   },
@@ -3399,22 +3430,51 @@ var Chart =
     //var queryTerms = this.queryTerms.slice(0);
     var queryTerms = this.mapd.queryTerms;
     // for now, time range always corresponds to entire data range
-    var requestId = this.requestId++;
-    var options = {queryTerms: queryTerms, user: this.mapd.user, time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend, id: requestId}};
+    var requestId = ++this.requestId;
+    console.log("Start requestid: " + requestId);
+    var options = {queryTerms: queryTerms, user: this.mapd.user, id: requestId,  time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend}};
+    console.log(options);
     this.clearChart();
     clearCount++;
     console.log("Clear count: " + clearCount);
-    if (queryTerms == "") {
+    if (queryTerms == "" && this.mapd.party == "") {
+      $(".compare-input").hide();
       console.log("query terms empty");
       //#e3d83d
-      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, "Total", "#fa7a39", false));
+      //$.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, "Total", "#fa7a39", false));
+
       options.party = "D";
-      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Democrats", "#2255cc", false));
+      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, "Democrats", "#2255cc", false));
       options.party = "R";
-      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 2, this.mapd.timestart, this.mapd.timeend, "Republicans", "#d22", false));
+      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Republicans", "#d22", false));
+      /*
+      options.party = "I";
+      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Independents", "#C8C800", false));
+      options.party = "3";
+      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Greens", "#00C800", false));
+      */
     }
     else {
-      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, this.mapd.queryTerms, "#fa7a39", true));
+      $(".compare-input").show();
+      if (queryTerms == "") {
+        switch (this.mapd.party) {
+          case "D":
+            $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, "Democrats", "#2255cc", false));
+            break;
+          case "R":
+            $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Republicans", "#d22", false));
+            break;
+          case "I":
+            $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Independents", "#C8C800", false));
+            break;
+          case "3":
+            $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Greens", "#00C800", false));
+            break;
+        }
+      }
+      else {
+        $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, this.mapd.queryTerms, "#fa7a39", true));
+      }
     }
   },
 
@@ -3430,6 +3490,9 @@ var Chart =
 
 
   onChart: function(seriesId, frameStart, frameEnd, queryTerms, color, clear, json) {
+    if (json.responseId != this.requestId)
+      return 0;
+
     //console.log('in onChart', queryTerms);
     //queryTerms = queryTerms.join(" ")
     /*
@@ -3494,12 +3557,37 @@ var Choropleth = {
   map: null,
   svg: null,
   overlay: null,
+  active: false,
   g: null,
   path: null,
   curLayer: null,
   isTopo: true,
+  layers: {
+     "State": {name: "states", isTopo: false},
+     "County": {name: "counties", isTopo: true, layerName: "counties"},
+     "Congress": {name: "congress", isTopo: true, layerName: "layer1"},
+  },
 
   init: function() {
+
+     $("#polyMenu").click($.proxy(function(e) {
+        var choice = this.getMenuItemClicked(e.target);
+        console.log(choice);
+        this.setLayer(choice);
+        /*
+         switch (choice) {
+           case "State":
+              this.setLayer("states");
+              break;
+           case "County":
+              this.setLayer("counties");
+              break;
+          }
+        */
+        
+      }, this));
+
+
     this.overlay = new OpenLayers.Layer.Vector("choroLayer");
     //this.map = this.mapD.map.canvas;
     this.map = map; 
@@ -3517,12 +3605,31 @@ var Choropleth = {
     this.map.addLayer(this.overlay);
   },
 
-  setLayer: function(layer, isTopo) {
-    if (layer != this.curLayer) {
-      this.curLayer = layer; 
-      this.isTopo = isTopo;
-      this.addGeoData();
+  setLayer: function(layer) {
+    console.log(layer);
+    if (layer != this.curLayer && layer in this.layers) {
+      //this.curLayer = this.layers[layer].name;
+      this.curLayer = layer;
+      console.log("curlayer: " + this.curLayer);
+      this.isTopo = this.layers[layer].isTopo;
+      console.log("is topo: " + this.isTopo);
+      if (this.active) {
+        this.addGeoData();
+      }
     }
+  },
+
+  getMenuItemClicked: function(target) {
+    if (target.localName != "span")
+        innerText = target.firstChild.innerText;
+    else {
+        if (target.className == "checkmark")
+            innerText = target.parentElement.firstChild.innerText;
+        else
+            innerText = target.innerText;
+            
+    }
+    return innerText;
   },
 
   addGeoData: function() {
@@ -3531,18 +3638,43 @@ var Choropleth = {
       var g = this.g;
       this.path = d3.geo.path().projection(project);
       var path = this.path;
-      var file = "data/" + this.curLayer + ".json";
+      var layerName = this.layers[this.curLayer].name;
+      var file = "data/" + layerName + ".json";
       if (this.isTopo) {
         d3.json(file, function(error,json) {
 
           Choropleth.features = g.selectAll("path")
-            .data(topojson.feature(json, json.objects.layer1).features)
+            .data(topojson.feature(json, json.objects[Choropleth.layers[Choropleth.curLayer].layerName]).features)
             .enter().append("path")
             .attr("d",path);
           Choropleth.reset();
         });
       }
+      else {
+        d3.json(file, function(error,json) {
+          Choropleth.features = g.selectAll("path")
+            .data(json.features)
+            .enter().append("path")
+            .attr("d",path)
+          Choropleth.reset();
+        });
+      }
    },
+
+
+   deactivate: function() {
+     this.active = false;
+      d3.select("g").remove();
+     //this.features = this.g.selectAll("path").data([]).exit().remove();
+   },
+
+    activate: function() {
+      this.active = true;
+      //this.features = this.g.selectAll("path")
+      //  .style("opacity", 0.7);
+      //$(this.svg).show();
+      this.addGeoData();
+    },
 
    reset: function() {
      var size = this.map.getSize();
@@ -3550,7 +3682,9 @@ var Choropleth = {
        .attr("height", size.h);
      if (this.features != null)
       this.features.attr("d", this.path);
-   }
+   },
+
+
 };
 
 

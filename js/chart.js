@@ -169,7 +169,7 @@ var LineChart =
 
     this.elems.detailsDiv = this.elems.settingsDiv.append("div")
         .attr("class", "chart-details");
-    $(".compare-input").hide();
+
     /*
     this.elems.animDiv = $("<div></div>").attr("id", "animControls").appendTo($(this.elems.settingsDiv));
     //$("#animControls").css("margin-left", this.margin.left + 34);
