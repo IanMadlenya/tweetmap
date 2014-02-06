@@ -27,7 +27,8 @@ function toHex(num) {
 var MapD = {
   map: null,
   //host: "http://127.0.0.1:8080/",
-  host: "http://sirubu.velocidy.net:8080/",
+  //host: "http://sirubu.velocidy.net:8080/",
+  host: "http://127.0.0.1:8080/",
   //host: "http://172.16.20.32:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
   //host: "http://mapd.csail.mit.edu:8080/",
@@ -1588,6 +1589,7 @@ var PointMap = {
     width: null,
     height: null,
     layers: "point",
+    colormap: null,
     r: 0,
     g: 0,
     b: 255,
@@ -1652,6 +1654,13 @@ var PointMap = {
           $("#pointStaticColor").hide();
           break;
       }
+
+      if (this.colorBy == "origin") 
+        this.params.colormap = $.toJSON({"iOS": [0, 0, 240], "Android": [200, 0, 0], "Blackberry": [200,0,200], "default": [0,140,0]});
+      else
+        this.params.colormap = null; 
+
+
       $('.color-by-cat').removeClass('color-by-cat-selected');
       $(e.target).addClass('color-by-cat-selected');
       this.reload();
@@ -2760,7 +2769,7 @@ var Animation = {
   playPauseButton: null,
   stopButton: null,
   playing: false,
-  numFrames: 60.0,
+  numFrames: 80.0,
   animStart: null,
   animEnd: null,
   frameStep: null,
@@ -2856,16 +2865,16 @@ var Animation = {
       this.playing = true;
       this.playPauseButton.removeClass("play-icon").addClass("pause-icon");
       if (this.animStart == null) { // won't trigger if paused
-        this.animStart = this.mapd.datastart;
-        this.animEnd = this.mapd.dataend;
+        this.animStart = Number(this.mapd.timestart);
+        this.animEnd = Number(this.mapd.timeend);
+        console.log ("Anim start: " + this.animStart);
+        console.log ("Anim end: " + this.animEnd);
         this.frameStep = (this.animEnd - this.animStart) / this.numFrames;
+        this.frameWidth = this.frameStep * 12.0; 
         this.prevTime = 0;
-        //this.frameWidth = this.frameStep * 4.0;
-        this.frameWidth = this.mapd.timeend - this.mapd.timestart;
-        if (this.frameWidth > (this.animEnd-this.animStart)*0.5)
-          this.frameWidth = (this.animEnd-this.animStart)*0.15; 
         this.frameStart = this.animStart;
         this.frameEnd = this.animStart + this.frameWidth;
+
         this.heatMax = parseFloat($.cookie('max_value')) * 10.0;
         var numPoints = parseInt($.cookie('tweet_count'));
         this.oldRadius = this.mapd.services.pointmap.params.radius;
@@ -3115,7 +3124,7 @@ var Chart =
     bbox: null,
     histstart: null,
     histend: null,
-    histbins: 100
+    histbins: 300
   },
 
   init: function(viewDiv) {
