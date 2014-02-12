@@ -654,7 +654,6 @@ var LineChart =
   },
 
   removeAll: function() {
-    this.backSeries = this.series;
     this.series = [];
     this.colorUsed = {}; 
     this.lastZoomTime = 0;

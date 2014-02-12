@@ -312,7 +312,7 @@ var MapD = {
       //this.timestart = Math.max(this.dataend - 864000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
       this.timestart = Math.round((this.dataend-this.datastart)*.01 + this.datastart);
 
-      var mapParams = {extent: new OpenLayers.Bounds(BBOX.WORLD.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Bar", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", fullScreen: 0};
+      var mapParams = {extent: new OpenLayers.Bounds(BBOX.WORLD.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", fullScreen: 0};
       mapParams = this.readLink(mapParams);
       //console.log("map params");
       //console.log(mapParams);
@@ -411,13 +411,15 @@ var MapD = {
       $("#" + mapParams.colorRamp).addClass("ramp-selected");
       */
       BaseMap.currentLayer = mapParams.baseLayer;
+      //setTimeout(this.services.settings.baseButtonFunction(mapParams.baseOn),1000);
       this.services.settings.baseButtonFunction(mapParams.baseOn);
       this.services.settings.polyButtonFunction(mapParams.polyOn);
       if (mapParams.pointOn == 1)
         this.services.settings.pointButtonFunction();
       if (mapParams.heatOn == 1)
         this.services.settings.heatButtonFunction();
-      this.timeReload();
+
+      //this.timeReload(); // for updates
       //pointLayer.setVisibility(mapParams.pointOn);
       //heatLayer.setVisibility(mapParams.heatOn);
       //Settings.init(pointLayer, heatLayer, $('button#pointButton'), $('button#heatButton'));
@@ -975,6 +977,7 @@ var TopKTokens = {
   locked: false,
   tokens: [],
   xVar: "pst045212",
+  requestId: 0,
   params: {
     request: "GroupByToken",
     sql: null,
@@ -1246,6 +1249,7 @@ var TopKTokens = {
         this.params.jointable = null;
         this.params.joinvar = null;
         this.params.joinattrs = null;
+        this.params.id = options.requestId;
         //this.xVar = null;
         ScatterPlot.selectedVar = null;
         this.params.sort = "true";
@@ -1489,9 +1493,18 @@ var TopKTokens = {
   },
 
   reload: function(options) {
+    var requestId = ++this.requestId;
+    if (options == undefined || options == null) 
+      options = {requestId: requestId};
+    else
+      options.requestId = requestId;
+
     $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this));
   },
+
   onLoad: function(json) {
+    if (json.responseId != this.requestId)
+      return 0;
     this.displayDiv.empty();
     var n =json.n;
     if (this.modeSetting == "Trends") 
@@ -3118,6 +3131,7 @@ var Chart =
   chart: LineChart,
   viewDiv: null,
   seriesId: 0,
+  requestId: 0,
   queryTerms: [],
   params: {
     request: "Graph",
@@ -3170,6 +3184,7 @@ var Chart =
       this.params.histend = options.time.timeend;
     }
     this.params.bbox = this.mapd.map.getExtent().toBBOX();
+    this.params.id = options.id;
     var url = this.mapd.host + '?' + buildURI(this.params);
     return url;
   },
@@ -3177,7 +3192,9 @@ var Chart =
   reload: function() {
     //var queryTerms = this.queryTerms.slice(0);
     // for now, time range always corresponds to entire data range
-    var options = {queryTerms: this.mapd.queryTerms, user: this.mapd.user, time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend }};
+    var requestId = ++this.requestId;
+    console.log("Request id: " + requestId);
+    var options = {queryTerms: this.mapd.queryTerms, user: this.mapd.user, id: requestId, time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend }};
     this.clearChart();
     $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, this.mapd.timestart, this.mapd.timeend, this.mapd.queryTerms, true));
   },
@@ -3194,6 +3211,10 @@ var Chart =
   },
 
   onChart: function(frameStart, frameEnd, queryTerms, clear, json) {
+      console.log(json);
+      console.log("Response id: " +  json.responseId + " Request id: " + this.requestId);
+      if (json.responseId != this.requestId)
+          return 0;
     //console.log('in onChart', queryTerms);
     //queryTerms = queryTerms.join(" ")
     /*

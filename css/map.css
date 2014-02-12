@@ -345,26 +345,33 @@ div#social {
 
 
 div#bottomSocial {
-  float: right;
+  //float: right;
   //padding-bottom:10px;
-  bottom: 5px;
+  //bottom: 5px;
+  position: relative;
+  float: right;
+  //margin-bottom: 5px !important;
+  //padding-bottom:5px !important;
+  //right: 2px;
 }
 
 .twitter-follow-button {
-  float-right;
-  margin-top: 10px;
+  float:right;
+  margin-top: 6px;
   margin-right:10px;
+  
 }
 
 .fb-like {
   float: right;
-  margin-top: 10px;
+  margin-top: 6px;
   margin-right: 20px;
 }
 
 div#social-share{
   float: right;
-  //margin-top:5px;
+  //margin-bottom:5px;
+  padding-bottom:5px;
   height:40px;
   border-left: 2px solid grey;
 }
@@ -382,7 +389,7 @@ div#social-share:hover {
 
 .settings {
   position: relative;
-  float: left;
+  float: right;
   margin-left:10px;
   margin-top: 5px;
   margin-right: 2px;
@@ -1170,7 +1177,7 @@ div#widget {
     font-size: 12px;
     font-weight:bold;
     //height:0px;
-    margin-top:12px;
+    margin-top:9px;
     margin-right: 5px;
     margin-left: 5px;
     //vertical-align: middle;
