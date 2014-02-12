@@ -1,4 +1,4 @@
-
+var val;
 
  function project (pos){
       var point= map.getViewPortPxFromLonLat(new OpenLayers.LonLat(pos[0], pos[1])
@@ -175,6 +175,7 @@ var Choropleth = {
     onLoad: function(dataset) {
       //console.log(dataset);
       this.data = dataset.results;
+
       /*
       if ('percents' in dataset) {
       this.data = $.map(dataset.tokens, function(e1, idx) {
@@ -204,6 +205,7 @@ var Choropleth = {
         for (var i = 0; i < numVals; i++)
             data[i].y /= data[i][curJoinParams.pop_var];
       }
+      data.sort(function(a,b) { return d3.ascending(a.y, b.y) });
       /*
         this.colorScale.domain([
           d3.min(this.data, function(d) {
@@ -275,6 +277,16 @@ var Choropleth = {
       var minTweets = this.minTweets;
       var isCounty = this.params.jointable == "county_data";
       if (this.percents == false) {
+        var dataArray =  new Array;
+        for (var o in this.data) {
+            dataArray.push(this.data[o].y);
+        }
+        dataArray.sort(d3.ascending);
+        this.colorScale.domain([
+            d3.quantile(dataArray, 0.05), 
+            d3.quantile(dataArray, 0.95)
+          ]);
+        /*
         this.colorScale.domain([
           d3.min(this.features[0], function(d) {
               //if (d.__data__.properties.y >= minTweets)
@@ -283,8 +295,21 @@ var Choropleth = {
               //if (d.__data__.properties.y >= minTweets)
                 return d.__data__.properties.y;})
         ]);
+        */
       }
       else {
+        var dataArray =  new Array;
+        for (var o in this.data) {
+          if (this.data[o].n >= minTweets)
+            dataArray.push(this.data[o].y);
+        }
+        dataArray.sort(d3.ascending);
+        this.colorScale.domain([
+            d3.quantile(dataArray, 0.05), 
+            d3.quantile(dataArray, 0.95)
+          ]);
+        
+        /*
         this.colorScale.domain([
           d3.min(this.features[0], function(d) {
               if (d.__data__.properties.n >= minTweets)
@@ -293,6 +318,7 @@ var Choropleth = {
               if (d.__data__.properties.n >= minTweets)
                 return d.__data__.properties.y}),
         ]);
+        */
       }
       var g = this.g;
       var colorScale = this.colorScale;

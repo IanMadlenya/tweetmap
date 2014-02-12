@@ -26,9 +26,9 @@ function toHex(num) {
 
 var MapD = {
   map: null,
+  host: "http://mapd.worldmap.harvard.edu:8080/",
   //host: "http://127.0.0.1:8080/",
   //host: "http://sirubu.velocidy.net:8080/",
-  host: "http://127.0.0.1:8080/",
   //host: "http://172.16.20.32:8080/",
   //host: "http://geops.cga.harvard.edu:8080/",
   //host: "http://mapd.csail.mit.edu:8080/",
@@ -309,7 +309,8 @@ var MapD = {
   startCheck: function() {
     if (this.datastart != null && this.dataend != null) {
       this.timeend = Math.round((this.dataend-this.datastart)*1.01 + this.datastart);
-      this.timestart = Math.max(this.dataend - 864000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
+      //this.timestart = Math.max(this.dataend - 864000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
+      this.timestart = Math.round((this.dataend-this.datastart)*.01 + this.datastart);
 
       var mapParams = {extent: new OpenLayers.Bounds(BBOX.WORLD.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Bar", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", fullScreen: 0};
       mapParams = this.readLink(mapParams);
@@ -3204,14 +3205,17 @@ var Chart =
     */
     this.queryTerms.push(queryTerms);
     var series = [];
+    var lastCount = 0;
     if ("y" in json) { // means we have percent
       for (i in json.x) {
         this.chart.setMode("percent");
 
         //var time  = json.x[i];
         //var percent = json.y[i] * 100.0;
-        if (json.count[i] > 0)
+        if (json.count[i] > lastCount * .15) {
           series.push({date: new Date(json.x[i] * 1000), value: json.y[i]});
+          lastCount = json.count[i];
+        }
           //series.push({date: new Date(time * 1000), value: percent});
       }
     }
@@ -3221,7 +3225,10 @@ var Chart =
         var time  = json.x[i];
         //time = time - 4 * 60 * 60; // hack: original data set is ahead by 4 hours.
         var count = json.count[i];
-        series.push({date: new Date(time * 1000), value: count});
+        if (json.count[i] > lastCount * .15) {
+          series.push({date: new Date(time * 1000), value: count});
+          lastCount = count;
+        }
       }
     }
     this.chart.addSeries(this.seriesId, queryTerms, series, frameStart, frameEnd);
