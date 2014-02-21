@@ -90,7 +90,7 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  host: "http://sirubu.velocidy.net:8080/",
+  host: "http://www.velocidy.net:7000/",
   table: "donations_ip",
   dataView: "counts",
   timestart: null,
@@ -3664,7 +3664,7 @@ var Choropleth = {
 
    deactivate: function() {
      this.active = false;
-      d3.select("g").remove();
+      //d3.select("g").remove();
      //this.features = this.g.selectAll("path").data([]).exit().remove();
    },
 
