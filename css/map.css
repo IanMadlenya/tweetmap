@@ -226,7 +226,7 @@ button#submit {
   width: 30px;
   margin-left: 8px;
   cursor: pointer;
-  border-radius: 6px 0px 0px 6px !important;
+  border-radius: 6px 6px 0px 6px !important;
   padding-right:0px !important;;
   margin-right: 0px !important;
 }

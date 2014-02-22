@@ -90,7 +90,7 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  host: "http://www.velocidy.net:7000/",
+  host: "http://sirubu.velocidy.net:8080/",
   table: "donations_ip",
   dataView: "counts",
   timestart: null,
