@@ -21,6 +21,7 @@ var Choropleth = {
   projection: null,
   data: null,
   path: null,
+  layer: null,
   minTweets: 4000,
   colorScale: null,
   features: null,
@@ -92,8 +93,10 @@ var Choropleth = {
        if (choice != this.geoData) {
          this.geoData = choice;
          var choiceDiv = "#poly" + choice;
+         this.layer = choice;
          $("#polyMenu span.checkmark").css("visibility", "hidden");
          $(choiceDiv + " .checkmark").css("visibility","visible");
+
            switch (choice) {
              case "Country":
                 this.addGeoData("countries.json");

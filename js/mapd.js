@@ -312,7 +312,7 @@ var MapD = {
       //this.timestart = Math.max(this.dataend - 864000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
       this.timestart = Math.round((this.dataend-this.datastart)*.01 + this.datastart);
 
-      var mapParams = {extent: new OpenLayers.Bounds(BBOX.WORLD.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", fullScreen: 0};
+      var mapParams = {extent: new OpenLayers.Bounds(BBOX.WORLD.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:88,  pointG:252, pointB:208, pointRadius:-1, pointColorBy: "none", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Dark", polyLayer: "Country", fullScreen: 0};
       mapParams = this.readLink(mapParams);
       //console.log("map params");
       //console.log(mapParams);
@@ -334,6 +334,8 @@ var MapD = {
         this.services.search.originInput.val(params.origin);
         $('#originInput').trigger('input');
       }
+
+      this.services.choropleth.setMenuItem(mapParams.polyLayer);
 
       this.services.topktokens.xVar = mapParams.scatterXVar; 
       //console.log("xvar: " + this.services.topktokens.xVar);
@@ -459,6 +461,7 @@ var MapD = {
     uriParams.dataSource = this.services.topktokens.sourceSetting;
     uriParams.dataMode = this.services.topktokens.modeSetting;
     uriParams.dataLocked = this.services.topktokens.locked == true ? 1 : 0;
+    uriParams.polyLayer = this.services.choropleth.layer;
     uriParams.pointR = this.services.pointmap.params.r;
     uriParams.pointG = this.services.pointmap.params.g;
     uriParams.pointB = this.services.pointmap.params.b;
@@ -984,6 +987,7 @@ var TopKTokens = {
     sql1: null, // only for trending
     sql2: null, // only for trending
     bbox: null,
+    id: 0,
     k: 30,
     stoptable: "multistop",
     sort: "true",
@@ -1239,6 +1243,7 @@ var TopKTokens = {
     //$("#dataNums").buttonset("refresh");
     //if (this.modeSetting == "Percents" && this.sourceSetting == "Word")
     //    this.setMenuItem("Mode", "Counts", false);
+      this.params.id = options.requestId;
     if (this.displaySetting == "Scatter") {
         //this.params.jointable = "county_data";
         this.params.jointable = this.sourceSetting.toLowerCase() + "_data";
@@ -1249,7 +1254,6 @@ var TopKTokens = {
         this.params.jointable = null;
         this.params.joinvar = null;
         this.params.joinattrs = null;
-        this.params.id = options.requestId;
         //this.xVar = null;
         ScatterPlot.selectedVar = null;
         this.params.sort = "true";
@@ -1670,7 +1674,7 @@ var PointMap = {
       }
 
       if (this.colorBy == "origin") 
-        this.params.colormap = $.toJSON({"iOS": [0, 0, 240], "Android": [200, 0, 0], "Blackberry": [200,0,200], "default": [0,140,0]});
+        this.params.colormap = $.toJSON({"iOS": [0, 0, 240], "Android": [200, 0, 0], "Blackberry": [200,0,200], "Windows": [255,165,0], "Instagram": [178,102,255], "Foursquare": [255,255,0], "default": [0,140,0]});
       else
         this.params.colormap = null; 
 
@@ -1748,7 +1752,7 @@ var HeatMap = {
     height: null,
     layers: "heatmap",
     maxval: "auto", 
-    min: 0.2,
+    min: 5.0,
     blur: 25,
     level: 50,
     colorramp: "green_red",
@@ -2638,7 +2642,7 @@ var Search = {
   },
 
    loadOSMenu: function() {
-     var names = ["iOS", "Android", "Blackberry", "Foursquare", "Instagram", "Other"];
+     var names = ["iOS", "Android", "Blackberry", "Windows", "Foursquare", "Instagram", "Other"];
     $("#originInput").autocomplete({
         source:names,
         position: {my: "right top", at: "right top"}
@@ -2888,8 +2892,11 @@ var Animation = {
         this.prevTime = 0;
         this.frameStart = this.animStart;
         this.frameEnd = this.animStart + this.frameWidth;
-
         this.heatMax = parseFloat($.cookie('max_value')) * 10.0;
+        if (MapD.queryTerms.length == 0)
+          this.heatMax *= 0.5;
+            //this.heatMax *= (30.0/this.numFrames);
+
         var numPoints = parseInt($.cookie('tweet_count'));
         this.oldRadius = this.mapd.services.pointmap.params.radius;
         if (this.oldRadius == -1) {
