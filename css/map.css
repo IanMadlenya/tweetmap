@@ -34,9 +34,6 @@ div#bottomBar {
   left: 0;
   right: 0;
   z-index:1000;
-  //background-color: #2C5672;
-  //background-image: linear-gradient(#2C5672, #1C4662);
-  //background-color: #232323;
   background-image: linear-gradient(#3f3f3f, #232323);
   webkit-box-shadow: 2px 0 3px rgba(0,0,0,.25);
   box-shadow: 2px 0 3px rgba(0,0,0,.25);
@@ -226,7 +223,7 @@ button#submit {
   width: 30px;
   margin-left: 8px;
   cursor: pointer;
-  border-radius: 6px 6px 0px 6px !important;
+  border-radius: 6px 6px 6px 6px !important;
   padding-right:0px !important;;
   margin-right: 0px !important;
 }
@@ -368,26 +365,25 @@ div#social {
 
 
 div#bottomSocial {
+  position: relative;
   float: right;
-  //padding-bottom:10px;
-  bottom: 5px;
 }
 
 .twitter-follow-button {
   float-right;
-  margin-top: 10px;
+  margin-top: 6px;
   margin-right:10px;
 }
 
 .fb-like {
   float: right;
-  margin-top: 10px;
+  margin-top: 6px;
   margin-right: 20px;
 }
 
 div#social-share{
   float: right;
-  //margin-top:5px;
+  padding-bottom:5px;
   height:40px;
   border-left: 2px solid grey;
 }
@@ -405,7 +401,7 @@ div#social-share:hover {
 
 .settings {
   position: relative;
-  float: left;
+  float: right;
   margin-left:10px;
   margin-top: 5px;
   margin-right: 2px;
@@ -604,6 +600,15 @@ div#sizeButton {
   cursor:pointer;
 
 }
+
+/*
+div#location {
+  position: absolute;
+  bottom: 30px;
+  right: 20px;
+  opacity: 0.9;
+}
+*/
 
 div#legend {
   position: absolute;
@@ -1242,7 +1247,7 @@ div#widget {
     font-size: 12px;
     font-weight:bold;
     //height:0px;
-    margin-top:12px;
+    margin-top:9px;
     margin-right: 5px;
     margin-left: 5px;
     //vertical-align: middle;

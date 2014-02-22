@@ -7,6 +7,12 @@
 //  webkit-box-shadow: 3px 0 3px rgba(0,0,0,.25);
 //  box-shadow: 3px 0 3px rgba(0,0,0,.25);
 //}
+/*
+.linechart {
+   position: relative;
+   top: 0px; 
+}
+*/
 
 #chart {
   position: fixed;
@@ -22,6 +28,68 @@
   webkit-box-shadow: 3px 0 3px rgba(0,0,0,.25);
   box-shadow: 3px 0 3px rgba(0,0,0,.25);
 }
+
+#yButtons {
+    //background-color:black;
+    //float: left;
+    position: absolute;
+    //bottom: 25px;
+    top: 40px;
+    left: 2px;
+}
+
+#dataViewSelect {
+    border-radius: 5px;
+    width: 135px !important;
+    background-color: #eee;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid #232323;
+    webkit-box-shadow: 0 0 2px rgba(255,255,255,.25);
+    box-shadow: 0 0 2px rgba(255,255,255,.25);
+    margin: 2px 0 2px 5px;
+    padding: 4px;
+    font-weight: bold;
+}
+
+/*
+#dataViewSelect {
+    //line-height: 2;
+    //height: 100px;
+}
+
+select {
+    line-height: 2;
+}
+*/
+/*
+#dataViewSelect {
+    width: 135px !important;
+    background-color: #fff;
+    //height: 30px;
+    border-radius: 4px;
+    border: 1px solid #232323;
+    //webkit-box-shadow: 0 0 2px rgba(255,255,255,.25);
+    //box-shadow: 0 0 2px rgba(255,255,255,.25);
+    margin: 2px 0 2px 5px;
+    //padding: 4px;
+}
+
+#dataViewSelect div {
+    border-bottom: 1px solid #232323;
+    height: 30px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    padding-top:5px;
+}
+
+#dataViewSelect div:last-child {
+    border:none;
+}
+*/
+
+
 
 /*
 .chart {

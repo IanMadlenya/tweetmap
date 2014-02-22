@@ -2,7 +2,7 @@ path {
     stroke: #777;
     stroke-width: 1.0;
     fill: #aaa;
-    fill-opacity: 0.0;
+    fill-opacity: 0.75;
 }
 
 
@@ -12,7 +12,7 @@ path:hover {
     stroke: #4684B5 !important;
     cursor: pointer;
     stroke-width: 3;
-    fill-opacity: 0.55;
+    fill-opacity: 0.75;
 }
 
     

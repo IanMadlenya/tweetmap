@@ -106,7 +106,7 @@
 	<div id="location" class="search">
 	  <input id="zoomInput" class="search-input" type="text" name="zoom" placeholder=" Zoom To"/>
       <span class="iconClear">X</span>
-	</div>
+    </div>
 	<button id="submit" class="search-input" type="submit">
 	  <div id="submit-icon" class="sprites search"></div>
 	</button>
@@ -130,8 +130,8 @@
       <button id="play-pause" class="anim-input play-icon" type="button" title="Play/Pause"></button>
       <button id="stop" class="anim-input stop-icon" type="button" title="Stop"></button>
     </div>-->
+    <!--
     <div id="social">
-      <!--<div id="promo"><a href="http://www.map-d.com" target="_blank"><img src="img/mapd_logo.png" class="logo-image"></a></div>-->
      <div id="social-share" data-dropdown="#share-dropdown" title="Share a link to the current view with your current settings applied"> 
         <div id="share">Share this map ▾</div>
      </div>
@@ -139,10 +139,10 @@
       <a href="https://twitter.com/datarefined" id="twitter-follow" class="twitter-follow-button" data-show-count="false">Follow @datarefined</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
    </div>
+-->
 
 
-
-   </div>
+ </div>
       <!--
       <a href="https://twitter.com/share" class="twitter-share-button" data-via="datarefined" data-related="datarefined" data-hashtags="MapD" data-dnt="true">Tweet this map</a>
       <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
@@ -164,6 +164,11 @@
         </div>
         <div id="sizeButton"></div>
         <button id="curLoc"></button>
+
+      <!--<div id="location" class="search">
+        <input id="zoomInput" class="search-input" type="text" name="zoom" placeholder=" Zoom To"/>
+        <span class="iconClear">X</span>
+      </div>-->
         <div id="legend">
           <div id="pointLegend" class="sub-legend"><span>Points</span><span class="checkmark">&#x2713</span></div>
           <div id="heatLegend" class="sub-legend"><span>Heatmap</span><span class="checkmark">&#x2713</span></div>
@@ -240,19 +245,20 @@
               <button id="lock">unlocked</button>
         </div>
       <div id="timeControls"></div>
-      <div class="dataview-buttons" id="DataviewButtons">
+      <!--<div class="dataview-buttons" id="DataviewButtons">
         <input type="radio" id="CountsDisplay" value="counts" name="dataview" /><label for="CountsDisplay"># Donations/Day</label>
         <input type="radio" id="DollarsDisplay" value="dollars" name="dataview" /><label for="DollarsDisplay">Total $/Day</label>
         <input type="radio" id="DPDDisplay" value="dollsperdon" name="dataview" /><label for="DPDDisplay">$/Donation</label>
-      </div>
+      </div>-->
 
-      <!--
       <div id="bottomSocial">
+       <div id="social-share" data-vertical-offset="-160" data-dropdown="#share-dropdown" title="Share a link to the current view with your current settings applied"> 
+          <div id="share">Share this map ▲</div>
+       </div>
        <div class="fb-like" data-href="https://www.facebook.com/datarefined" data-width="120" data-height="30" data-colorscheme="dark" data-layout="button_count" data-action="like" data-show-faces="true" data-share="false" style="padding-bottom:5px"></div>
       <a href="https://twitter.com/datarefined" id="twitter-follow" class="twitter-follow-button" data-show-count="false">Follow @datarefined</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-      </div>-->
-
+      </div>
 
    </div>
   </div>

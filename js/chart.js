@@ -29,6 +29,7 @@ var LineChart =
   mode: "num",
   elems: {
     container: null,
+    yButtons: null,
     svg: null,
     info: null,
     settingsDiv: null,
@@ -58,7 +59,7 @@ var LineChart =
     this.elems.barDiv = d3.select($("#timeControls").get(0));
     //$(this.elems.barDiv).empty();
     
-    this.margin = {top: 25, right: 80, bottom: 25, left: 25};
+    this.margin = {top: 25, right: 80, bottom: 25, left: 125};
     var cont =  $($(this.elems.container).get(0));
     this.width = cont.width() - this.margin.left - this.margin.right;
     this.height = this.chartHeight - this.margin.top - this.margin.bottom;
@@ -88,14 +89,48 @@ var LineChart =
         .scaleExtent([1, 16])
         .on("zoom", $.proxy(this.onZoom, this));
 
+    var leftTranslate = 60 + this.margin.left;
+
+    //this.elems.yButtons = this.elems.container.append("<button class='play-pause anim-input play-icon' type='button' title='Play/Pause'></button><button class='stop anim-input stop-icon' type='button' title='Stop'></button>");
+
+    this.elems.yButtons = this.elems.container.append("div").attr("id", "yButtons");
+    //this.elems.yButtons.html('<div id="dataViewSelect"><div id="dataViewCounts"># Donations/Day</div><div id="dataViewDollars">Total $/Day</div><div id=dataViewDollarsPerDonation">Avg $/Donation</div></div>');
+    this.elems.yButtons.html('<select id="dataViewSelect"><option value="counts"># Donations/Day</value><option value="dollars">Total $/Day</value><option value="dollsperdon">Avg $/Donation</value></select>');
+    $("#dataViewSelect").change(function() {
+      MapD.dataView = $(this).val();
+      if (MapD.dataView == "counts")
+        Chart.chart.setMode("num");
+      else
+        Chart.chart.setMode("money");
+      Search.form.submit();
+    });
+        
+
+      
+    //this.elems.yButtons.html('<div class="dataview-buttons" id="DataviewButtons"><div><input type="radio" id="CountsDisplay" value="counts" name="dataview" /><label for="CountsDisplay"># Donations/Day</label></div><div><input type="radio" id="DollarsDisplay" value="dollars" name="dataview" /><label for="DollarsDisplay">Total $/Day</label></div><div><input type="radio" id="DPDDisplay" value="dollsperdon" name="dataview" /><label for="DPDDisplay">$/Donation</label></div></div>');
+
+/*
     this.elems.svg = this.elems.container
         .attr("class", "chart")
          .append("svg")
+         .attr("left", "200")
         .attr("width", this.width + this.margin.right)
         .attr("height", this.height + this.margin.top + this.margin.bottom)
         .attr("class", "linechart")
        .append("g")
-         .attr("transform", "translate(" + 60 + "," + this.margin.top + ")");
+        .attr("transform", "translate(0," + this.margin.top + ")");
+
+*/
+
+    this.elems.svg = this.elems.container
+        .attr("class", "chart")
+         .append("svg")
+        .attr("width", this.width + this.margin.left + this.margin.right)
+        .attr("height", this.height + this.margin.top + this.margin.bottom)
+        .attr("class", "linechart")
+       .append("g")
+         .attr("transform", "translate(" + leftTranslate +  "," + this.margin.top + ")");
+
 
     this.svg = $(".linechart");
     this.elems.svg.append("g")
@@ -127,7 +162,7 @@ var LineChart =
     this.elems.info = this.elems.container.select("svg").append("g")
         .attr("class", "info")
         //.attr("transform", "translate(" + this.margin.left + "," + (this.margin.top - 5) + ")");
-        .attr("transform", "translate(" + 60 + "," + (this.margin.top - 5) + ")");
+        .attr("transform", "translate(" + leftTranslate + "," + (this.margin.top - 5) + ")");
     
     this.elems.info.append("text")
         .attr("class", "date");

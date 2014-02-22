@@ -466,6 +466,10 @@ var MapD = {
         Search.form.submit();
       });
 
+
+
+
+
         $("#CountsDisplay").click();
 
       //this.services.topktokens.displayMode = mapParams.dataMode;
