@@ -70,9 +70,10 @@ var LineChart =
     this.brush =d3.svg.brush()
       .x(this.x)
       //.on("brushstart", $.proxy(this.brushdown, this))
-      //.on("brush", $.proxy(this.brushed, this))
+      .on("brush", $.proxy(this.brushed, this))
       .on("brushend", $.proxy(this.brushdown, this));
-
+    console.log("At beginning");
+    console.log(this.brush.extent());
     this.xAxis = d3.svg.axis()
         .scale(this.x)
         .orient("bottom")
@@ -323,23 +324,31 @@ var LineChart =
   },
 
   brushed: function() {
+    //this.resetInfo();
     //console.log("brushed");
   },
 
   brushdown: function() {
-    //console.log("brushdown");
+   console.log("brushdown");
+   console.log(this.brush.extent());
     var brushChanged = (+this.brush.extent()[0] != +this.brushExtent[0] || +this.brush.extent()[1] != +this.brushExtent[1]);
-    if (brushChanged)
+    if (brushChanged) {
+        //this.resetInfo();
         this.zoomCallback();
+    }
+   console.log(this.brush.extent());
 
     //console.log(this.brush.extent());
   },
 
 
   setBrushExtent: function(extent) {
-    //console.log(extent);
+    console.log("SETTING");
+    console.log(extent);
     this.brushExtent = extent;
+    console.log(this.brush.extent());
     this.brush.extent(this.brushExtent);
+    console.log(this.brush.extent());
     this.redrawBrush();
   },
 
@@ -553,6 +562,7 @@ var LineChart =
 
   redrawBrush: function() {
     this.elems.svg.select(".brush").call(this.brush);
+    this.resetInfo();
   },
 
   onZoom: function() {
@@ -598,7 +608,21 @@ var LineChart =
   },
 
   resetInfo: function() {
-    var range = this.formatDate(this.getXRange()[0]) + " - " + this.formatDate(this.getXRange()[1]);
+    var range = null;
+    console.log(this.brush.extent());
+    if (this.brush.extent()[0].getMonth)
+      range = this.formatDate(this.brush.extent()[0]) + " - " + this.formatDate(this.brush.extent()[1]);
+    else {
+      var startDate = new Date(this.brush.extent()[0]);
+      var endDate = new Date(this.brush.extent()[1]);
+      range = this.formatDate(startDate) + " - " + this.formatDate(endDate);
+      //range = this.formatDate(this.getXRange()[0]) + " - " + this.formatDate(this.getXRange()[1]);
+    }
+
+
+
+    //console.log(range);
+
     this.elems.info.select("text.date").text(range);
     this.elems.info.selectAll("g.legend").select("text").text("");
   },

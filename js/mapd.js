@@ -3545,6 +3545,7 @@ var Chart =
   },
 
   onZoom: function() {
+    console.log(this.chart.brush.extent());
     var start = (this.chart.brush.extent()[0]/ 1000).toFixed(0);
     var end = (this.chart.brush.extent()[1] / 1000).toFixed(0);
     this.mapd.reloadByGraph(start, end);
