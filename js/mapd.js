@@ -693,7 +693,7 @@ var MapD = {
     if (e.type != "moveend") {
         //console.log("reloading");
         //this.services.choropleth.reload();
-        this.services.choropleth.reset();
+        this.services.choropleth.reload();
     }
   },
 
@@ -713,7 +713,8 @@ var MapD = {
       this.services.pointmap.reload();
       this.services.heatmap.reload();
       //this.services.choropleth.reload();
-      this.services.choropleth.reset();
+      //this.services.choropleth.reset();
+      this.services.choropleth.reload();
 
     }
     //this.timestart = oldStart;
@@ -3566,13 +3567,30 @@ var Choropleth = {
   path: null,
   curLayer: null,
   isTopo: true,
+  curJoinParams: null,
+  percents: false,
+  joinParams : {
+    "countries": {jointable: "country_data", joinvar: "name", joinattrs: "pst045212,iso_a2", pop_var: "pst045212", map_key: "ISO2", data_key: "iso_a2", data_col: "country"},
+    "states": {jointable: "state_data", joinvar: "name", joinattrs: "pst045212", pop_var: "pst045212", map_key: "abbr", data_key: "label", data_col: "state"},
+    "counties": {jointable: "county_data", joinvar: "name", joinattrs: "pst045212,fips", pop_var: "pst045212", map_key: "id", data_key: "fips", data_col: "county"}
+  },
   layers: {
      "State": {name: "states", isTopo: false},
      "County": {name: "counties", isTopo: true, layerName: "counties"},
      "Congress": {name: "congress", isTopo: true, layerName: "layer1"},
   },
+  params: {
+    request: "GroupByToken",
+    sql: null,
+    sort: "false",
+    k: 400,
+    jointable: "state_data",
+    joinvar: "name",
+    joinattrs: "pst045212",
+  },
 
   init: function() {
+    this.curJoinParams = this.joinParams["states"];
 
      $("#polyMenu").click($.proxy(function(e) {
         var choice = this.getMenuItemClicked(e.target);
@@ -3601,7 +3619,7 @@ var Choropleth = {
       var div = d3.selectAll("#" + this.overlay.div.id);
       div.selectAll("svg").remove();
       this.svg = div.append("svg").attr("class", "choropleth");
-      this.g = this.svg.append("g");
+      //this.g = this.svg.append("g").attr("id", ";
       //this.path = d3.geo.path().projection(project);
       this.colorScale = d3.scale.quantize().range(["rgb(255,255,229)","rgb(255,247,188)", "rgb(254,227,145)", "rgb(254,196,79)", "rgb(254,153,41)", "rgb(236,112,20)", "rgb(204,76,2)", "rgb(140,45,4)"]);
       this.map.events.register("moveend", this.map, $.proxy(this.reset,this));
@@ -3637,8 +3655,8 @@ var Choropleth = {
   },
 
   addGeoData: function() {
-      d3.select("g").remove();
-      this.g = this.svg.append("g");
+      d3.selectAll("#choroplethG").remove();
+      this.g = this.svg.append("g").attr("id","choroplethG");
       var g = this.g;
       this.path = d3.geo.path().projection(project);
       var path = this.path;
@@ -3663,14 +3681,29 @@ var Choropleth = {
           Choropleth.reset();
         });
       }
+      this.reload();
    },
 
 
    deactivate: function() {
      this.active = false;
-      //d3.select("g").remove();
+     d3.selectAll("#choroplethG").remove();
      //this.features = this.g.selectAll("path").data([]).exit().remove();
    },
+
+   reload: function(options) {
+     if (this.active) 
+       $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this));
+   },
+
+   getURL: function(options) {
+     var query = this.mapD.getWhere(options);
+     this.params.sql = "select contributor_state, amount from " + this.mapD.table + query;
+     this.percents = false;
+     var url = this.mapD.host + '?' + buildURI(this.params);
+     console.log(url);
+     return url;
+    },
 
     activate: function() {
       this.active = true;
@@ -3688,6 +3721,98 @@ var Choropleth = {
       this.features.attr("d", this.path);
    },
 
+   onLoad: function(dataset) {
+     this.data = dataset.results;
+     var g = this.g;
+     var data = this.data;
+     var numVals = data.length;
+     var curJoinParams = this.curJoinParams;
+     console.log("pop var: " + curJoinParams.pop_var);
+      if (this.percents == false) {
+        for (var i = 0; i < numVals; i++)
+            data[i].y /= data[i][curJoinParams.pop_var];
+      }
+
+     data.sort(function(a,b) { return d3.ascending(a.y, b.y) });
+     var numFeatures = this.features[0].length;
+      var wasFound = 0;
+      var notFound = 0;
+      for (var f = 0; f < numFeatures; f++) {
+        var joined = false;
+        var key = this.features[0][f].__data__.properties[curJoinParams.map_key];
+        for (var i = 0; i < numVals; i++) {
+          var found = false;
+          if (data[i][curJoinParams.data_key] == key) {
+           this.features[0][f].__data__.properties.y = data[i].y;
+           //this.features[0][f].__data__.properties.y = data[i].pst045212;
+           this.features[0][f].__data__.properties.n = data[i].n;
+           wasFound++;
+
+           //console.log(this.features[0][f].__data__);
+           found = true;
+           break;
+          }
+        }
+        if (!found) {
+            notFound++;
+            this.features[0][f].__data__.properties.y = null;
+            this.features[0][f].__data__.properties.n = null;
+          }
+      }
+      console.log("Found: " + wasFound);
+      console.log("Not Found: " + notFound);
+      this.draw();
+      $(this).trigger('loadend');
+   },
+
+   draw: function() {
+        console.log("at draw");
+        var isCounty = this.params.jointable == "county_data";
+        var dataArray =  new Array;
+        for (var o in this.data) {
+            dataArray.push(this.data[o].y);
+        }
+        dataArray.sort(d3.ascending);
+        this.colorScale.domain([
+            d3.quantile(dataArray, 0.05), 
+            d3.quantile(dataArray, 0.95)
+          ]);
+      var g = this.g;
+      var colorScale = this.colorScale;
+      var opacity= this.opacity;
+      if (this.percents == true) {
+        this.features = g.selectAll("path")
+          .style("fill", function(d) {
+            return(colorScale(d.properties.y));
+          })
+          .style("fill-opacity", function(d) {
+            if (d.properties.n != null && d.properties.n >= minTweets)
+              return opacity;
+            else
+              return 0.0;
+          })
+          .style("stroke-width", function() {
+            if (isCounty)
+                return 0.5;
+            return 1.5;
+          });
+       }
+      else {
+        this.features = g.selectAll("path")
+          .style("fill", function(d) {
+            console.log(d);
+            console.log(d.properties.y);
+            console.log(colorScale(d.properties.y));
+            return(colorScale(d.properties.y));
+          })
+          .style("fill-opacity",opacity)
+          .style("stroke-width", function() {
+            if (isCounty)
+                return 0.5;
+            return 1.5;
+          });
+      }
+    }
 
 };
 
