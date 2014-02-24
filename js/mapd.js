@@ -3053,7 +3053,9 @@ var Animation = {
           numLayersVisible++; // for chart
       if (this.choropleth.active)
           numLayersVisible++; // choropleth
+      console.log("Num layers visible: " + numLayersVisible);
       this.numLayersLoaded++;
+      console.log("Num layers loaded: " + this.numLayersLoaded);
       if (this.numLayersLoaded >= numLayersVisible) {
           var curTime = new Date().getTime();
           this.numLayersLoaded = 0;
@@ -3571,6 +3573,8 @@ var Choropleth = {
   percents: false,
   colorRamps: null,
   colorScales: null,
+  data: null,
+  compareData: [0,0],
   joinParams : {
     "countries": {jointable: "country_data", joinvar: "name", joinattrs: "pst045212,iso_a2", pop_var: "pst045212", map_key: "ISO2", data_key: "iso_a2", data_col: "country"},
     "states": {jointable: "state_data", joinvar: "name", joinattrs: "pst045212", pop_var: "pst045212", map_key: "abbr", data_key: "label", data_col: "state"},
@@ -3589,6 +3593,7 @@ var Choropleth = {
     jointable: "state_data",
     joinvar: "name",
     joinattrs: "pst045212",
+    id: 0
   },
 
   init: function() {
@@ -3667,7 +3672,7 @@ var Choropleth = {
       var g = this.g;
       this.path = d3.geo.path().projection(project);
       var path = this.path;
-      var layerName = this.layers[this.curLayer].name;
+      var layerName =this.layers[this.curLayer].name;
       var file = "data/" + layerName + ".json";
       if (this.isTopo) {
         d3.json(file, function(error,json) {
@@ -3699,8 +3704,25 @@ var Choropleth = {
    },
 
    reload: function(options) {
-     if (this.active) 
-       $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this));
+     if (this.active) {
+       if (this.mapD.queryTerms == "" && this.mapD.party == "") {
+         this.colorScale = this.colorRamps["red_blue"];
+         this.mode = "compare";
+         this.numResponses = 0;
+         if (options == undefined || options == null) 
+           options = {};
+         options.party = "D";
+         $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, 1));
+         options.party = "R";
+         $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, 0));
+       }
+       else  {
+         this.mode = "single";
+         this.numResponses = 0;
+         this.colorScale = this.colorRamps["orange"];
+         $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, -1));
+       }
+     }
    },
 
    getURL: function(options) {
@@ -3728,46 +3750,120 @@ var Choropleth = {
       this.features.attr("d", this.path);
    },
 
-   onLoad: function(dataset) {
-     this.data = dataset.results;
+   onLoad: function(datasetNum, dataset) {
+     console.log("DatasetNum: " + datasetNum);
+     if (datasetNum >= 0) {
+       this.compareData[datasetNum] = dataset.results;
+       this.numResponses++;
+       if (this.numResponses < 2)
+         return;
+     }
      var g = this.g;
-     var data = this.data;
-     var numVals = data.length;
+     console.log(dataset);
+     var numVals = dataset.results.length;
      var curJoinParams = this.curJoinParams;
      console.log("pop var: " + curJoinParams.pop_var);
      var popVar = curJoinParams.pop_var;
      var dataViewMode = MapD.dataView;
+
+     if (this.numResponses == 2) {
+       console.log("Numvals " + numVals);
+       this.data = [] 
+       var data = this.data;
+       console.log("Before")
+       console.log(this.data);
+       console.log(data);
+       var dataKey = curJoinParams.data_key;
+
+        switch (MapD.dataView) {
+          case "counts": {
+             for (var i = 0; i < numVals; i++) {
+                var insertObject = {"val": (this.compareData[1][i].n - this.compareData[0][i].n) / this.compareData[0][i][popVar], "n": this.compareData[1][i].n + this.compareData[1][i].n};
+                insertObject[dataKey] = this.compareData[0][i][dataKey];
+                data.push(insertObject);
+                 //data.push({dataKey: this.compareData[0][dataKey], "val": (this.compareData[1][i].n - this.compareData[0][i].n) / this.compareData[0][i][popVar], "n": this.compareData[1][i].n + this.compareData[1][i].n});
+              }
+             break;
+          }
+          case "dollars": {
+             for (var i = 0; i < numVals; i++) {
+                var insertObject = {"val": (this.compareData[1][i].n * this.compareData[1][i].y - this.compareData[0][i].n * this.compareData[0][i].y) / this.compareData[0][i][popVar], "n": this.compareData[1][i].n + this.compareData[1][i].n};
+                insertObject[dataKey] = this.compareData[0][i][dataKey];
+                data.push(insertObject);
+             }
+               //data[i].val = (this.compareData[1][i].n * this.compareData[1][i].y - this.compareData[0][i].n * this.compareData[0][i].y) / this.compareData[0][i][popVar];
+             break;
+           }
+          case "dollsperdon": {
+             for (var i = 0; i < numVals; i++) {
+                var insertObject = {"val": this.compareData[1][i].y - this.compareData[0][i].y , "n": this.compareData[1][i].n + this.compareData[1][i].n};
+                insertObject[dataKey] = this.compareData[0][i][dataKey];
+                data.push(insertObject);
+                //data[i].val = (this.compareData[1][i].y - this.compareData[0][i].y);
+            }
+             break;
+        }
+      }
+
+     }
+     else { 
+        this.data = dataset.results;
+        var data = this.data;
+        switch (MapD.dataView) {
+          case "counts": {
+             for (var i = 0; i < numVals; i++)
+                 data[i].val = data[i].n / data[i][popVar];
+             break;
+          }
+          case "dollars": {
+             for (var i = 0; i < numVals; i++)
+                 data[i].val = data[i].y * data[i].n / data[i][popVar];
+             break;
+           }
+          case "dollsperdon": {
+             for (var i = 0; i < numVals; i++)
+                 data[i].val = data[i].y;
+             break;
+          }
+        }
+      }
+     var data = this.data;
+     
      /*
      if (dataViewMode == "counts") {
        for (var i = 0; i < numVals; i++)
            data[i].y /= data[i][curJoinParams.pop_var];
      }
      */
-     data.sort(function(a,b) { return d3.ascending(a.y, b.y) });
+     //data.sort(function(a,b) { return d3.ascending(a.y, b.y) });
      var numFeatures = this.features[0].length;
       var wasFound = 0;
       var notFound = 0;
       for (var f = 0; f < numFeatures; f++) {
         var joined = false;
         var key = this.features[0][f].__data__.properties[curJoinParams.map_key];
+        var found = false;
         for (var i = 0; i < numVals; i++) {
-          var found = false;
           if (data[i][curJoinParams.data_key] == key) {
+           this.features[0][f].__data__.properties.val = data[i].val;
+           this.features[0][f].__data__.properties.n = data[i].n;
+            /*
            this.features[0][f].__data__.properties.y = data[i].y;
            this.features[0][f].__data__.properties.n = data[i].n;
            this.features[0][f].__data__.properties.pop = data[i][popVar];
+           */
            wasFound++;
 
            //console.log(this.features[0][f].__data__);
            found = true;
-           break;
           }
         }
         if (!found) {
             notFound++;
-            this.features[0][f].__data__.properties.y = null;
+            this.features[0][f].__data__.properties.val = null;
             this.features[0][f].__data__.properties.n = null;
-            this.features[0][f].__data__.properties.pop = null;
+            //this.features[0][f].__data__.properties.y = null;
+            //this.features[0][f].__data__.properties.pop = null;
           }
       }
       console.log("Found: " + wasFound);
@@ -3776,11 +3872,39 @@ var Choropleth = {
       $(this).trigger('loadend');
    },
 
+   setScale: function() {
+      var dataArray =  new Array;
+      for (var o in this.data) {
+         dataArray.push(this.data[o].val);
+         console.log(this.data[o].val);
+      }
+      dataArray.sort(d3.ascending);
+      var minQuantile = d3.quantile(dataArray, 0.05);
+      var maxQuantile = d3.quantile(dataArray, 0.95);
+      console.log("min " + minQuantile);
+      console.log("max " + maxQuantile);
+      if (this.mode == "compare") {
+        if (Math.abs(minQuantile) > Math.abs(maxQuantile)) {
+          maxQuantile = Math.abs(minQuantile);
+        }
+        else {
+          minQuantile = maxQuantile * -1;
+        }
+      }
+
+      this.colorScale.domain([
+          minQuantile, maxQuantile
+          //d3.quantile(dataArray, 0.05), 
+          //d3.quantile(dataArray, 0.95)
+        ]);
+   },
+
+
    draw: function() {
         console.log("at draw");
         var isCounty = this.params.jointable == "county_data";
-        var popVar = this.curJoinParams.pop_var;
-        var dataArray =  new Array;
+        //var popVar = this.curJoinParams.pop_var;
+        /*
         switch (MapD.dataView) {
           case "counts":
              for (var o in this.data) {
@@ -3798,17 +3922,23 @@ var Choropleth = {
              }
              break;
         }
+        */
+      this.setScale();
 
 
-        dataArray.sort(d3.ascending);
-        this.colorScale.domain([
-            d3.quantile(dataArray, 0.05), 
-            d3.quantile(dataArray, 0.95)
-          ]);
       var g = this.g;
       var colorScale = this.colorScale;
       var opacity= this.opacity;
-
+      this.features = g.selectAll("path")
+        .style("fill", function(d) {
+          return(colorScale(d.properties.val));
+        })
+        .style("stroke-width", function() {
+          if (isCounty)
+              return 0.5;
+          return 1.5;
+        });
+      /*
       switch (MapD.dataView) {
         case "counts": 
           this.features = g.selectAll("path")
@@ -3850,6 +3980,7 @@ var Choropleth = {
                 });
                 break;
         }
+        */
 
     }
 
