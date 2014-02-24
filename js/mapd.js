@@ -3569,6 +3569,8 @@ var Choropleth = {
   isTopo: true,
   curJoinParams: null,
   percents: false,
+  colorRamps: null,
+  colorScales: null,
   joinParams : {
     "countries": {jointable: "country_data", joinvar: "name", joinattrs: "pst045212,iso_a2", pop_var: "pst045212", map_key: "ISO2", data_key: "iso_a2", data_col: "country"},
     "states": {jointable: "state_data", joinvar: "name", joinattrs: "pst045212", pop_var: "pst045212", map_key: "abbr", data_key: "label", data_col: "state"},
@@ -3621,7 +3623,12 @@ var Choropleth = {
       this.svg = div.append("svg").attr("class", "choropleth");
       //this.g = this.svg.append("g").attr("id", ";
       //this.path = d3.geo.path().projection(project);
-      this.colorScale = d3.scale.quantize().range(["rgb(255,255,229)","rgb(255,247,188)", "rgb(254,227,145)", "rgb(254,196,79)", "rgb(254,153,41)", "rgb(236,112,20)", "rgb(204,76,2)", "rgb(140,45,4)"]);
+      this.colorRamps = {
+          "red_blue": d3.scale.quantize().range(["rgb(178,24,43)","rgb(214,96,77)", "rgb(244,165,130)", "rgb(253,219,199)", "rgb(209,229,240)", "rgb(146,197,222)", "rgb(67,147,195)", "rgb(33,102,172)"]),
+          "orange": d3.scale.quantize().range(["rgb(255,255,229)","rgb(255,247,188)", "rgb(254,227,145)", "rgb(254,196,79)", "rgb(254,153,41)", "rgb(236,112,20)", "rgb(204,76,2)", "rgb(140,45,4)"])
+      }
+      this.colorScale = this.colorRamps["red_blue"];
+
       this.map.events.register("moveend", this.map, $.proxy(this.reset,this));
     }, this);
     this.map.addLayer(this.overlay);
@@ -3728,11 +3735,14 @@ var Choropleth = {
      var numVals = data.length;
      var curJoinParams = this.curJoinParams;
      console.log("pop var: " + curJoinParams.pop_var);
-      if (this.percents == false) {
-        for (var i = 0; i < numVals; i++)
-            data[i].y /= data[i][curJoinParams.pop_var];
-      }
-
+     var popVar = curJoinParams.pop_var;
+     var dataViewMode = MapD.dataView;
+     /*
+     if (dataViewMode == "counts") {
+       for (var i = 0; i < numVals; i++)
+           data[i].y /= data[i][curJoinParams.pop_var];
+     }
+     */
      data.sort(function(a,b) { return d3.ascending(a.y, b.y) });
      var numFeatures = this.features[0].length;
       var wasFound = 0;
@@ -3744,8 +3754,8 @@ var Choropleth = {
           var found = false;
           if (data[i][curJoinParams.data_key] == key) {
            this.features[0][f].__data__.properties.y = data[i].y;
-           //this.features[0][f].__data__.properties.y = data[i].pst045212;
            this.features[0][f].__data__.properties.n = data[i].n;
+           this.features[0][f].__data__.properties.pop = data[i][popVar];
            wasFound++;
 
            //console.log(this.features[0][f].__data__);
@@ -3757,6 +3767,7 @@ var Choropleth = {
             notFound++;
             this.features[0][f].__data__.properties.y = null;
             this.features[0][f].__data__.properties.n = null;
+            this.features[0][f].__data__.properties.pop = null;
           }
       }
       console.log("Found: " + wasFound);
@@ -3768,10 +3779,27 @@ var Choropleth = {
    draw: function() {
         console.log("at draw");
         var isCounty = this.params.jointable == "county_data";
+        var popVar = this.curJoinParams.pop_var;
         var dataArray =  new Array;
-        for (var o in this.data) {
-            dataArray.push(this.data[o].y);
+        switch (MapD.dataView) {
+          case "counts":
+             for (var o in this.data) {
+                 dataArray.push(this.data[o].n / this.data[o][popVar]);
+             }
+             break;
+          case "dollars":
+             for (var o in this.data) {
+                 dataArray.push(this.data[o].y * this.data[o].n / this.data[o][popVar]);
+             }
+             break;
+          case "dollsperdon":
+             for (var o in this.data) {
+                 dataArray.push(this.data[o].y);
+             }
+             break;
         }
+
+
         dataArray.sort(d3.ascending);
         this.colorScale.domain([
             d3.quantile(dataArray, 0.05), 
@@ -3780,38 +3808,49 @@ var Choropleth = {
       var g = this.g;
       var colorScale = this.colorScale;
       var opacity= this.opacity;
-      if (this.percents == true) {
-        this.features = g.selectAll("path")
-          .style("fill", function(d) {
-            return(colorScale(d.properties.y));
-          })
-          .style("fill-opacity", function(d) {
-            if (d.properties.n != null && d.properties.n >= minTweets)
-              return opacity;
-            else
-              return 0.0;
-          })
-          .style("stroke-width", function() {
-            if (isCounty)
-                return 0.5;
-            return 1.5;
-          });
-       }
-      else {
-        this.features = g.selectAll("path")
-          .style("fill", function(d) {
-            console.log(d);
-            console.log(d.properties.y);
-            console.log(colorScale(d.properties.y));
-            return(colorScale(d.properties.y));
-          })
-          .style("fill-opacity",opacity)
-          .style("stroke-width", function() {
-            if (isCounty)
-                return 0.5;
-            return 1.5;
-          });
-      }
+
+      switch (MapD.dataView) {
+        case "counts": 
+          this.features = g.selectAll("path")
+            .style("fill", function(d) {
+              return(colorScale(d.properties.n / d.properties.pop));
+            })
+            .style("stroke-width", function() {
+              if (isCounty)
+                  return 0.5;
+              return 1.5;
+            });
+            break;
+          case "dollars": 
+          this.features = g.selectAll("path")
+            .style("fill", function(d) {
+              return(colorScale(d.properties.y  * d.properties.n / d.properties.pop));
+            })
+            .style("stroke-width", function() {
+              if (isCounty)
+                  return 0.5;
+              return 1.5;
+            });
+            break;
+            case "dollsperdon":
+              this.features = g.selectAll("path")
+                .style("fill", function(d) {
+                  return(colorScale(d.properties.y));
+                })
+                .style("fill-opacity", function(d) {
+                  if (d.properties.n != null && d.properties.n >= 10) // minTweets
+                    return opacity;
+                  else
+                    return 0.0;
+                })
+                .style("stroke-width", function() {
+                  if (isCounty)
+                      return 0.5;
+                  return 1.5;
+                });
+                break;
+        }
+
     }
 
 };
