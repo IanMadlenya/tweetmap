@@ -174,10 +174,12 @@ var LineChart =
        .style("top", this.margin.top + "px")
        .style("left", (this.margin.left + this.width + 10) + "px")
 
+    /*
     var resetButton = this.elems.optionsDiv.append("div")
         .attr("class", "sprites reset")
         .attr("title", "reset")
         .on("click", $.proxy(this.reset, this));
+    */
 
 //     var trends = this.elems.optionsDiv.append("div")
 //         .attr("class", "sprites trends")

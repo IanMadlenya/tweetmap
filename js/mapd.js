@@ -90,7 +90,7 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  host: "http://sirubu.velocidy.net:8080/",
+  host: "http://velocidy.net:7000/",
   table: "donations_ip",
   dataView: "counts",
   timestart: null,
@@ -130,7 +130,7 @@ var MapD = {
   
     //$("#dataDisplayBarchart").click(function() {console.log($(this).attr("id"));});  
     if (window.location.search == "?local")
-        this.host = "http://sirubu.velocidy.net:8080";
+        this.host = "http://sammy.velocidy.net:8080";
 
     Vars.selectedVar = "donations_ip";
     this.map = map;
