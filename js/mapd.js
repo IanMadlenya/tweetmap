@@ -130,7 +130,7 @@ var MapD = {
   
     //$("#dataDisplayBarchart").click(function() {console.log($(this).attr("id"));});  
     if (window.location.search == "?local")
-        this.host = "http://sammy.velocidy.net:8080";
+        this.host = "http://sirubu.velocidy.net:8080";
 
     Vars.selectedVar = "donations_ip";
     this.map = map;
@@ -234,10 +234,8 @@ var MapD = {
   },
 
   moveBaseAttr: function() {
-    //console.log("movebaseattr");
     $(".gmnoprint").each(function() {
         var right = parseInt($(this).css("right"), 10);
-        //console.log(right);
         $(this).css("right", right+40);
     })
     $(".gmnoprint").hide();
@@ -253,7 +251,6 @@ var MapD = {
 
   },
   displayLink: function(response) {
-    //console.log(response.data.url);
     $("#link-dialog").html(response.data.url).dialog({width: 200, height: 70});
   },
     
@@ -270,14 +267,12 @@ var MapD = {
 
   genLink: function(fullEncode, callback) {
     var link = this.writeLink(fullEncode);
-    //console.log ("long link: " + link);
     this.getShortURL(link, callback);
   },
   
   facebookShare: function(response) {
     //var link = this.writeLink(true);
     var link = response.data.url; 
-    //console.log(link);
     var countLinkUrl= "http://mapd.csail.mit.edu/tweetmap";
     var message = "Check out this interactive tweetmap I made with GPU-powered mapD!"; 
     window.open(
@@ -286,7 +281,6 @@ var MapD = {
 
   resizeControl: function(event, ui) {
     var width = $("#control").width();
-    console.log(width);
     $("#mapview").css({left: width});
     $("#chart").css({left: width});
     $("#cloud").css({width:width});
@@ -306,13 +300,13 @@ var MapD = {
   resizeChart: function(event, ui) {
       var chartHeight = ui.size.height; 
       var chartBarHeight = chartHeight + 30;
-      console.log("Chart bar height: " + chartBarHeight);
+      //console.log("Chart bar height: " + chartBarHeight);
       //$("#mapview").css("bottom", chartBarHeight);
       $("#mapview").css("bottom", chartBarHeight);
       $("#chart").height("height", chartHeight);
       var height = $("#chart").height();
-      console.log("height: " + height);
-      console.log("chartHeight: " + chartHeight);
+      //console.log("height: " + height);
+      //console.log("chartHeight: " + chartHeight);
       MapD.map.updateSize();
       $('div#chart').empty();
       Chart.init($('div#chart'));
@@ -336,14 +330,9 @@ var MapD = {
 
 
   resizeCloud: function(event, ui) {
-      console.log(event);
-      console.log(ui);
       var comboHeight = $("#control").height() - 40;  
-      console.log("Combo Height: " + comboHeight);
       var cloudHeight = ui.size.height;
-      console.log("Cloud Height: " + cloudHeight);
       var tweetsHeight = comboHeight - cloudHeight;
-      console.log("Tweets Height: " + tweetsHeight);
       $("#tweets").height(tweetsHeight);
       $("#cloudBox").height(cloudHeight);
       $("#cloud").height(cloudHeight - 70);
@@ -359,7 +348,6 @@ var MapD = {
   sendTweet: function(response) {
     //var link = this.writeLink(true);
     var link = response.data.url; 
-    //console.log("tweet link");
     var countLinkUrl= "http://mapd.csail.mit.edu/tweetmap";
     var message = "Check out this interactive tweetmap I made with GPU-powered mapD!"; 
     window.open("https://twitter.com/share?" +
@@ -386,8 +374,6 @@ var MapD = {
 
       var mapParams = {extent: new OpenLayers.Bounds(BBOX.US.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:6,  pointG:90, pointB:199, pointRadius:2, pointColorBy: "party", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Light", fullScreen: 1};
       mapParams = this.readLink(mapParams);
-      //console.log("map params");
-      //console.log(mapParams);
       this.timestart = mapParams.t0;
       this.timeend = mapParams.t1;
       this.timestart = 1050000000; 
@@ -416,8 +402,6 @@ var MapD = {
       }
 
       this.services.topktokens.xVar = mapParams.scatterXVar; 
-      //console.log("xvar: " + this.services.topktokens.xVar);
-      //console.log("Join attrs: " + this.services.topktokens.params.joinattrs);
       ScatterPlot.selectedVar = mapParams.scatterXVar;
       if (mapParams.fullScreen == 1) {
         $("#sizeButton").click();
@@ -458,7 +442,6 @@ var MapD = {
             Chart.chart.setMode("num");
           else
             Chart.chart.setMode("money");
-          console.log(this.dataView);
           //Vars.selectedVar = $(this).val();
           //console.log(Vars.selectedVar);
         //$(".detail-text").html("<i>All " + Vars.selectedVar + "</i>");
@@ -837,7 +820,6 @@ var MapD = {
             searchString = Vars.datasets[Vars.selectedVar].aux.text + " ilike '"  
         }
         else {
-          console.log("At end quote");
           expectOperand = false;
           if (searchString[searchString.length -1] == ' ') {
             searchString = searchString.substr(0,searchString.length-1) + "'";
@@ -875,7 +857,6 @@ var MapD = {
   
 
   setQueryTerms: function(queryTerms) {
-    console.log("Query terms: " + queryTerms);
     if (queryTerms != undefined) {
       if (queryTerms[0] != '"' && this.queryTerms[this.queryTerms.length -1] != '"')
           this.queryTerms = queryTerms.trim().split(" ").filter(function(d) {return d});
@@ -889,7 +870,6 @@ var MapD = {
   },
 
   parseQueryTerms: function(queryTerms) { 
-    //console.log(queryTerms);
     if (queryTerms[0] == "multilanguage:") {
         var query = "tweet_text ilike 'coffee' or tweet_text ilike 'café' or tweet_text ilike 'caffè' or tweet_text ilike 'kaffe' or tweet_text ilike 'kaffe' or tweet_text ilike 'кофе' or tweet_text ilike 'kahve' or tweet_text ilike 'قهوة' or tweet_text ilike '咖啡' or tweet_text ilike '커피' or tweet_text ilike 'コーヒー' or tweet_text ilike 'kopi'";
 	return query;
@@ -918,7 +898,6 @@ var MapD = {
   },
 
   getOriginQuery: function () {
-    console.log("origin: " + this.origin);
     if (this.origin != undefined && this.origin != null && this.origin != "") {
       var query = "";
       query += "origin ilike '" + this.origin + "' and ";
@@ -945,11 +924,9 @@ var MapD = {
   },
 
   getPartyQuery: function(party) {
-    console.log("AT PARTY QUERY");
     if (party != undefined && party != null && party != "") {
       var query = "";
       query += "party ilike '" + party + "' and ";
-      console.log(query);
       return query;
     }
     return "";
@@ -959,14 +936,12 @@ var MapD = {
     var query = ""; 
     if (queryTerms.length) {
       //queryTerms = this.parseQueryTerms(queryTerms);
-      console.log("Now doing parse Expression: ");
       if (split == true) {
         queryTerms = this.parseQueryExpression(this.services.search.termsInput.val());
       }
       else  {
         queryTerms = Vars.datasets[Vars.selectedVar].aux.text + " ilike '"+ this.services.search.termsInput.val() + "'";
       }
-      console.log(queryTerms);
 
       query += queryTerms + " and ";
     }
@@ -977,8 +952,6 @@ var MapD = {
 
 
   getTimeQuery: function (timestart, timeend) {
-    console.log("at get time query");
-    console.log(Vars.selectedVar);
     var query = "";
     if (timestart)
       query +=  Vars.datasets[Vars.selectedVar].time + " >= " + timestart + " and ";
@@ -999,7 +972,6 @@ var MapD = {
     var minId = null;
     if (options) {
       if (options.time) {
-        //console.log("time " + options.time.timestart);
         timestart = options.time.timestart;
         timeend = options.time.timeend;
       }
@@ -1020,7 +992,6 @@ var MapD = {
 
       
     }
-    //console.log("minid: " + minId);
     
         var addedOrigin = false;
         var addedLang = false;
@@ -1031,7 +1002,6 @@ var MapD = {
       if (splitQuery) {
         var queryArray = new Array(2);
         queryArray[0] = this.getTermsAndUserQuery(queryTerms, false, user);
-        console.log("Query array!: " + queryArray[0]);
         if (queryArray[0] != "") {
           queryArray[0] = queryArray[0].substr(0, queryArray[0].length-5);
         }
@@ -1361,7 +1331,6 @@ var TopKTokens = {
   scatterVarChange: function(e) {
     //console.log($(this).find("option:selected"));
     TopKTokens.xVar = $(this).find("option:selected").get(0).value;
-    console.log("Xvar: " + TopKTokens.xVar);
     ScatterPlot.selectedVar = TopKTokens.xVar;
     //console.log(ScatterPlot.selectedVar);
     TopKTokens.reload();
@@ -1569,7 +1538,6 @@ var TopKTokens = {
       //this.mapd.services.search.locationCat = "State";
       //$("#locState").click();
       $("#locationSelect").val("State");
-      console.log("State!");
       this.mapd.services.search.locationInput.val(token);
       $('#locationInput').trigger('input');
       //this.setMenuItem("Source", "Words", false);
@@ -1598,13 +1566,9 @@ var TopKTokens = {
 
 
   addClickedWord: function(event) {
-    //console.log(event);
     //var token = event.originalEvent.srcElement.innerText;
     var token = event.target.innerHTML;
-    //console.log("circle cloud token: " + token);
     if (token.substring(0,5) != "<span") {
-      //console.log(this.mapd);
-      //console.log(this.sourceSetting);
       if (this.sourceSetting == "Word") {
         this.mapd.services.search.termsInput.val(this.mapd.services.search.termsInput.val() + " " + token);
         $('#termsInput').trigger('input');
@@ -1690,7 +1654,6 @@ var TopKTokens = {
             for (var t = numResultsToExclude; t < numTokens; t++) {
               //$('<li>' + tokens[i] + '</li>').appendTo(cloud);
                 if (counts[t] == 0 && this.locked == false) {
-                    console.log("Breaking at: " + t);
                     wordArray = wordArray.slice(0,t-numResultsToExclude);
                     break;
                 }
@@ -1716,7 +1679,6 @@ var TopKTokens = {
             }
         }
         $(this.displayDiv).empty();
-        console.log("Array length: " + wordArray.length);
         this.displayDiv.jQCloud(wordArray);
     }
     else if (this.displaySetting == "Bar") {
@@ -1729,14 +1691,11 @@ var TopKTokens = {
         var numResultsToExclude = 0;
         if (this.sourceSetting == "Word")
           numResultsToExclude = numQueryTerms; 
-        //console.log("num results to exclude: " + numResultsToExclude);
         BarChart.addData(json, numResultsToExclude, this.modeSetting);
     }
     else if (this.displaySetting == "Scatter") {
         //if (update) 
         ScatterPlot.init(this, this.displayDiv);
-        //console.log("at load scatter");
-        //console.log(ScatterPlot);
         var numResultsToExclude = 0;
         if (this.sourceSetting == "Word")
           numResultsToExclude = numQueryTerms; 
@@ -1745,7 +1704,6 @@ var TopKTokens = {
 
     var label = (this.sourceSetting == "Word") ? "# Words: " : ((this.sourceSetting == "User") ? "# Tweets: " : "# Tweets: ");
     $('#numTokensText').text(label + numberWithCommas(n));
-    //console.log("triggering loadend");
     $(this).trigger('loadend');
 
   }
@@ -1756,7 +1714,7 @@ var PointMap = {
   mapd: MapD,
   wms: null,
   colorBy: "none",
-  colormap: {"R": [200,0,0], "D": [0,0,255], "I": [200,200,0], "3": [0,200,0], "default": [140,140,140]},
+  colormap: {"R": [200,0,0], "D": [0,0,255], "I": [200,0,200], "3": [0,200,0], "default": [140,140,140]},
 
   params: {
     request: "GetMap",
@@ -1795,7 +1753,6 @@ var PointMap = {
     $("#pointColorPicker").minicolors({ 
         changeDelay:50,
         change: $.proxy (function (hex) {
-            //console.log(hex);
             var rgb = $("#pointColorPicker").minicolors('rgbObject');
             this.params.r = rgb.r;
             this.params.g = rgb.g;
@@ -1810,7 +1767,6 @@ var PointMap = {
     $(".point-size").click($.proxy(function(e) { 
       //this.params.radius = $(e.target).index() + 1;
       this.params.radius = $(e.target).index() - 1;
-      //console.log("this.params.radius: " + this.params.radius);
       $(".point-size").removeClass("point-size-selected");
       $(e.target).addClass("point-size-selected");
       this.reload();
@@ -1850,7 +1806,6 @@ var PointMap = {
   },
 
   setWMSParams: function() {
-    //console.log("retile");
     //this.wms.params = OpenLayers.Util.extend(this.wms.params, this.getParams());
   },
 
@@ -1864,12 +1819,10 @@ var PointMap = {
     this.params.sql += " from " + this.mapd.table;
     this.params.sql += this.mapd.getWhere(options);
     this.params.colormap = $.toJSON(this.colormap);
-    //console.log(this.params.sql);
     return this.params;
   },
 
   reload: function(options) {
-    //console.log("reload");
     this.params.rand = Math.round(Math.random() * 10000);
     this.wms.mergeNewParams(this.getParams(options));
   }
@@ -1896,7 +1849,6 @@ var BaseMap = {
           .appendTo(baseMenu);
       }
     }
-    //console.log(this.baseLayerNames);
     
     $(".base-choice").click($.proxy(function(e) { 
       this.currentLayer = $(e.target).text();
@@ -1976,20 +1928,16 @@ var HeatMap = {
   },
 
   processColorRamps: function(json) {
-    //console.log(json);
     var rampsCont = $("#colorRamps");
     var x = 80;
     var y = 20;
     for (var i = 0; i < json.length; ++i) {
-      //console.log(json[i]);
       var canvas = $('<canvas></canvas>').attr("id", json[i].name).attr("class", "color-ramp").prop("width", x).prop("height",y).appendTo(rampsCont).click($.proxy(this.changeRamp,this)).get(0);
-      //console.log(canvas);
       var context = canvas.getContext("2d");
       context.rect(0,0,x-2,y-2);
       var gradient = context.createLinearGradient(0, 0, x, 0);
       var colors = json[i].colors;
       for (var c = 0; c != colors.length; ++c) {
-        //console.log(json[i].name + " - " + colors[c].stop + " (" + colors[c].r + "," + colors[c].g + "," + colors[c].b + ")");
         gradient.addColorStop(colors[c].stop, "rgb(" + colors[c].r +"," + colors[c].g +"," + colors[c].b+")");
       }
       context.fillStyle=gradient;
@@ -2060,8 +2008,6 @@ var HeatMap = {
     else
       this.params.maxval = "auto"; 
 
-    //console.log("FINAL");
-    //console.log(this.params.sql);
     return this.params;
   },
 
@@ -2180,7 +2126,7 @@ var TweetClick =
         money.html('$' + tweet.amount + ' --> ');
         content.html(tweet[Vars.datasets[Vars.selectedVar].aux.text]);
         $('<div style="clear: both;"></div>').appendTo(container);
-        console.log("Content: " + tweet[Vars.datasets[Vars.selectedVar].aux.text]);
+        //console.log("Content: " + tweet[Vars.datasets[Vars.selectedVar].aux.text]);
         //content.html(twttr.txt.autoLink(tweet.tweet_text, {targetBlank: true}));
         profile.html(tweet[Vars.datasets[Vars.selectedVar].aux.user]);
         //profile.attr('href', 'https://twitter.com/' + tweet.sender_name);
@@ -2454,7 +2400,6 @@ init: function(sortDiv, viewDiv) {
         this.numDisplayTweets = 0;
         $("#resultsCount").html(numberWithCommas(this.numTweets));
       }
-      console.log("returning");
 
       return;
     }
@@ -2702,7 +2647,6 @@ var GeoCoder = {
   },
 
   geocode: function(address) {
-   console.log("at geocode");
     this.address = address;
     this._geocoder.geocode({'address': address}, $.proxy(this.onGeoCoding, this));
   },
@@ -2757,8 +2701,6 @@ var Search = {
   init: function(map, form, zoomForm, curLoc, termsInput, userInput, locationCatMenu, locationInput, partyInput, seatInput, langInput, zoomInput, originInput) {
     $(document).on('propertychange keyup input paste', 'input.search-input', function() {
       var io = $(this).val().length ? 1: 0;
-      console.log("at icon clear");
-      console.log(io);
 
       $(this).next('.iconClear').stop().fadeTo(300,io);
       }).on('click', '.iconClear', function() {
@@ -2885,7 +2827,6 @@ var Search = {
    },
 
    zoomToPosition: function(position) {
-    console.log(position);
     var center = new OpenLayers.LonLat(position.coords.longitude, position.coords.latitude).transform(new OpenLayers.Projection("EPSG:4326"), new OpenLayers.Projection("EPSG:900913"));
     map.setCenter(center, 16);
     MapD.services.tweets.addPoint(center.x, center.y, 100, "#f00"); 
@@ -2893,7 +2834,6 @@ var Search = {
    },
 
   onSearch: function() {
-    console.log("on search"); 
     var terms = this.termsInput.val();
     //var origin = this.originInput.val();
     var origin = "";
@@ -2950,7 +2890,6 @@ var Search = {
     */
 
     var zoomTo = this.zoomInput.val();
-    console.log(zoomTo);
     this.zoomToChanged = this.zoomTo != zoomTo;
     this.terms = terms;
     this.user = this.userInput.val();
@@ -2965,7 +2904,6 @@ var Search = {
     //console.log ("user: " + this.user);
     if (this.zoomToChanged) {
       this.zoomTo = zoomTo;
-      console.log("about to zoom");
       this.geocoder.geocode(this.zoomTo);
       return false;
     }
@@ -3053,9 +2991,9 @@ var Animation = {
           numLayersVisible++; // for chart
       if (this.choropleth.active)
           numLayersVisible++; // choropleth
-      console.log("Num layers visible: " + numLayersVisible);
+      //console.log("Num layers visible: " + numLayersVisible);
       this.numLayersLoaded++;
-      console.log("Num layers loaded: " + this.numLayersLoaded);
+      //console.log("Num layers loaded: " + this.numLayersLoaded);
       if (this.numLayersLoaded >= numLayersVisible) {
           var curTime = new Date().getTime();
           this.numLayersLoaded = 0;
@@ -3088,6 +3026,7 @@ var Animation = {
       this.mapd.services.pointmap.reload(options);
       this.mapd.services.heatmap.reload(options);
       this.mapd.services.choropleth.reload(options);
+      //this.mapd.services.choropleth.reload();
       if (this.mapd.fullScreen == false)
           this.wordGraph.reload(graphOptions);
     }
@@ -3100,22 +3039,21 @@ var Animation = {
 
 
   playFunc: function () {
-    console.log("at play");
     if (this.playing == false) {
       this.playing = true;
       this.playPauseButton.removeClass("play-icon").addClass("pause-icon");
       if (this.animStart == null) { // won't trigger if paused
         this.animStart = Number(this.mapd.timestart);
         this.animEnd = Number(this.mapd.timeend);
-        console.log ("Anim start: " + this.animStart);
-        console.log ("Anim end: " + this.animEnd);
+        //console.log ("Anim start: " + this.animStart);
+        //console.log ("Anim end: " + this.animEnd);
         this.frameStep = (this.animEnd - this.animStart) / this.numFrames;
         this.frameWidth = this.frameStep * 4.0; 
         this.prevTime = 0;
         this.frameStart = this.animStart;
         this.frameEnd = this.animStart + this.frameWidth;
-        console.log("Frame start: " + this.frameStart);
-        console.log("Frame end: " + this.frameEnd);
+        //console.log("Frame start: " + this.frameStart);
+        //console.log("Frame end: " + this.frameEnd);
         this.heatMax = parseFloat($.cookie('max_value')) * 10.0;
         var numPoints = parseInt($.cookie('tweet_count'));
         this.oldRadius = this.mapd.services.pointmap.params.radius;
@@ -3380,7 +3318,7 @@ var Chart =
     this.viewDiv = viewDiv;
     //this.viewDiv.html("");
     var height = $(this.viewDiv).height();
-    console.log("height of chart: " + height);
+    //console.log("height of chart: " + height);
     if (height == 0) {
       height = 140;
       /*
@@ -3388,7 +3326,7 @@ var Chart =
         height = 120;
       */
     }
-    console.log("new height of chart: " + height);
+    //console.log("new height of chart: " + height);
 
     
     this.chart.init(d3.select(this.viewDiv.get(0)),height,  $.proxy(this.onZoom, this), $.proxy(this.onCompare, this));
@@ -3412,7 +3350,7 @@ var Chart =
       options.splitQuery = true;
     */
     var query = this.mapd.getWhere(options);
-    console.log(query);
+    //console.log(query);
     /*
     if (queryArray[0])
       this.params.sql += "," + queryArray[0];
@@ -3428,7 +3366,7 @@ var Chart =
     }
     this.params.bbox = this.mapd.map.getExtent().toBBOX();
     this.params.id = options.id;
-    console.log("End query id " + this.params.id);
+    //console.log("End query id " + this.params.id);
     var url = this.mapd.host + '?' + buildURI(this.params);
     return url;
   },
@@ -3438,15 +3376,15 @@ var Chart =
     var queryTerms = this.mapd.queryTerms;
     // for now, time range always corresponds to entire data range
     var requestId = ++this.requestId;
-    console.log("Start requestid: " + requestId);
+    //console.log("Start requestid: " + requestId);
     var options = {queryTerms: queryTerms, user: this.mapd.user, id: requestId,  time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend}};
-    console.log(options);
+    //console.log(options);
     this.clearChart();
     clearCount++;
-    console.log("Clear count: " + clearCount);
+    //console.log("Clear count: " + clearCount);
     if (queryTerms == "" && this.mapd.party == "") {
       $(".compare-input").hide();
-      console.log("query terms empty");
+      //console.log("query terms empty");
       //#e3d83d
       //$.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, "Total", "#fa7a39", false));
 
@@ -3472,7 +3410,7 @@ var Chart =
             $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Republicans", "#d22", false));
             break;
           case "I":
-            $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Independents", "#C8C800", false));
+            $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Independents", "#3f007d", false));
             break;
           case "3":
             $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Greens", "#00C800", false));
@@ -3511,9 +3449,9 @@ var Chart =
     */
     //this.queryTerms.push(queryTerms);
     var series = [];
-    console.log("MapD dataview: " + MapD.dataView);
+    //console.log("MapD dataview: " + MapD.dataView);
     var dayMult = Chart.params.histbins/((frameEnd - frameStart)/86400.0);
-    console.log("Day mult: " + dayMult);
+    //console.log("Day mult: " + dayMult);
 
 
 
@@ -3523,7 +3461,7 @@ var Chart =
       }
     }
     else if (MapD.dataView == "dollars") {
-      console.log("doing dollars");
+      //console.log("doing dollars");
       for (i in json.x) {
         if (json.count[i] > 0)
           series.push({date: new Date(json.x[i] * 1000), value: json.count[i] * json.y[i] * dayMult});
@@ -3533,7 +3471,7 @@ var Chart =
       }
     }
     else if (MapD.dataView == "dollsperdon") {
-        console.log("doing dollarsperdon");
+        //console.log("doing dollarsperdon");
       for (i in json.x) {
         if (json.count[i] > 0) {
           series.push({date: new Date(json.x[i] * 1000), value: json.y[i]});
@@ -3545,7 +3483,7 @@ var Chart =
   },
 
   onZoom: function() {
-    console.log(this.chart.brush.extent());
+    //console.log(this.chart.brush.extent());
     var start = (this.chart.brush.extent()[0]/ 1000).toFixed(0);
     var end = (this.chart.brush.extent()[1] / 1000).toFixed(0);
     this.mapd.reloadByGraph(start, end);
@@ -3602,7 +3540,7 @@ var Choropleth = {
 
      $("#polyMenu").click($.proxy(function(e) {
         var choice = this.getMenuItemClicked(e.target);
-        console.log(choice);
+        //console.log(choice);
         this.setLayer(choice);
         /*
          switch (choice) {
@@ -3631,9 +3569,11 @@ var Choropleth = {
       //this.path = d3.geo.path().projection(project);
       this.colorRamps = {
           "red_blue": d3.scale.quantize().range(["rgb(178,24,43)","rgb(214,96,77)", "rgb(244,165,130)", "rgb(253,219,199)", "rgb(209,229,240)", "rgb(146,197,222)", "rgb(67,147,195)", "rgb(33,102,172)"]),
-          "orange": d3.scale.quantize().range(["rgb(255,255,229)","rgb(255,247,188)", "rgb(254,227,145)", "rgb(254,196,79)", "rgb(254,153,41)", "rgb(236,112,20)", "rgb(204,76,2)", "rgb(140,45,4)"])
+          "orange_multi": d3.scale.quantize().range(["rgb(255,255,229)","rgb(255,247,188)", "rgb(254,227,145)", "rgb(254,196,79)", "rgb(254,153,41)", "rgb(236,112,20)", "rgb(204,76,2)", "rgb(140,45,4)"]),
+          "green_multi": d3.scale.quantize().range(["rgb(255,255,229)","rgb(247,242,185)", "rgb(217,240,163)", "rgb(173,221,142)", "rgb(120,198,121)", "rgb(65,171,93)", "rgb(35,132,67)", "rgb(0,90,50)"])
       }
       this.colorScale = this.colorRamps["red_blue"];
+      //this.colorScale = colorbrewer.RdBu[9];
 
       this.map.events.register("moveend", this.map, $.proxy(this.reset,this));
     }, this);
@@ -3641,13 +3581,13 @@ var Choropleth = {
   },
 
   setLayer: function(layer) {
-    console.log(layer);
+    //console.log(layer);
     if (layer != this.curLayer && layer in this.layers) {
       //this.curLayer = this.layers[layer].name;
       this.curLayer = layer;
-      console.log("curlayer: " + this.curLayer);
+      //console.log("curlayer: " + this.curLayer);
       this.isTopo = this.layers[layer].isTopo;
-      console.log("is topo: " + this.isTopo);
+      //console.log("is topo: " + this.isTopo);
       if (this.active) {
         this.addGeoData();
       }
@@ -3706,32 +3646,57 @@ var Choropleth = {
 
    reload: function(options) {
      if (this.active) {
+       if (options == undefined || options == null) 
+         options = {};
+       options.splitQuery = false;
        if (this.mapD.queryTerms == "" && this.mapD.party == "") {
-         this.colorScale = this.colorRamps["red_blue"];
+         //this.colorScale = this.colorRamps["red_blue"];
+         this.colorScale = d3.scale.quantize().range(colorbrewer.RdBu[9]);
+         //console.log(this.colorScale);
          this.mode = "compare";
          this.numResponses = 0;
-         if (options == undefined || options == null) 
-           options = {};
          options.party = "D";
          $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, 1));
          options.party = "R";
          $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, 0));
        }
-       else  {
+       else {
+         if (this.mapD.party != "") {
+           switch (this.mapD.party) {
+             case "D":
+               this.colorScale = d3.scale.quantize().range(colorbrewer.Blues[9]);
+               break;
+             case "R":
+               this.colorScale = d3.scale.quantize().range(colorbrewer.Reds[9]);
+               break;
+             case "I":
+               this.colorScale = d3.scale.quantize().range(colorbrewer.Purples[9]);
+               break;
+             case "3":
+               this.colorScale = d3.scale.quantize().range(colorbrewer.Greens[9]);
+               break;
+           }
+         }
+         else {
+           this.colorScale = d3.scale.quantize().range(colorbrewer.YlGn[9]);
+           //this.colorScale = this.colorRamps["green_multi"];
+         }
+
          this.mode = "single";
          this.numResponses = 0;
-         this.colorScale = this.colorRamps["orange"];
+         //this.colorScale = d3.scale.quantize().range(colorbrewer.Greens[9]);
+         //this.colorScale = this.colorRamps["green_multi"];
          $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, -1));
        }
      }
    },
 
    getURL: function(options) {
+     console.log(options);
      var query = this.mapD.getWhere(options);
      this.params.sql = "select contributor_state, amount from " + this.mapD.table + query;
      this.percents = false;
      var url = this.mapD.host + '?' + buildURI(this.params);
-     console.log(url);
      return url;
     },
 
@@ -3752,7 +3717,7 @@ var Choropleth = {
    },
 
    onLoad: function(datasetNum, dataset) {
-     console.log("DatasetNum: " + datasetNum);
+     console.log(dataset);
      if (datasetNum >= 0) {
        this.compareData[datasetNum] = dataset.results;
        this.numResponses++;
@@ -3760,20 +3725,17 @@ var Choropleth = {
          return;
      }
      var g = this.g;
-     console.log(dataset);
-     var numVals = dataset.results.length;
+     var numVals = 0; 
+     if ("results" in dataset)
+       numVals = dataset.results.length;
+
      var curJoinParams = this.curJoinParams;
-     console.log("pop var: " + curJoinParams.pop_var);
      var popVar = curJoinParams.pop_var;
      var dataViewMode = MapD.dataView;
 
      if (this.numResponses == 2) {
-       console.log("Numvals " + numVals);
        this.data = [] 
        var data = this.data;
-       console.log("Before")
-       console.log(this.data);
-       console.log(data);
        var dataKey = curJoinParams.data_key;
 
         switch (MapD.dataView) {
@@ -3867,8 +3829,8 @@ var Choropleth = {
             //this.features[0][f].__data__.properties.pop = null;
           }
       }
-      console.log("Found: " + wasFound);
-      console.log("Not Found: " + notFound);
+      //console.log("Found: " + wasFound);
+      //console.log("Not Found: " + notFound);
       this.draw();
       $(this).trigger('loadend');
    },
@@ -3877,13 +3839,10 @@ var Choropleth = {
       var dataArray =  new Array;
       for (var o in this.data) {
          dataArray.push(this.data[o].val);
-         console.log(this.data[o].val);
       }
       dataArray.sort(d3.ascending);
       var minQuantile = d3.quantile(dataArray, 0.05);
       var maxQuantile = d3.quantile(dataArray, 0.95);
-      console.log("min " + minQuantile);
-      console.log("max " + maxQuantile);
       if (this.mode == "compare") {
         if (Math.abs(minQuantile) > Math.abs(maxQuantile)) {
           maxQuantile = Math.abs(minQuantile);
@@ -3902,7 +3861,6 @@ var Choropleth = {
 
 
    draw: function() {
-        console.log("at draw");
         var isCounty = this.params.jointable == "county_data";
         //var popVar = this.curJoinParams.pop_var;
         /*

@@ -72,8 +72,6 @@ var LineChart =
       //.on("brushstart", $.proxy(this.brushdown, this))
       .on("brush", $.proxy(this.brushed, this))
       .on("brushend", $.proxy(this.brushdown, this));
-    console.log("At beginning");
-    console.log(this.brush.extent());
     this.xAxis = d3.svg.axis()
         .scale(this.x)
         .orient("bottom")
@@ -247,10 +245,8 @@ var LineChart =
 
 
 
-    //console.log("updating");
     var cont =  $($(this.elems.container).get(0));
     this.width = cont.width() - this.margin.left - this.margin.right;
-    //console.log("width: " + this.width);
     this.height = this.chartHeight - this.margin.top - this.margin.bottom;
     //this.svg.remove();
 
@@ -327,30 +323,28 @@ var LineChart =
 
   brushed: function() {
     //this.resetInfo();
-    //console.log("brushed");
   },
 
   brushdown: function() {
-   console.log("brushdown");
-   console.log(this.brush.extent());
+   //console.log("brushdown");
+   //console.log(this.brush.extent());
     var brushChanged = (+this.brush.extent()[0] != +this.brushExtent[0] || +this.brush.extent()[1] != +this.brushExtent[1]);
     if (brushChanged) {
         //this.resetInfo();
         this.zoomCallback();
     }
-   console.log(this.brush.extent());
+   //console.log(this.brush.extent());
 
     //console.log(this.brush.extent());
   },
 
 
   setBrushExtent: function(extent) {
-    console.log("SETTING");
-    console.log(extent);
+    //console.log(extent);
     this.brushExtent = extent;
-    console.log(this.brush.extent());
+    //console.log(this.brush.extent());
     this.brush.extent(this.brushExtent);
-    console.log(this.brush.extent());
+    //console.log(this.brush.extent());
     this.redrawBrush();
   },
 
@@ -382,9 +376,7 @@ var LineChart =
     //jvar xDomain = [this.series.xDomain[0], this.series.xDomain[1]];
     var xDomain = [d3.min(this.series, function(s) { return s.xDomain[0] }), 
                    d3.max(this.series, function(s) { return s.xDomain[1]})];
-    console.log(xDomain);
     xDomain[1] = new Date(xDomain[1].getTime() + 60 *30000);
-    console.log(xDomain);
     return xDomain;
   },
 
@@ -424,7 +416,6 @@ var LineChart =
         this.x.domain(this.getXDomain());
     }
     */
-    console.log("X domain");
     this.x.domain(this.getXDomain());
     this.y.domain(this.getYDomain());
     this.zoom.x(this.x);   
@@ -451,8 +442,6 @@ var LineChart =
 
 
       this.brush.extent(this.brushExtent);
-      //console.log("brush");
-      //console.log(this.brush.extent());
 
       this.elems.svg.append("g")
         .attr("class", "brush")
@@ -611,7 +600,7 @@ var LineChart =
 
   resetInfo: function() {
     var range = null;
-    console.log(this.brush.extent());
+    //console.log(this.brush.extent());
     if (this.brush.extent()[0].getMonth)
       range = this.formatDate(this.brush.extent()[0]) + " - " + this.formatDate(this.brush.extent()[1]);
     else {
@@ -623,7 +612,6 @@ var LineChart =
 
 
 
-    //console.log(range);
 
     this.elems.info.select("text.date").text(range);
     this.elems.info.selectAll("g.legend").select("text").text("");
