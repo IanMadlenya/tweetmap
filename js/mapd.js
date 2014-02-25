@@ -97,7 +97,7 @@ var MapD = {
   timeend: null,
   queryTerms: [],
   user: null,
-  party: null,
+  party: "",
   location: null,
   locationCat: null,
   datastart: null,
@@ -106,6 +106,7 @@ var MapD = {
   fullScreen: false,
   timeUpdates: 0,
   updateFlag: false,
+  politicianParty: null,
   controlWidth:400,
   streaming: false,
   services: {
@@ -854,9 +855,21 @@ var MapD = {
   return returnString + ")";
 },
             
-  
+  getParty: function (term) {
+   var party = null;
+   if (term != undefined && term != "") {
+     var reg = /\((\w)\)/;
+     var regArray = reg.exec(term);
+     if (regArray.length > 0)
+       party = regArray[1];
+   }
+   this.politicianParty = party;
+  },
+
+
 
   setQueryTerms: function(queryTerms) {
+    this.getParty(queryTerms);
     if (queryTerms != undefined) {
       if (queryTerms[0] != '"' && this.queryTerms[this.queryTerms.length -1] != '"')
           this.queryTerms = queryTerms.trim().split(" ").filter(function(d) {return d});
@@ -3302,6 +3315,12 @@ var Chart =
   seriesId: 0,
   queryTerms: [],
   requestId: 0,
+  partyInfo: {"R": {name: "Republicans", color: "#d22"},
+              "D": {name: "Democrats", color: "#2255cc"},
+              "I": {name: "Independents", color: "#3f007d"},
+              "3": {name: "Greens", color: "#00C800"}
+             },
+  
   params: {
     request: "Graph",
     sql: null,
@@ -3374,6 +3393,8 @@ var Chart =
   reload: function() {
     //var queryTerms = this.queryTerms.slice(0);
     var queryTerms = this.mapd.queryTerms;
+    //if (queryTerms.length == 0)
+    //  queryTerms = "";
     // for now, time range always corresponds to entire data range
     var requestId = ++this.requestId;
     //console.log("Start requestid: " + requestId);
@@ -3384,7 +3405,7 @@ var Chart =
     //console.log("Clear count: " + clearCount);
     if (queryTerms == "" && this.mapd.party == "") {
       $(".compare-input").hide();
-      //console.log("query terms empty");
+      console.log("query terms empty");
       //#e3d83d
       //$.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, "Total", "#fa7a39", false));
 
@@ -3401,25 +3422,18 @@ var Chart =
     }
     else {
       $(".compare-input").show();
-      if (queryTerms == "") {
-        switch (this.mapd.party) {
-          case "D":
-            $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, "Democrats", "#2255cc", false));
-            break;
-          case "R":
-            $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Republicans", "#d22", false));
-            break;
-          case "I":
-            $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Independents", "#3f007d", false));
-            break;
-          case "3":
-            $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, "Greens", "#00C800", false));
-            break;
-        }
+      var party = this.mapd.party;
+      var name = "";
+      if (queryTerms != "") {
+        name = queryTerms;
+        if (this.mapd.politicianParty != null)
+          party = this.mapd.politicianParty;
       }
-      else {
-        $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, this.mapd.queryTerms, "#fa7a39", true));
+      else  {
+        name = this.partyInfo[party].name;
       }
+      var color = party == "" ? "#fa7a39" : this.partyInfo[party].color;
+      $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, name, color, false));
     }
   },
 
@@ -3573,8 +3587,6 @@ var Choropleth = {
           "orange_multi": d3.scale.quantize().range(["rgb(255,255,229)","rgb(255,247,188)", "rgb(254,227,145)", "rgb(254,196,79)", "rgb(254,153,41)", "rgb(236,112,20)", "rgb(204,76,2)", "rgb(140,45,4)"]),
           "green_multi": d3.scale.quantize().range(["rgb(255,255,229)","rgb(247,242,185)", "rgb(217,240,163)", "rgb(173,221,142)", "rgb(120,198,121)", "rgb(65,171,93)", "rgb(35,132,67)", "rgb(0,90,50)"])
       }
-      this.colorScale = this.colorRamps["red_blue"];
-      //this.colorScale = colorbrewer.RdBu[9];
 
       this.map.events.register("moveend", this.map, $.proxy(this.reset,this));
     }, this);
@@ -3655,7 +3667,8 @@ var Choropleth = {
        if (options == undefined || options == null) 
          options = {};
        options.splitQuery = false;
-       if (this.mapD.queryTerms == "" && this.mapD.party == "") {
+       var party = this.mapD.party;
+       if (this.mapD.queryTerms == "" && party == "") {
          //this.colorScale = this.colorRamps["red_blue"];
          this.colorScale = d3.scale.quantize().range(colorbrewer.RdBu[9]);
          //console.log(this.colorScale);
@@ -3667,8 +3680,11 @@ var Choropleth = {
          $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, 0));
        }
        else {
-         if (this.mapD.party != "") {
-           switch (this.mapD.party) {
+         if (party == "" && this.mapD.politicianParty != null)
+           party = this.mapD.politicianParty;
+         
+         if (party != "") {
+           switch (party) {
              case "D":
                this.colorScale = d3.scale.quantize().range(colorbrewer.Blues[9]);
                break;
