@@ -373,7 +373,7 @@ var MapD = {
       //this.timeend = 1300000000;
       //this.timestart = Math.max(this.dataend - 8640000,  Math.round((this.dataend-this.datastart)*.01 + this.datastart));
 
-      var mapParams = {extent: new OpenLayers.Bounds(BBOX.US.split(',')), baseOn: 1, pointOn: 1, heatOn: 0, polyOn: 0, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:6,  pointG:90, pointB:199, pointRadius:2, pointColorBy: "party", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Light", fullScreen: 1};
+      var mapParams = {extent: new OpenLayers.Bounds(BBOX.US.split(',')), baseOn: 1, pointOn: 0, heatOn: 0, polyOn: 1, dataDisplay: "Cloud", dataSource: "Word", dataMode: "Counts",  dataLocked: 0, t0: this.timestart, t1: this.timeend, pointR:6,  pointG:90, pointB:199, pointRadius:2, pointColorBy: "party", heatRamp: "green_red", scatterXVar: "pst045212", baseLayer: "Light", fullScreen: 1};
       mapParams = this.readLink(mapParams);
       this.timestart = mapParams.t0;
       this.timeend = mapParams.t1;
@@ -3639,7 +3639,22 @@ var Choropleth = {
           Choropleth.features = g.selectAll("path")
             .data(topojson.feature(json, json.objects[Choropleth.layers[Choropleth.curLayer].layerName]).features)
             .enter().append("path")
-            .attr("d",path);
+            .attr("d",path)
+            .style("stroke-width", 0.5)
+            .on("mouseover", function(d, a) {
+              console.log(d);
+              var event = d3.event;
+              var x = event.x;
+              var y = event.y;
+              var polyId = "poly" + a.toString();
+
+              console.log(polyId);
+              $('<p>Test</p>').attr("id", polyId).css({position: "absolute", top: y, left: x}).appendTo("body");
+            })
+            .on("mouseout", function(d, a) {
+              var polyId = "#poly" + a.toString();
+              $(polyId).remove();
+            });
           Choropleth.reset();
         });
       }
@@ -3649,8 +3664,23 @@ var Choropleth = {
             .data(json.features)
             .enter().append("path")
             .attr("d",path)
-          Choropleth.reset();
+            .style("stroke-width", 1.0)
+            .on("mouseover", function(d, a) {
+              console.log(d);
+              console.log(a);
+              var event = d3.event;
+              var x = event.x;
+              var y = event.y;
+              var polyId = "poly" + a.toString(); 
+              console.log(polyId);
+              $('<p>Test</p>').attr("id", polyId).css({position: "absolute", top: y, left: x}).appendTo("body");
+            })
+            .on("mouseout", function(d, a) {
+              var polyId = "#poly" + a.toString();
+              $(polyId).remove();
+            });
         });
+        Choropleth.reset();
       }
       this.reload();
    },
@@ -3941,14 +3971,13 @@ var Choropleth = {
         .style("fill", function(d) {
           return(colorScale(d.properties.val));
         })
+        /*
         .style("stroke-width", function() {
           if (isCounty)
               return 0.5;
           return 1.5;
         })
-        //.on("mouseover", function(d, a) {
-        //  console.log(d);
-        //});
+        */
 
       /*
       switch (MapD.dataView) {
