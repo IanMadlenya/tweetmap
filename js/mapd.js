@@ -3515,9 +3515,9 @@ var Choropleth = {
   data: null,
   compareData: [0,0],
   joinParams : {
-    "countries": {jointable: "country_data", joinvar: "name", joinattrs: "pst045212,iso_a2", pop_var: "pst045212", map_key: "ISO2", data_key: "iso_a2", data_col: "country"},
-    "states": {jointable: "state_data", joinvar: "name", joinattrs: "pst045212", pop_var: "pst045212", map_key: "abbr", data_key: "label", data_col: "state"},
-    "counties": {jointable: "county_data", joinvar: "name", joinattrs: "pst045212,fips", pop_var: "pst045212", map_key: "id", data_key: "fips", data_col: "county"}
+    "Country": {jointable: "country_data", joinvar: "name", joinattrs: "pst045212,iso_a2", pop_var: "pst045212", map_key: "ISO2", data_key: "iso_a2", data_col: "country"},
+    "State": {jointable: "state_data", joinvar: "name", joinattrs: "pst045212", pop_var: "pst045212", map_key: "abbr", data_key: "label", data_col: "contributor_state"},
+    "County": {jointable: "county_data", joinvar: "fips", joinattrs: "pst045212,fips", pop_var: "pst045212", map_key: "id", data_key: "label", data_col: "contributor_county_fips"}
   },
   layers: {
      "State": {name: "states", isTopo: false},
@@ -3528,19 +3528,19 @@ var Choropleth = {
     request: "GroupByToken",
     sql: null,
     sort: "false",
-    k: 400,
-    jointable: "state_data",
-    joinvar: "name",
+    k: 10000,
+    jointable: "county_data",
+    joinvar: "fips",
     joinattrs: "pst045212",
     id: 0
   },
 
   init: function() {
-    this.curJoinParams = this.joinParams["states"];
+    this.curJoinParams = this.joinParams["County"];
 
      $("#polyMenu").click($.proxy(function(e) {
         var choice = this.getMenuItemClicked(e.target);
-        //console.log(choice);
+        console.log(choice);
         this.setLayer(choice);
         /*
          switch (choice) {
@@ -3585,6 +3585,10 @@ var Choropleth = {
     if (layer != this.curLayer && layer in this.layers) {
       //this.curLayer = this.layers[layer].name;
       this.curLayer = layer;
+      this.curJoinParams = this.joinParams[layer];
+      this.params.jointable = this.curJoinParams.jointable;
+      this.params.joinattrs = this.curJoinParams.pop_var;
+      this.params.joinvar = this.curJoinParams.joinvar;
       //console.log("curlayer: " + this.curLayer);
       this.isTopo = this.layers[layer].isTopo;
       //console.log("is topo: " + this.isTopo);
@@ -3694,7 +3698,7 @@ var Choropleth = {
    getURL: function(options) {
      console.log(options);
      var query = this.mapD.getWhere(options);
-     this.params.sql = "select contributor_state, amount from " + this.mapD.table + query;
+     this.params.sql = "select " + this.curJoinParams.data_col + ", amount from " + this.mapD.table + query;
      this.percents = false;
      var url = this.mapD.host + '?' + buildURI(this.params);
      return url;
@@ -3804,7 +3808,13 @@ var Choropleth = {
       var notFound = 0;
       for (var f = 0; f < numFeatures; f++) {
         var joined = false;
-        var key = this.features[0][f].__data__.properties[curJoinParams.map_key];
+        var key = "";
+        if (this.params.jointable == "county_data")
+            key = this.features[0][f].__data__.id;
+        else
+          key = this.features[0][f].__data__.properties[curJoinParams.map_key];
+        console.log(key);
+
         var found = false;
         for (var i = 0; i < numVals; i++) {
           if (data[i][curJoinParams.data_key] == key) {
@@ -3829,8 +3839,8 @@ var Choropleth = {
             //this.features[0][f].__data__.properties.pop = null;
           }
       }
-      //console.log("Found: " + wasFound);
-      //console.log("Not Found: " + notFound);
+      console.log("Found: " + wasFound);
+      console.log("Not Found: " + notFound);
       this.draw();
       $(this).trigger('loadend');
    },
