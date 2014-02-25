@@ -3513,6 +3513,7 @@ var Choropleth = {
   colorRamps: null,
   colorScales: null,
   data: null,
+  joinOrder: [],
   compareData: [0,0],
   joinParams : {
     "Country": {jointable: "country_data", joinvar: "name", joinattrs: "pst045212,iso_a2", pop_var: "pst045212", map_key: "ISO2", data_key: "iso_a2", data_col: "country"},
@@ -3584,6 +3585,7 @@ var Choropleth = {
     //console.log(layer);
     if (layer != this.curLayer && layer in this.layers) {
       //this.curLayer = this.layers[layer].name;
+      this.joinOrder = [];
       this.curLayer = layer;
       this.curJoinParams = this.joinParams[layer];
       this.params.jointable = this.curJoinParams.jointable;
@@ -3696,7 +3698,7 @@ var Choropleth = {
    },
 
    getURL: function(options) {
-     console.log(options);
+     //console.log(options);
      var query = this.mapD.getWhere(options);
      this.params.sql = "select " + this.curJoinParams.data_col + ", amount from " + this.mapD.table + query;
      this.percents = false;
@@ -3721,7 +3723,7 @@ var Choropleth = {
    },
 
    onLoad: function(datasetNum, dataset) {
-     console.log(dataset);
+     //console.log(dataset);
      if (datasetNum >= 0) {
        this.compareData[datasetNum] = dataset.results;
        this.numResponses++;
@@ -3733,14 +3735,13 @@ var Choropleth = {
      if ("results" in dataset)
        numVals = dataset.results.length;
 
-     var curJoinParams = this.curJoinParams;
-     var popVar = curJoinParams.pop_var;
+     var popVar = this.curJoinParams.pop_var;
      var dataViewMode = MapD.dataView;
 
      if (this.numResponses == 2) {
        this.data = [] 
        var data = this.data;
-       var dataKey = curJoinParams.data_key;
+       var dataKey = this.curJoinParams.data_key;
 
         switch (MapD.dataView) {
           case "counts": {
@@ -3794,15 +3795,37 @@ var Choropleth = {
           }
         }
       }
+
+      if (this.joinOrder.length == 0)
+        this.joinDataToMap();
+      else
+        this.joinDataToMapIndexed();
+
+      this.draw();
+      $(this).trigger('loadend');
+   },
+
+   joinDataToMapIndexed: function () {
+     var numFeatures = this.features[0].length;
+     var joinOrder = this.joinOrder;
+     var mapKey = this.curJoinParams.map_key;
      var data = this.data;
-     
-     /*
-     if (dataViewMode == "counts") {
-       for (var i = 0; i < numVals; i++)
-           data[i].y /= data[i][curJoinParams.pop_var];
+     for (var i = 0; i < numFeatures; i++) {
+       var joinIndex = joinOrder[i];
+       if (joinIndex >= 0) {
+           this.features[0][i].__data__.properties.val = data[joinIndex].val;
+           this.features[0][i].__data__.properties.n = data[joinIndex].n;
+       }
      }
-     */
-     //data.sort(function(a,b) { return d3.ascending(a.y, b.y) });
+   },
+
+
+
+   joinDataToMap: function () {
+     var data = this.data;
+     var numVals = data.length;
+     var curJoinParams = this.curJoinParams;
+
      var numFeatures = this.features[0].length;
       var wasFound = 0;
       var notFound = 0;
@@ -3813,13 +3836,14 @@ var Choropleth = {
             key = this.features[0][f].__data__.id;
         else
           key = this.features[0][f].__data__.properties[curJoinParams.map_key];
-        console.log(key);
+        //console.log(key);
 
         var found = false;
         for (var i = 0; i < numVals; i++) {
           if (data[i][curJoinParams.data_key] == key) {
            this.features[0][f].__data__.properties.val = data[i].val;
            this.features[0][f].__data__.properties.n = data[i].n;
+           this.joinOrder.push(i);
             /*
            this.features[0][f].__data__.properties.y = data[i].y;
            this.features[0][f].__data__.properties.n = data[i].n;
@@ -3835,15 +3859,14 @@ var Choropleth = {
             notFound++;
             this.features[0][f].__data__.properties.val = null;
             this.features[0][f].__data__.properties.n = null;
+            this.joinOrder.push(-1);
             //this.features[0][f].__data__.properties.y = null;
             //this.features[0][f].__data__.properties.pop = null;
           }
       }
       console.log("Found: " + wasFound);
       console.log("Not Found: " + notFound);
-      this.draw();
-      $(this).trigger('loadend');
-   },
+    },
 
    setScale: function() {
       var dataArray =  new Array;
@@ -3906,7 +3929,11 @@ var Choropleth = {
           if (isCounty)
               return 0.5;
           return 1.5;
-        });
+        })
+        //.on("mouseover", function(d, a) {
+        //  console.log(d);
+        //});
+
       /*
       switch (MapD.dataView) {
         case "counts": 
