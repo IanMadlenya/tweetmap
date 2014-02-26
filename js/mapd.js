@@ -2862,7 +2862,10 @@ var Search = {
    },
 
   onSearch: function() {
-    Chart.comparePol = null;
+    var zoomTo = this.zoomInput.val();
+    this.zoomToChanged = this.zoomTo != zoomTo;
+    if (this.zoomToChanged == false)
+      Chart.comparePol = null;
     var terms = this.termsInput.val();
     //var origin = this.originInput.val();
     var origin = "";
