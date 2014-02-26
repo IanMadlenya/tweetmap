@@ -33,6 +33,7 @@ var LineChart =
     svg: null,
     info: null,
     settingsDiv: null,
+    compareInput: null,
     animDiv: null,
     optionsDiv: null,
     compareDiv: null,
@@ -198,13 +199,15 @@ var LineChart =
     var form =  this.elems.compareDiv.append("form")
         .on("submit", $.proxy(this.compare, this));
 
-    var compareInput = form.append("input")
+    this.elems.compareInput = form.append("input")
         .attr("class", "compare-input")
+        .attr("id", "compareInput")
         .attr("type", "text")
         .attr("placeholder", " Compare");
 
     this.elems.detailsDiv = this.elems.settingsDiv.append("div")
         .attr("class", "chart-details");
+
 
     /*
     this.elems.animDiv = $("<div></div>").attr("id", "animControls").appendTo($(this.elems.settingsDiv));
@@ -688,10 +691,12 @@ var LineChart =
         .property("value");
     this.elems.compareDiv.select("form").select(".compare-input")
         .property("value", "");
+    console.log(terms);
     this.compareCallback(terms);
   },
 
   removeSeries: function(id) {
+    Chart.comparePol = null;
     var self = this;
     var series = this.series.filter(function(s) { return (id == s.id); })[0]
     if (!series) return;

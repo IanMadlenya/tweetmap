@@ -863,13 +863,15 @@ var MapD = {
      if (regArray.length > 0)
        party = regArray[1];
    }
-   this.politicianParty = party;
+   return party;
   },
 
 
 
   setQueryTerms: function(queryTerms) {
-    this.getParty(queryTerms);
+    this.politicianParty = this.getParty(queryTerms);
+    this.queryTerms = queryTerms;
+    /*
     if (queryTerms != undefined) {
       if (queryTerms[0] != '"' && this.queryTerms[this.queryTerms.length -1] != '"')
           this.queryTerms = queryTerms.trim().split(" ").filter(function(d) {return d});
@@ -878,6 +880,7 @@ var MapD = {
           this.queryTerms.push(queryTerms);
       }
     }
+    */
 
 
   },
@@ -950,10 +953,13 @@ var MapD = {
     if (queryTerms.length) {
       //queryTerms = this.parseQueryTerms(queryTerms);
       if (split == true) {
-        queryTerms = this.parseQueryExpression(this.services.search.termsInput.val());
+        //queryTerms = this.parseQueryExpression(this.services.search.termsInput.val());
+        queryTerms = this.parseQueryExpression(queryTerms);
+
       }
       else  {
-        queryTerms = Vars.datasets[Vars.selectedVar].aux.text + " ilike '"+ this.services.search.termsInput.val() + "'";
+        //queryTerms = Vars.datasets[Vars.selectedVar].aux.text + " ilike '"+ this.services.search.termsInput.val() + "'";
+        queryTerms = Vars.datasets[Vars.selectedVar].aux.text + " ilike '"+ queryTerms + "'";
       }
 
       query += queryTerms + " and ";
@@ -974,6 +980,8 @@ var MapD = {
   },
 
   getWhere: function(options) {
+    console.log("At get where");
+    console.log(options);
     var timestart = this.timestart;
     var timeend = this.timeend;
     var user = this.user;
@@ -988,8 +996,10 @@ var MapD = {
         timestart = options.time.timestart;
         timeend = options.time.timeend;
       }
+      console.log(queryTerms);
       if ("queryTerms" in options)
         queryTerms = options.queryTerms;
+      console.log(queryTerms);
       if ("user" in options) {
         user = options.user;
       }
@@ -2704,6 +2714,7 @@ var Search = {
   zoomInput: null,
   originInput: null,
   terms: '',
+  names: [],
   user: '',
   location: '',
   zoomTo: null, 
@@ -2820,12 +2831,16 @@ var Search = {
     },
 
     loadRecMenu: function(json) {
-     var names = [];
+     this.names = [];
      for (i in json.results)
-       names.push(json.results[i].recipient_name);
+       this.names.push(json.results[i].recipient_name);
  
      $("#recipientInput").autocomplete({
-         source:names
+         source:this.names
+     });
+
+     $(LineChart.elems.compareInput).autocomplete({
+         source:this.names
      });
     },
 
@@ -2847,6 +2862,7 @@ var Search = {
    },
 
   onSearch: function() {
+    Chart.comparePol = null;
     var terms = this.termsInput.val();
     //var origin = this.originInput.val();
     var origin = "";
@@ -3315,6 +3331,7 @@ var Chart =
   seriesId: 0,
   queryTerms: [],
   requestId: 0,
+  comparePol: null,
   partyInfo: {"R": {name: "Republicans", color: "#d22"},
               "D": {name: "Democrats", color: "#2255cc"},
               "I": {name: "Independents", color: "#3f007d"},
@@ -3359,6 +3376,7 @@ var Chart =
   //},
   
   getURL: function(options) {
+    console.log(options);
     this.params.xVar = Vars.datasets[Vars.selectedVar].x;
     this.params.yVar = Vars.datasets[Vars.selectedVar].y;
     this.params.sql = "select " + Vars.datasets[Vars.selectedVar].time + ", amount ";
@@ -3369,6 +3387,7 @@ var Chart =
       options.splitQuery = true;
     */
     var query = this.mapd.getWhere(options);
+    console.log(query);
     //console.log(query);
     /*
     if (queryArray[0])
@@ -3434,6 +3453,8 @@ var Chart =
       }
       var color = party == "" ? "#fa7a39" : this.partyInfo[party].color;
       $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, name, color, false));
+      if (this.comparePol != null)
+        this.onCompare(this.comparePol, false);
     }
   },
 
@@ -3449,6 +3470,7 @@ var Chart =
 
 
   onChart: function(seriesId, frameStart, frameEnd, queryTerms, color, clear, json) {
+    console.log("on chart");
     if (json.responseId != this.requestId)
       return 0;
 
@@ -3504,11 +3526,17 @@ var Chart =
   },
 
 
-  onCompare: function(terms) {
-    var queryTerms = terms.trim().split(" ").filter(function(d) {return d});
+  onCompare: function(queryTerms) {
+    this.comparePol = queryTerms;
+    //var queryTerms = terms.trim().split(" ").filter(function(d) {return d});
+    //console.log(queryTerms);
     // for now, time range always corresponds to entire data range
-    var options = {queryTerms: queryTerms, user: this.mapd.user,  time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend }};
-    $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, this.mapd.timestart, this.mapd.timeend, queryTerms, false));
+    var requestId = this.requestId;
+    var options = {queryTerms: queryTerms, user: this.mapd.user, id: requestId,  time: {timestart: this.mapd.datastart, timeend: this.mapd.dataend }};
+    var compareParty = MapD.getParty(queryTerms);
+    var color = compareParty == null ? "#fa7a39" : this.partyInfo[compareParty].color;
+
+    $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, queryTerms, color, false));
   }
 }
 
@@ -3649,7 +3677,8 @@ var Choropleth = {
               var polyId = "poly" + a.toString();
 
               console.log(polyId);
-              $('<p>Test</p>').attr("id", polyId).css({position: "absolute", top: y, left: x}).appendTo("body");
+              var detailsDiv =  $('<div></div>').addClass("map-tooltip").attr("id", polyId).css({position: "absolute", top: y - 50, left: x + 10}).appendTo("body");
+              Choropleth.fillDetailsDiv(detailsDiv, a);
             })
             .on("mouseout", function(d, a) {
               var polyId = "#poly" + a.toString();
@@ -3672,8 +3701,9 @@ var Choropleth = {
               var x = event.x;
               var y = event.y;
               var polyId = "poly" + a.toString(); 
-              console.log(polyId);
-              $('<p>Test</p>').attr("id", polyId).css({position: "absolute", top: y, left: x}).appendTo("body");
+              var detailsDiv = $('<div></div>').addClass("map-tooltip").attr("id", polyId).css({position: "absolute", top: y - 50, left: x + 10}).appendTo("body");
+              Choropleth.fillDetailsDiv(detailsDiv, a);
+
             })
             .on("mouseout", function(d, a) {
               var polyId = "#poly" + a.toString();
@@ -3684,6 +3714,17 @@ var Choropleth = {
       }
       this.reload();
    },
+
+   fillDetailsDiv: function(div, i) {
+     console.log(i);
+     var joinIndex = this.joinOrder[i];
+     var name = this.data[joinIndex].label; 
+     //var minichart = new MiniChart(div, "money", 100, 70);  
+     $(div).text(name);
+   },
+
+
+
 
 
    deactivate: function() {
