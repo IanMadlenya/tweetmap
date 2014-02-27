@@ -2861,10 +2861,10 @@ var Search = {
 
    },
 
-  onSearch: function() {
+  onSearch: function(saveCompares) {
     var zoomTo = this.zoomInput.val();
     this.zoomToChanged = this.zoomTo != zoomTo;
-    if (this.zoomToChanged == false)
+    if (this.zoomToChanged == false && saveCompares != true)
       Chart.comparePol = null;
     var terms = this.termsInput.val();
     //var origin = this.originInput.val();
@@ -3443,7 +3443,6 @@ var Chart =
       */
     }
     else {
-      $(".compare-input").show();
       var party = this.mapd.party;
       var name = "";
       if (queryTerms != "") {
@@ -3458,6 +3457,8 @@ var Chart =
       $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 0, this.mapd.timestart, this.mapd.timeend, name, color, false));
       if (this.comparePol != null)
         this.onCompare(this.comparePol, false);
+      else
+        $(".compare-input").show();
     }
   },
 
@@ -3529,7 +3530,7 @@ var Chart =
   },
 
 
-  onCompare: function(queryTerms) {
+  onCompare: function(queryTerms, updateChoropleth) {
     this.comparePol = queryTerms;
     //var queryTerms = terms.trim().split(" ").filter(function(d) {return d});
     //console.log(queryTerms);
@@ -3540,6 +3541,10 @@ var Chart =
     var color = compareParty == null ? "#fa7a39" : this.partyInfo[compareParty].color;
 
     $.getJSON(this.getURL(options)).done($.proxy(this.onChart, this, 1, this.mapd.timestart, this.mapd.timeend, queryTerms, color, false));
+    if (updateChoropleth) {
+      Choropleth.reload();
+    }
+
   }
 }
 
@@ -3754,6 +3759,27 @@ var Choropleth = {
          $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, 0));
        }
        else {
+         if (Chart.comparePol != null) { 
+           var pol0Party = this.mapD.politicianParty;
+           var pol1Party = this.mapD.getParty(Chart.comparePol); 
+           var pol0 = this.mapD.queryTerms;
+           var pol1 = Chart.comparePol; 
+           this.mode = "compare";
+           if (pol0Party == "D" && pol1Party == "R") {
+             pol0 = pol1;
+             pol1 = this.mapD.queryTerms;
+             pol0Party = "R";
+             pol1Party = "D";
+           }
+           this.colorScale = d3.scale.quantize().range(colorbrewer.RdBu[9]);
+           this.numResponses = 0;
+           options.queryTerms = pol0;
+           $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, 0));
+           options.queryTerms = pol1;
+           $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, 1));
+         }
+         else {
+
          if (party == "" && this.mapD.politicianParty != null)
            party = this.mapD.politicianParty;
          
@@ -3785,6 +3811,7 @@ var Choropleth = {
          $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, -1));
        }
      }
+    }
    },
 
    getURL: function(options) {

@@ -102,7 +102,7 @@ var LineChart =
         Chart.chart.setMode("num");
       else
         Chart.chart.setMode("money");
-      Search.form.submit();
+      Search.onSearch(true);
     });
         
 
@@ -692,7 +692,7 @@ var LineChart =
     this.elems.compareDiv.select("form").select(".compare-input")
         .property("value", "");
     console.log(terms);
-    this.compareCallback(terms);
+    this.compareCallback(terms, true);
   },
 
   removeSeries: function(id) {
@@ -707,6 +707,7 @@ var LineChart =
     this.elems.info.select("g.legend#legend" + id).data([]).exit().remove();
     this.elems.detailsDiv.select("li.detail-container#detail-container" + id).data([]).exit().remove();
     this.draw();
+    Choropleth.reload();
   },
 
   removeAll: function() {
