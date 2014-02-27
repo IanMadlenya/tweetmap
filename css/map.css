@@ -34,7 +34,10 @@ div#bottomBar {
   left: 0;
   right: 0;
   z-index:1000;
-  background-image: linear-gradient(#3f3f3f, #232323);
+  //opacity: 0.85;
+  //background-color: #e3e3e3;
+  background-color: #e3e3e3;
+  //background-image: linear-gradient(#3f3f3f, #232323);
   webkit-box-shadow: 2px 0 3px rgba(0,0,0,.25);
   box-shadow: 2px 0 3px rgba(0,0,0,.25);
 }
@@ -103,11 +106,13 @@ div#topbar {
   left: 0;
   right: 0;
   z-index:1000;
-  //background-color: #2C5672;
+  //background-color: #e3e3e3;
+  background-color: #e3e3e3;
+  //opacity: 0.85;
   //background-image: linear-gradient(#2C5672, #1C4662);
   //background-color: #5592BB;
   //background-color: #232323;
-  background-image: linear-gradient(#4f4f4f, #232323);
+  //background-image: linear-gradient(#4f4f4f, #232323);
   //background-image: linear-gradient(#5f5f5f, #333333);
   //background-image: linear-gradient(#5f5f5f, #333333);
   //background-image: linear-gradient(#666, #333);
@@ -147,12 +152,13 @@ div#topbar button:hover {
   height: 20px;
   //width:22%;
   width: 110px;
-  margin: 4px 0 4px 10px;
+  margin: 4px 0 4px 5px;
   padding: 4px;
   //padding-right: 17px;
   //border-radius: 3px;
   border-radius: 6px;
-  border: 1px solid #232323;
+  //border: 1px solid #232323;
+  border: 1px solid #999;
   webkit-box-shadow: 0 0 2px rgba(255,255,255,.25);
   box-shadow: 0 0 2px rgba(255,255,255,.25);
 }
@@ -179,10 +185,11 @@ button#pause {
   margin-left:10px;
   padding: 1px;
   border: 1px solid transparent;
+  //border: 1px solid #999;
 }
 
 .color-ramp:hover {
-  border: 1px solid #FFFF00;
+  border: 2px solid #FFFF00;
 }
 
 #searchMenu span.iconClear{
@@ -221,7 +228,8 @@ span.iconClear:hover{
 button#submit { 
   height: 30px;
   width: 30px;
-  margin-left: 8px;
+  background-color: white;
+  margin-left: 5px;
   cursor: pointer;
   border-radius: 6px 6px 6px 6px !important;
   padding-right:0px !important;;
@@ -266,7 +274,8 @@ div#submit-icon {
 
 
 .drop-menu {
-    background-color: #232323 !important;
+    //background-color: #232323 !important;
+    background-color: #e3e3e3 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
@@ -274,18 +283,23 @@ div#submit-icon {
 
 
 .drop-menu li {
-    border-top: 2px solid grey !important;
+    border-bottom: 2px solid #555 !important;
     padding:8px !important;
 }
 
+.drop-menu li:last-child {
+    border-bottom: none !important;
+}
+
+
 .drop-menu li:hover {
-    background-color: #444 !important;
+    background-color: #fafafa !important;
     cursor: pointer !important;
 }
 
 
 .drop-menu span {
-    color: white !important;
+    color: #555 !important;
     font-weight:bold !important;
     font-size: 12px !important;
 }
@@ -395,7 +409,7 @@ div#social-share{
 //}
 
 div#social-share:hover {
-  background-image: linear-gradient(#5f5f5f, #343434);
+  //background-image: linear-gradient(#5f5f5f, #343434);
   cursor: pointer;
 }
 
@@ -426,16 +440,20 @@ div#social-share:hover {
   //top: 5px;
   //border: #777;
   //color:white;
-  color:black;
+  //color:black;
+  color: #555;
   //background-image: linear-gradient(#ef8f8f, #f86868);
-  background-color:#5f5f5f;
+  //background-color:#5f5f5f;
+  //background-color:#c8c8c8;
   font-size:13px;
   //height: 20px;
   text-align: right;
   padding-right:5px;
   font-weight:bold;
   border-radius: 6px 0px 0px 6px;
-  border: 1.5px outset #444;
+  //border: 1.5px outset #444;
+  border: 1px solid #999;
+  border-right: none !important;
   //webkit-box-shadow: 2px rgba(255,255,255,.25);
   //box-shadow: 2px rgba(255,255,255,.25);
   cursor: pointer;
@@ -443,7 +461,7 @@ div#social-share:hover {
   width:100px;
   height:28px;
   opacity: 1.0;
-  border: none !important;
+  //border: none !important;
 
 
 
@@ -510,21 +528,19 @@ div#social-share:hover {
 .settings-drop-button {
   margin: 0px;
   position: relative;
-  //top: 0px;
   left: -4.0px;
   height: 28px;
-  //color: white;
   color: black;
-  //font-size:13px;
-  //font-weight:bold;
-  //border-radius: 5px;
   border-radius: 0px 6px 6px 0px;
-  border: 1.5px outset #444;
-  //background-color:#252525;
-  background-color:#ddd;
-  border: none !important;
-  border-left: 1px solid #ddd;
+  border: 1px solid #999;
+  background-color:#c8c8c8;
 }
+
+div.settings-on button {
+  background-color:#fafafa;
+}
+
+
 
 * {
     outline: none;
@@ -533,6 +549,17 @@ div#social-share:hover {
 .settings-button:hover {
     border: 0;
     outline: none;
+}
+.settings-div {
+    float: left;
+}
+
+.settings-div button {
+    background-color: #c8c8c8;
+}
+
+.settings-div:hover > button {
+    background-color: #fafafa;
 }
 
 span.minicolors-swatch-color {
@@ -570,7 +597,8 @@ div#mapview {
   top: 40px;
   left: 400px;
   right: 0px;
-  bottom: 170px;
+  //bottom: 170px;
+  bottom: 30px;
 }
 
 div#mapAnimControls {
@@ -625,13 +653,22 @@ div#legend {
   width: 120px;
   //height: 200px !important;
   z-index: 10000;
-  bottom: 30px;
+  //bottom: 30px;
+  bottom: 170px;
   right: 20px;
   background-color: white;
   opacity: 0.75;
   border-radius: 10px;
   padding: 10px;
 }
+
+/*
+.olControlScaleLine: {
+    unselectable: "off";
+    display: none !important;
+}
+*/
+
 
 .sub-legend {
     font-weight: bold;
@@ -701,9 +738,14 @@ div#map {
   background-image: linear-gradient(#33bcef,#019ad2)
 }
 
-//#termsInput {
-//    margin-left:4px !important;
-//}
+#recipientInput {
+  width: 140px;
+}
+
+#contributorInput {
+  width: 120px;
+}
+
 
 div#control {
   //position: relative;
@@ -1027,8 +1069,9 @@ div#numTokensText {
 
 
 .logo-image {
-  width: 90px;
-  height:40px;
+  position: fixed;
+  left: 42%;
+  top: 2.5px;
 }
 
 .anim-input {
@@ -1101,7 +1144,7 @@ div#widget {
 
 .basemapButtonOffImg {
   border: none !important;
-    background: #ccc url('../img/buttons/base_bw.png') no-repeat center center;
+    background: #b8b8b8 url('../img/buttons/base_bw.png') no-repeat center center;
 }
 
 .basemapButtonOnImg {
@@ -1115,48 +1158,39 @@ div#widget {
 }
 
 .polyButtonOffImg {
-  border: none !important;
-    background: #aaa url('../img/buttons/rev_census_110x30_bw.png') no-repeat center center;
+    background: #c8c8c8 url('../img/buttons/rev_census_110x30_bw.png') no-repeat center center;
 }
 
 .polyButtonOnImg {
-  border: none !important;
-    background: #eee url('../img/buttons/rev_census_110x30_color.png') no-repeat center center;
+    background: #fafafa url('../img/buttons/rev_census_110x30_color.png') no-repeat center center;
 }
 
 .polyButtonHoverImg {
-  border: none !important;
-  background: #fff url('../img/buttons/rev_census_110x30_color.png') no-repeat center center;
+  background: #fafafa url('../img/buttons/rev_census_110x30_color.png') no-repeat center center;
 }
 
 
 .pointButtonOffImg {
-    border: none !important;
     //width: 110px;
     //height:30px;
     //background: #252525 url('../img/buttons/rev_points_110x30_bw.png') no-repeat center center;
-    background: #aaa url('../img/buttons/rev_points_110x30_bw.png') no-repeat center center;
-    color: black;
+    background: #c8c8c8 url('../img/buttons/rev_points_110x30_bw.png') no-repeat center center;
     opacity: 1.0;
 }
 
 .pointButtonOnImg {
-    border: none !important;
     //width: 110px;
     //height:30px;
     //background: #252525 url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
-    background: #eee url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
-    color: black;
+    background: #fafafa url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
     opacity: 1.0;
 }
 
 .pointButtonHoverImg {
-    border: none !important;
     //width: 110px;
     //height:30px;
     //background: #252525 url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
-    background: #fff url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
-    color:black;
+    background: #fafafa url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
     opacity: 1.0;
 }
 
@@ -1164,8 +1198,7 @@ div#widget {
     //width: 110px;
     //height: 30px;
     //background: #252525 url('../img/buttons/rev_heat_110x30_bw.png') no-repeat center center;
-    background: #aaa url('../img/buttons/rev_heat_110x30_bw.png') no-repeat center center;
-    color: black;
+    background: #c8c8c8 url('../img/buttons/rev_heat_110x30_bw.png') no-repeat center center;
     opacity: 1.0;
 }
 
@@ -1173,17 +1206,14 @@ div#widget {
     //width: 110px;
     //height: 30px;
     //background: #252525 url('../img/buttons/rev_heat_110x30_color.png') no-repeat center center;
-    background: #eee url('../img/buttons/rev_heat_110x30_color.png') no-repeat center center;
-    color: black;
+    background: #fff url('../img/buttons/rev_heat_110x30_color.png') no-repeat center center;
     opacity: 1.0;
 }
 
 .heatButtonHoverImg {
-    border: none !important;
     //width: 110px;
     //height:30px;
     background: #fff url('../img/buttons/rev_heat_110x30_color.png') no-repeat center center;
-    color: black;
     opacity: 1.0;
 }
 
@@ -1226,7 +1256,7 @@ div#widget {
 }
 
 .ramp-selected {
-  border: 1px solid #EE1785;
+  border: 2px solid #EE1785;
 }
 
 
@@ -1263,7 +1293,7 @@ div#widget {
 
 
 #share {
-    color:white;
+    color:#555;
     float: right;
     font-size: 12px;
     font-weight:bold;

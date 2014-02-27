@@ -79,17 +79,16 @@
      }(document, 'script', 'facebook-jssdk'));</script>-->
 
     <div id="topbar">
-      <div id="promo"><a href="http://www.map-d.com" target="_blank"><img src="img/mapd_logo.png" class="logo-image"></a></div>
+      <!--<div id="promo"><a href="http://www.map-d.com" target="_blank"><img src="img/mapd_logo.png" class="logo-image"></a></div>-->
     <form id="search" class="search">
-	<div id="contributor" class="search">
-	  <input id="contributorInput" class="search-input" type="text" name="terms" placeholder=" Contributor"/>
-      <span class="iconClear">X</span>
-	</div>
 	<div id="recipient" class="search">
 	  <input id="recipientInput" class="search-input" type="text" name="user" placeholder=" Recipient"/>
       <span class="iconClear">X</span>
     </div>
-
+	<div id="contributor" class="search">
+	  <input id="contributorInput" class="search-input" type="text" name="terms" placeholder=" Contributor"/>
+      <span class="iconClear">X</span>
+	</div>
     <select id="partySelect" class="search-input menu-select">
       <option value="">All parties</value>
       <option value="D">Democrats</value>
@@ -105,7 +104,7 @@
       <option value="federal:house">House</value>
     </select>
     
-	<div id="location" class="search">
+	<div id="location" class="search" style="display:none">
 	  <input id="zoomInput" class="search-input" type="text" name="zoom" placeholder=" Zoom To"/>
       <span class="iconClear">X</span>
     </div>
@@ -114,18 +113,27 @@
 	</button>
     <!-- <button id="advSearchButton" class="search-button search-input search" data-dropdown="#advSearchDropdown">▾</button> -->
       </form>
+  <div id="promo"><a href="http://www.map-d.com" target="_blank"><img src="img/campaign_logo.png" class="logo-image"></a></div>
 
     <div id="settings" class="settings">
       <!--<button id="pointButton" class="settings-button" title="Points">Points</button>-->
-      <button id="basemapButton" class="settings-button" title="Basemap">Basemap</button>
-      <button id="basemapSelect" class="settings-drop-button" data-dropdown="#baseDropdown">▾</button>
-      <button id="pointButton" class="settings-button" title="Pointmap">Pointmap</button>
-      <button id="pointSelect" class="settings-drop-button" data-dropdown="#pointDropdown">▾</button>
+      <div id ="baseSettings" class="settings-div">
+          <button id="basemapButton" class="settings-button" title="Basemap">Basemap</button>
+          <button id="basemapSelect" class="settings-drop-button" data-dropdown="#baseDropdown">▾</button>
+      </div>
+      <div id="pointSettings" class="settings-div">
+          <button id="pointButton" class="settings-button" title="Pointmap">Pointmap</button>
+          <button id="pointSelect" class="settings-drop-button" data-dropdown="#pointDropdown">▾</button>
+       </div>
         <!--<div id="pointButtonImg"></div>-->
-      <button id="heatButton" class="settings-button" title="Heatmap">Heatmap</button>
-      <button id="heatSelect" class="settings-drop-button" data-dropdown="#heatDropdown">▾</button>
-      <button id="polyButton" class="settings-button" title="Choropleth">Choropleth</button>
-      <button id="polySelect" class="settings-drop-button" data-dropdown="#polyDropdown">▾</button>
+      <div id="heatSettings" class="settings-div">
+          <button id="heatButton" class="settings-button" title="Heatmap">Heatmap</button>
+          <button id="heatSelect" class="settings-drop-button" data-dropdown="#heatDropdown">▾</button>
+        </div>
+      <div id="polySettings" class="settings-div">
+          <button id="polyButton" class="settings-button" title="Choropleth">Choropleth</button>
+          <button id="polySelect" class="settings-drop-button" data-dropdown="#polyDropdown">▾</button>
+      </div>
     </div>
     
     <!--<div id="animControls">
@@ -167,10 +175,10 @@
         <div id="sizeButton"></div>
         <button id="curLoc"></button>
 
-      <!--<div id="location" class="search">
+      <div id="location" class="search">
         <input id="zoomInput" class="search-input" type="text" name="zoom" placeholder=" Zoom To"/>
         <span class="iconClear">X</span>
-      </div>-->
+      </div>
         <div id="legend">
           <div id="pointLegend" class="sub-legend"><span>Points</span><span class="checkmark">&#x2713</span></div>
           <div id="heatLegend" class="sub-legend"><span>Heatmap</span><span class="checkmark">&#x2713</span></div>

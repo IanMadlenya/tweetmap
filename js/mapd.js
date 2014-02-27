@@ -383,11 +383,11 @@ var MapD = {
       //this.timeend =   1300000000;
       if ("what" in mapParams) {
         this.services.search.termsInput.val(params.what);
-        $('#termsInput').trigger('input');
+        $('#recipientInput').trigger('input');
       } 
       if ("who" in mapParams) {
         this.services.search.userInput.val(params.who);
-        $('#userInput').trigger('input');
+        $('#contributorInput').trigger('input');
       }
       if ("lang" in mapParams) {
         this.services.search.langInput.val(params.lang);
@@ -2174,14 +2174,14 @@ var TweetClick =
           //console.log($(this).html());
           this.mapd.services.search.termsInput.val("");
           this.mapd.services.search.userInput.val(userName);
-          $('#userInput').trigger('input');
+          $('#contributorInput').trigger('input');
           this.mapd.services.search.form.submit();
         }, this));
 
         $('.popup-content').click( $.proxy(function(e) {
           var politicianName = $(e.target).html();
           this.mapd.services.search.termsInput.val(politicianName);
-          $('#termsInput').trigger('input');
+          $('#recipientInput').trigger('input');
           this.mapd.services.search.form.submit();
         }, this));
 
@@ -3191,10 +3191,14 @@ var Settings = {
     //$("#pointButton").button().next().button().parent().buttonset().next().hide().menu();
 
 
-    if (this.pointOn)
+    if (this.pointOn) {
       this.pointButton.addClass("pointButtonOnImg");
-    else
+      //$("pointSelect").addClass("settings-on");
+    }
+    else {
       this.pointButton.addClass("pointButtonOffImg");
+      //$("pointSelect").addClass("settings-off");
+    }
     if (this.heatOn)
       this.heatButton.addClass("heatButtonOnImg");
     else
@@ -3211,10 +3215,10 @@ var Settings = {
       this.polyButton.addClass("polyButtonOffImg");
     */
 
-   $(this.baseButton).hover($.proxy(function() {this.baseButton.addClass("basemapButtonHoverImg");}, this), $.proxy(function () {this.baseButton.removeClass("basemapButtonHoverImg");}, this));
+   $(this.baseButton).hover($.proxy(function() {this.baseButton.addClass("basemapButtonHoverImg");   }, this), $.proxy(function () {this.baseButton.removeClass("basemapButtonHoverImg");}, this));
    $(this.pointButton).hover($.proxy(function() {this.pointButton.addClass("pointButtonHoverImg");}, this), $.proxy(function () {this.pointButton.removeClass("pointButtonHoverImg");}, this));
    $(this.heatButton).hover($.proxy(function() {this.heatButton.addClass("heatButtonHoverImg");}, this), $.proxy(function () {this.heatButton.removeClass("heatButtonHoverImg");}, this));
-   $(this.polyButton).hover($.proxy(function() {this.polyButton.addClass("polyButtonHoverImg");}, this), $.proxy(function () {this.polyButton.removeClass("polyButtonHoverImg");}, this));
+   $(this.polyButton).hover($.proxy(function() {this.polyButton.addClass("polyButtonHoverImg"); }, this), $.proxy(function () {this.polyButton.removeClass("polyButtonHoverImg"); }, this));
 
     $(this.baseButton).click($.proxy(this.baseButtonFunction, this));
     $(this.pointButton).click($.proxy(this.pointButtonFunction, this));
@@ -3275,10 +3279,13 @@ var Settings = {
     //console.log("at poly function");
     //console.log(this.polyOn);
     if (this.polyOn) {
+      $("#polySettings").addClass("settings-on");
+
       this.polyButton.removeClass("polyButtonOffImg").addClass("polyButtonOnImg");
       Choropleth.activate();
     }
     else {
+      $("#polySettings").removeClass("settings-on");
       this.polyButton.removeClass("polyButtonOnImg").addClass("polyButtonOffImg");
       Choropleth.deactivate();
     }
@@ -3288,11 +3295,13 @@ var Settings = {
     this.pointLayer.setVisibility(!this.pointOn);
     this.pointOn = !this.pointOn;
     this.pointButton.toggleClass("pointButtonOffImg").toggleClass("pointButtonOnImg");
+      $("#pointSettings").toggleClass("settings-on");
   },
   heatButtonFunction: function() {
     this.heatLayer.setVisibility(!this.heatOn);
     this.heatOn = !this.heatOn;
     this.heatButton.toggleClass("heatButtonOffImg").toggleClass("heatButtonOnImg");
+      $("#heatSettings").toggleClass("settings-on");
   },
 
   getNumLayersVisible: function() {
