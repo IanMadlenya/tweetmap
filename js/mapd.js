@@ -2177,6 +2177,14 @@ var TweetClick =
           this.mapd.services.search.form.submit();
         }, this));
 
+        $('.popup-content').click( $.proxy(function(e) {
+          var politicianName = $(e.target).html();
+          this.mapd.services.search.termsInput.val(politicianName);
+          $('#termsInput').trigger('input');
+          this.mapd.services.search.form.submit();
+        }, this));
+
+
         
 
 
@@ -3080,7 +3088,7 @@ var Animation = {
         //console.log ("Anim start: " + this.animStart);
         //console.log ("Anim end: " + this.animEnd);
         this.frameStep = (this.animEnd - this.animStart) / this.numFrames;
-        this.frameWidth = this.frameStep * 4.0; 
+        this.frameWidth = this.frameStep * 12.0; 
         this.prevTime = 0;
         this.frameStart = this.animStart;
         this.frameEnd = this.animStart + this.frameWidth;
