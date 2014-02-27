@@ -425,7 +425,8 @@ div#social-share:hover {
   //bottom: 4;
   //top: 5px;
   //border: #777;
-  color:white;
+  //color:white;
+  color:black;
   //background-image: linear-gradient(#ef8f8f, #f86868);
   background-color:#5f5f5f;
   font-size:13px;
@@ -512,14 +513,17 @@ div#social-share:hover {
   //top: 0px;
   left: -4.0px;
   height: 28px;
-  color: white;
+  //color: white;
+  color: black;
   //font-size:13px;
   //font-weight:bold;
   //border-radius: 5px;
   border-radius: 0px 6px 6px 0px;
   border: 1.5px outset #444;
-  background-color:#252525;
+  //background-color:#252525;
+  background-color:#ddd;
   border: none !important;
+  border-left: 1px solid #ddd;
 }
 
 * {
@@ -1097,32 +1101,32 @@ div#widget {
 
 .basemapButtonOffImg {
   border: none !important;
-    background: #252525 url('../img/buttons/base_bw.png') no-repeat center center;
+    background: #ccc url('../img/buttons/base_bw.png') no-repeat center center;
 }
 
 .basemapButtonOnImg {
   border: none !important;
-    background: #252525 url('../img/buttons/base_color.png') no-repeat center center;
+    background: #fff url('../img/buttons/base_color.png') no-repeat center center;
 }
 
 .basemapButtonHoverImg {
   border: none !important;
-  background: #252525 url('../img/buttons/base_color.png') no-repeat center center;
+  background: #fff url('../img/buttons/base_color.png') no-repeat center center;
 }
 
 .polyButtonOffImg {
   border: none !important;
-    background: #252525 url('../img/buttons/rev_census_110x30_bw.png') no-repeat center center;
+    background: #aaa url('../img/buttons/rev_census_110x30_bw.png') no-repeat center center;
 }
 
 .polyButtonOnImg {
   border: none !important;
-    background: #252525 url('../img/buttons/rev_census_110x30_color.png') no-repeat center center;
+    background: #eee url('../img/buttons/rev_census_110x30_color.png') no-repeat center center;
 }
 
 .polyButtonHoverImg {
   border: none !important;
-  background: #252525 url('../img/buttons/rev_census_110x30_color.png') no-repeat center center;
+  background: #fff url('../img/buttons/rev_census_110x30_color.png') no-repeat center center;
 }
 
 
@@ -1130,7 +1134,9 @@ div#widget {
     border: none !important;
     //width: 110px;
     //height:30px;
-    background: #252525 url('../img/buttons/rev_points_110x30_bw.png') no-repeat center center;
+    //background: #252525 url('../img/buttons/rev_points_110x30_bw.png') no-repeat center center;
+    background: #aaa url('../img/buttons/rev_points_110x30_bw.png') no-repeat center center;
+    color: black;
     opacity: 1.0;
 }
 
@@ -1138,7 +1144,9 @@ div#widget {
     border: none !important;
     //width: 110px;
     //height:30px;
-    background: #252525 url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
+    //background: #252525 url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
+    background: #eee url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
+    color: black;
     opacity: 1.0;
 }
 
@@ -1146,21 +1154,27 @@ div#widget {
     border: none !important;
     //width: 110px;
     //height:30px;
-    background: #252525 url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
+    //background: #252525 url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
+    background: #fff url('../img/buttons/rev_points_110x30_color.png') no-repeat center center;
+    color:black;
     opacity: 1.0;
 }
 
 .heatButtonOffImg {
     //width: 110px;
     //height: 30px;
-    background: #252525 url('../img/buttons/rev_heat_110x30_bw.png') no-repeat center center;
+    //background: #252525 url('../img/buttons/rev_heat_110x30_bw.png') no-repeat center center;
+    background: #aaa url('../img/buttons/rev_heat_110x30_bw.png') no-repeat center center;
+    color: black;
     opacity: 1.0;
 }
 
 .heatButtonOnImg {
     //width: 110px;
     //height: 30px;
-    background: #252525 url('../img/buttons/rev_heat_110x30_color.png') no-repeat center center;
+    //background: #252525 url('../img/buttons/rev_heat_110x30_color.png') no-repeat center center;
+    background: #eee url('../img/buttons/rev_heat_110x30_color.png') no-repeat center center;
+    color: black;
     opacity: 1.0;
 }
 
@@ -1168,7 +1182,8 @@ div#widget {
     border: none !important;
     //width: 110px;
     //height:30px;
-    background: #252525 url('../img/buttons/rev_heat_110x30_color.png') no-repeat center center;
+    background: #fff url('../img/buttons/rev_heat_110x30_color.png') no-repeat center center;
+    color: black;
     opacity: 1.0;
 }
 
@@ -1269,4 +1284,12 @@ div#widget {
 .sprites.grid { 
   background-position: -864px 0; 
   margin:0 auto; 
+}
+
+#basemapButton {
+    visibility: hidden;
+}
+
+#basemapSelect {
+    visibility: hidden;
 }

@@ -1127,6 +1127,7 @@ var GeoTrends = {
   } 
 };
 
+
 var TopKTokens = {
   mapd: MapD,
   displayDiv: null, 
@@ -2184,13 +2185,7 @@ var TweetClick =
           this.mapd.services.search.form.submit();
         }, this));
 
-
-        
-
-
       }
-
-
 
     }
 
