@@ -1105,7 +1105,19 @@ div#numTokensText {
     width:40px;
     height:20px;
 }
+
+.ui-dialog {
+    opacity: .8 !important;
+    filter:Alpha(Opacity=70) !important;
+    border-radius:20px !important;
+}
+
+.ui-dialog-titlebar {
+    background: white !important;
+    border: none !important;
     
+}
+
 .stop-icon {
     border: none !important;
     background: url('../img/stop-pink-20px.png') no-repeat center center;

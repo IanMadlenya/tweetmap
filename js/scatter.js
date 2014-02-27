@@ -1,5 +1,5 @@
 function Scatter (div) {
-  this.div = div;
+  this.div =  $(div).get(0);
   this.svg = null;
   this.width = null;
   this.height = null;
@@ -7,9 +7,10 @@ function Scatter (div) {
   this.yScale = null;
   this.rScale = null;
   this.cScale = null; 
-  this.margin = {top: 20, right: 40, bottom: 20, left: 40};
+  this.margin = {top: 20, right: 40, bottom: 40, left: 40};
   this.format = null;
   this.data = null;
+  this.selectedVar = "pst045212";
   this.params = {
     request: "GroupByToken",
     joinTable: "state_data",
@@ -20,13 +21,13 @@ function Scatter (div) {
   };
 
   this.init = function() {
-    this.width = $(this.elems.container).width() - this.margin.left - this.margin.right;
-    this.height = $(this.elems.container).height() - this.margin.top - this.margin.bottom;
-    this.svg = d3.select(this.elems.container)
+    this.width = $(this.div).width() - this.margin.left - this.margin.right;
+    this.height = $(this.div).height() - this.margin.top - this.margin.bottom;
+    this.svg = d3.select(this.div)
       .attr("class", "scatterplot")
       .append("svg")
-      .attr("width", this.width)
-      .attr("height", this.height)
+      .attr("width", this.width + this.margin.right)
+      .attr("height", this.height + this.margin.top + this.margin.bottom)
       .append("g")
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
@@ -36,11 +37,20 @@ function Scatter (div) {
     this.cScale = d3.scale.category10();
     this.xAxis = d3.svg.axis().scale(this.xScale).orient("bottom").ticks(7);
     this.yAxis = d3.svg.axis().scale(this.yScale).orient("left").ticks(7);
+
+     this.svg.append("g")
+        .attr("class", "y axis")
+        .call(this.yAxis);
+     this.svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + this.height  +")")
+        .call(this.xAxis);
   },
 
   this.addData = function(dataset) { 
     //var minN = this.minTweets;
     this.data = dataset.results;
+    var selectedVar = this.selectedVar;
     if (MapD.dataView == "dollars")
       this.format = d3.format("$,.2s"); 
     else

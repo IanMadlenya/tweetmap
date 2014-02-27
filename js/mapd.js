@@ -70,7 +70,8 @@ var Vars = {
 var BBOX = {
   //WORLD: "-19313026.92,-6523983.06,14187182.33,12002425.38",
   WORLD: "-19813026.92,-8523983.06, 19813026.92,12002425.38",
-  US: "-13888497.96,2817023.96,-7450902.94,6340356.62",
+  //US: "-13888497.96,2817023.96,-7450902.94,6340356.62",
+  US: "-14388497.96,2617023.96,-7950902.94,6140356.62",
   //BOSTON: "-7930396.9,5206138.3,-7893707.1,5220737.8"
   BOSTON: "-7920070,5210793,-7903215,5218035"
 
@@ -170,6 +171,10 @@ var MapD = {
     this.services.realtime = realtime;
     this.map.events.register('moveend', this, this.reload);
     //this.map.events.register('changebaselayer', this, this.moveBaseAttr);
+    //
+    $("#scatterDiv").dialog({width:350, height:350, position: [20, 450]});
+    this.services.scatter = new Scatter($("#scatterDiv"));
+    this.services.scatter.init();
 
 
     $("#sizeButton").click($.proxy(function() {
