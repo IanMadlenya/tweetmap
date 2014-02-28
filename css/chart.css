@@ -109,13 +109,6 @@ select {
 }
 */
 
-.scatterplot {
-    margin-bottom: 20px;
-}
-
-#scatterXVarSelect {
-    margin-left:30%;
-}
 
 .axis {
   shape-rendering: crispEdges;

@@ -51,7 +51,6 @@ function init()
   BaseMap.init();
   MapD.init(map, PointMap, HeatMap, GeoTrends, TopKTokens, Tweets, Chart, Search, Settings, TweetClick, Animation, Choropleth, RealTimeOverlay);
   Choropleth.init();
-  Choropleth.setLayer("County");
   pointLayer = new OpenLayers.Layer.WMS("Point Map", PointMap.mapd.host, PointMap.getParams(), {singleTile: true, ratio: 1.0, "displayInLayerSwitcher": false, removeBackBufferDelay:0});
   heatLayer = new OpenLayers.Layer.WMS("Heat Map", HeatMap.mapd.host, HeatMap.getParams(), {singleTile: true, opacity: 0.9, ratio: 1.0, "displayInLayerSwitcher": false});
   pointLayer.setVisibility(false);
@@ -64,7 +63,7 @@ function init()
   TopKTokens.init($('div#cloud'));
   PointMap.init(pointLayer);
   HeatMap.init(heatLayer);
-  Search.init(map, $('form#search'), $('id#zoom'), $('#curLoc'), $('input#recipientInput'), $('input#contributorInput'), $('#locationSelect'), $('input#locationInput'), $('#partySelect'), $('#raceSelect'), $('input#langInput'), $('input#zoomInput'), $('input#originInput'));
+  Search.init(map, $('form#search'), $('#zoomSearch'), $('#curLoc'), $('input#recipientInput'), $('input#contributorInput'), $('#locationSelect'), $('input#locationInput'), $('#partySelect'), $('#raceSelect'), $('input#langInput'), $('input#zoomInput'), $('input#originInput'));
   Settings.init(pointLayer, heatLayer, $('button#basemapButton'), $('button#pointButton'), $('button#heatButton'), $('button#polyButton'));
   //Settings.init($('button#gridSmall'), $('button#gridMedium'), $('button#gridLarge'));
   Chart.init($('div#chart'));

@@ -101,8 +101,8 @@ var MapD = {
   party: "",
   location: null,
   locationCat: null,
-  datastart: null,
-  dataend: null,
+  datastart: 100,
+  dataend: 2000000000,
   linkButton: null,
   fullScreen: false,
   timeUpdates: 0,
@@ -175,6 +175,8 @@ var MapD = {
     $("#scatterDiv").dialog({width:350, height:350, position: [20, 450]});
     this.services.scatter = new Scatter($("#scatterDiv"));
     this.services.scatter.init();
+    this.services.scatter.setDataset("State");
+    Choropleth.setLayer("State");
 
 
     $("#sizeButton").click($.proxy(function() {
@@ -674,11 +676,14 @@ var MapD = {
   reload: function(e) {
 
     this.services.graph.reload();
+    this.services.scatter.reload();
+    /*
     if (this.fullScreen == false) {
       this.services.geotrends.reload();
       this.services.topktokens.reload();
       this.services.tweets.reload();
     }
+    */
     if (e.type != "moveend") {
         //console.log("reloading");
         //this.services.choropleth.reload();
@@ -696,11 +701,12 @@ var MapD = {
       this.services.animation.stopFunc();
     }
     else {
-      this.services.geotrends.reload();
-      this.services.topktokens.reload();
-      this.services.tweets.reload();
+      //this.services.geotrends.reload();
+      //this.services.topktokens.reload();
+      //this.services.tweets.reload();
       this.services.pointmap.reload();
       this.services.heatmap.reload();
+      this.services.scatter.reload();
       //this.services.choropleth.reload();
       //this.services.choropleth.reset();
       this.services.choropleth.reload();
@@ -2751,6 +2757,15 @@ var Search = {
         Search.form.submit();
       });
 
+    $(document).on('propertychange keyup input paste', 'input.location-search-input', function() {
+      var io = $(this).val().length ? 1: 0;
+
+      $(this).next('.iconClear').stop().fadeTo(300,io);
+      }).on('click', '.iconClear', function() {
+        $(this).delay(300).fadeTo(300,0).prev('input').val('');
+
+        Search.form.submit();
+      });
 
     this.map = map;
     this.form = form;
@@ -3002,12 +3017,15 @@ var Animation = {
     this.heatLayer = heatLayer;
     this.wordGraph = wordGraph;
     this.choropleth = choropleth;
+    this.scatter = MapD.services.scatter;
     this.pointLayer.events.register("loadend", this, this.layerLoadEnd);
     this.heatLayer.events.register("loadend", this, this.layerLoadEnd);
     //$(this.wordGraph).bind('loadend', this, this.layerLoadEnd);
     //$("#numTokensText").bind('loadend', this, this.layerLoadEnd);
     $(this.wordGraph).on('loadend', $.proxy(this.layerLoadEnd, this));
     $(this.choropleth).on('loadend', $.proxy(this.layerLoadEnd, this));
+    $(this.choropleth).on('loadend', $.proxy(this.layerLoadEnd, this));
+    $(this.scatter).on('loadend', $.proxy(this.layerLoadEnd, this));
     this.playPauseButton = playPauseButton;
     this.stopButton = stopButton;
     $(this.playPauseButton).click($.proxy(this.playFunc, this));
@@ -3031,6 +3049,8 @@ var Animation = {
           numLayersVisible++; // for chart
       if (this.choropleth.active)
           numLayersVisible++; // choropleth
+      numLayersVisible++;
+      numLayersVisible++;
       //console.log("Num layers visible: " + numLayersVisible);
       this.numLayersLoaded++;
       //console.log("Num layers loaded: " + this.numLayersLoaded);
@@ -3065,6 +3085,7 @@ var Animation = {
       this.mapd.services.graph.chart.setBrushExtent([this.frameStart * 1000, this.frameEnd * 1000]);
       this.mapd.services.pointmap.reload(options);
       this.mapd.services.heatmap.reload(options);
+      this.mapd.services.scatter.reload(options);
       this.mapd.services.choropleth.reload(options);
       //this.mapd.services.choropleth.reload();
       if (this.mapd.fullScreen == false)
@@ -3252,11 +3273,15 @@ var Settings = {
     }
     else
       this.baseOn = !this.baseOn; 
-    if (this.baseOn)
+    if (this.baseOn) {
       this.baseButton.removeClass("basemapButtonOffImg").addClass("basemapButtonOnImg");
-    else
+      $("#baseSettings").addClass("settings-on");
+    }
+    else {
       this.baseButton.removeClass("basemapButtonOnImg").addClass("basemapButtonOffImg");
-    //this.baseButton.toggleClass("basemapButtonOffImg").toggleClass("basemapButtonOnImg");
+      $("#baseSettings").removeClass("settings-on");
+
+    }
     if (!this.baseOn) {
       $("#curLoc").addClass("curLoc-blank");
       $("#zoom").addClass("zoom-blank");
@@ -3604,12 +3629,13 @@ var Choropleth = {
   },
 
   init: function() {
-    this.curJoinParams = this.joinParams["County"];
+    //this.curJoinParams = this.joinParams["County"];
 
      $("#polyMenu").click($.proxy(function(e) {
         var choice = this.getMenuItemClicked(e.target);
         console.log(choice);
         this.setLayer(choice);
+        MapD.services.scatter.setDataset(choice);
         /*
          switch (choice) {
            case "State":

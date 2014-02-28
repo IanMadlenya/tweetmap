@@ -428,6 +428,7 @@ div#social-share:hover {
   color:#fff;
   font-size: 22px;
   font-weight: bold;
+  margin-top:2px;
   //padding-top:5px;
 }
 
@@ -506,6 +507,7 @@ div#social-share:hover {
     width: 110px;
 }
 
+
 #locationSelect {
     float: left;
     margin-top:6px;
@@ -535,6 +537,7 @@ div#social-share:hover {
   border: 1px solid #999;
   background-color:#c8c8c8;
 }
+
 
 div.settings-on button {
   background-color:#fafafa;
@@ -639,14 +642,30 @@ div#sizeButton {
 
 }
 
-/*
 div#location {
   position: absolute;
-  bottom: 30px;
-  right: 20px;
+  top: 8px;
+  right: 5px;
   opacity: 0.9;
 }
-*/
+
+div#baseSettings {
+  position: absolute;
+  top: 42px;
+  right: 2px;
+  opacity: 0.9;
+  z-index: 10000;
+}
+
+
+input#zoomInput {
+   border-radius: 8px;
+   //line-height: 1.0;
+   width: 120px;
+   height: 23px;
+}
+    
+
 
 div#legend {
   position: absolute;
@@ -1071,7 +1090,7 @@ div#numTokensText {
 .logo-image {
   position: fixed;
   left: 42%;
-  top: 2.5px;
+  top: 4.5px !important;
 }
 
 .anim-input {
@@ -1154,19 +1173,20 @@ div#widget {
     height:30px;
 }
 
+
 .basemapButtonOffImg {
   border: none !important;
-    background: #b8b8b8 url('../img/buttons/base_bw.png') no-repeat center center;
+    //background: #b8b8b8 url('../img/buttons/base_bw.png') no-repeat center center;
 }
 
 .basemapButtonOnImg {
   border: none !important;
-    background: #fff url('../img/buttons/base_color.png') no-repeat center center;
+    //background: #fff url('../img/buttons/base_color.png') no-repeat center center;
 }
 
 .basemapButtonHoverImg {
   border: none !important;
-  background: #fff url('../img/buttons/base_color.png') no-repeat center center;
+  //background: #fff url('../img/buttons/base_color.png') no-repeat center center;
 }
 
 .polyButtonOffImg {
@@ -1327,7 +1347,7 @@ div#widget {
   background-position: -864px 0; 
   margin:0 auto; 
 }
-
+/*
 #basemapButton {
     visibility: hidden;
 }
@@ -1335,3 +1355,4 @@ div#widget {
 #basemapSelect {
     visibility: hidden;
 }
+*/

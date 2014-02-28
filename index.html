@@ -8,6 +8,7 @@
     <title>mapD Tweetmap</title>
     <link rel="stylesheet" href="css/map.css" />
     <link rel="stylesheet" href="css/chart.css" />
+    <link rel="stylesheet" href="css/scatterplot.css" />
     <link rel="stylesheet" href="css/choropleth.css" />
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
     <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/dark-hive/jquery-ui.css" />-->
@@ -105,23 +106,21 @@
       <option value="federal:house">House</value>
     </select>
     
-	<div id="location" class="search" style="display:none">
-	  <input id="zoomInput" class="search-input" type="text" name="zoom" placeholder=" Zoom To"/>
-      <span class="iconClear">X</span>
-    </div>
 	<button id="submit" class="search-input" type="submit">
 	  <div id="submit-icon" class="sprites search"></div>
 	</button>
     <!-- <button id="advSearchButton" class="search-button search-input search" data-dropdown="#advSearchDropdown">▾</button> -->
       </form>
-  <div id="promo"><a href="http://www.map-d.com" target="_blank"><img src="img/campaign_logo.png" class="logo-image"></a></div>
+  <div id="promo"><a href="http://www.map-d.com" target="_blank"><img src="img/campaign-logo-34.png" class="logo-image"></a></div>
 
     <div id="settings" class="settings">
       <!--<button id="pointButton" class="settings-button" title="Points">Points</button>-->
+      <!--
       <div id ="baseSettings" class="settings-div">
           <button id="basemapButton" class="settings-button" title="Basemap">Basemap</button>
           <button id="basemapSelect" class="settings-drop-button" data-dropdown="#baseDropdown">▾</button>
       </div>
+      -->
       <div id="pointSettings" class="settings-div">
           <button id="pointButton" class="settings-button" title="Pointmap">Pointmap</button>
           <button id="pointSelect" class="settings-drop-button" data-dropdown="#pointDropdown">▾</button>
@@ -176,15 +175,25 @@
         <div id="sizeButton"></div>
         <button id="curLoc"></button>
 
-      <div id="location" class="search">
-        <input id="zoomInput" class="search-input" type="text" name="zoom" placeholder=" Zoom To"/>
-        <span class="iconClear">X</span>
+      <div id="location" class="location-search">
+        <form id="zoomSearch">
+          <input id="zoomInput" class="location-search-input" type="text" name="zoom" placeholder=" Zoom To"/>
+          <span class="iconClear">X</span>
+        </form>
       </div>
+
+      <div id ="baseSettings" class="settings-div">
+          <button id="basemapButton" class="settings-button" title="Basemap">Basemap</button>
+          <button id="basemapSelect" class="settings-drop-button" data-dropdown="#baseDropdown">▾</button>
+
         <div id="legend">
           <div id="pointLegend" class="sub-legend"><span>Points</span><span class="checkmark">&#x2713</span></div>
           <div id="heatLegend" class="sub-legend"><span>Heatmap</span><span class="checkmark">&#x2713</span></div>
           <div id="heatLegend" class="sub-legend"><span>Choropleth</span><span class="checkmark">&#x2713</span></div>
         </div>
+
+
+
         </div>
         
       </div>
