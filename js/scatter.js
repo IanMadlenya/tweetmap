@@ -115,7 +115,10 @@ function Scatter (div) {
 
     this.xScale
       .domain([d3.min(this.data, function(d) {return d[selectedVar];}), d3.max(this.data, function(d) {return d[selectedVar];})]);
-    this.getYScale();
+    if (this.mapd.services.animation.isAnimating() == false)
+      this.getYScale();
+
+
     /*this.yScale
       .domain([d3.min(this.data, function(d) {return d.val;}), d3.max(this.data, function(d) {return d.val;})]);
       */
@@ -149,6 +152,8 @@ function Scatter (div) {
         this.svg.select("g.y.axis")
         .call(this.yAxis);
 
+        this.addTrendLine();
+
 
 
       $(this).trigger('loadend');
@@ -161,6 +166,7 @@ function Scatter (div) {
     }
     dataArray.sort(d3.ascending);
     var minQuantile = d3.quantile(dataArray, 0.05);
+    /*
     if (minQuantile == 0) {
       for (var o in this.data) {
         if (data[o].val > 0) {
@@ -169,6 +175,7 @@ function Scatter (div) {
         }
       }
     }
+    */
     var maxQuantile = d3.quantile(dataArray, 0.95);
     this.yScale.domain([minQuantile,maxQuantile]);
   };
@@ -201,6 +208,60 @@ function Scatter (div) {
     this.setVars(json);
     //this.reload();
   }
+
+  this.getLeastSquares = function (xVar, yVar) {
+    var data = this.data;
+    var sumX = 0;
+    var sumY =0;
+    var sumXY = 0;
+    var sumXX = 0;
+    var count = 0;
+
+    var x = 0;
+    var y = 0;
+    var numVals = data.length;
+    if (numVals == 0)
+      return 0;
+    for (var v = 0; v < numVals; v++) {
+      x = data[v][xVar];
+      y = data[v][yVar];
+      sumX += x;
+      sumY += y;
+      sumXX += x*x;
+      sumXY += x*y;
+      count++;
+    }
+
+    // y = mx + b
+   
+    results = {}
+    results.m = (count * sumXY - sumX*sumY) / (count*sumXX - sumX * sumX);
+    results.b = (sumY / count) - (results.m*sumX)/count;
+    return results;
+
+  },
+
+  this.addTrendLine = function() {
+    this.svg.selectAll('line').remove();
+
+    var regResults = this.getLeastSquares(this.selectedVar, "val");
+    var xSubDomain = this.xScale.domain();
+    var xMean = xSubDomain[0] + xSubDomain[1] * 0.5;
+    xSubDomain[0] = xMean - (xMean - xSubDomain[0]) * 0.95;
+    var p0 = [this.xScale(xSubDomain[0]) + 0.5, this.yScale(regResults.m * xSubDomain[0] + regResults.b) + 0.5]
+    var p1 = [this.xScale(xSubDomain[1]) + 0.5, this.yScale(regResults.m * xSubDomain[1] + regResults.b) + 0.5]
+    xSubDomain[1] = xMean + (xSubDomain[1] - xMean) * 0.95;
+    this.svg.append('svg:line')
+      .attr('x1', p0[0])
+      .attr('y1', p0[1])
+      .attr('x2', p1[0])
+      .attr('y2', p1[1])
+      .attr("stroke-width",2)
+      .attr("stroke", "blue");
+  }
+
+
+
 
   this.setVars = function(vars) {
     $(this.varPicker).remove();
