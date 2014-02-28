@@ -228,7 +228,7 @@ function Scatter (div) {
 
   this.onScatterVarsLoad = function(json) {
     this.setVars(json);
-    //this.reload();
+    this.reload();
   }
 
   this.getLeastSquares = function (xVar, yVar) {
