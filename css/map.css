@@ -490,11 +490,13 @@ div#social-share:hover {
   left:5px;
   margin-right: 0px;
 }
-#ui-id-2 {top:40px !important;}
+//#ui-id-2 {top:40px !important;}
+
+.ui-autocomplete {top:40px !important;}
 
 //#compareInput.ui-autocomplete {bottom: 30px !important!;}
 
-#ui-id-3 {top: 500px !important; bottom: 30px !important;}
+//#ui-id-3 {top: 500px !important; bottom: 30px !important;}
 //#ui-id-2 {bottom: 100px !important;}
 //#ui-id-1 {bottom: 30px !important;}
 

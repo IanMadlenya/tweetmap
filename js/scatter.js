@@ -12,12 +12,13 @@ function Scatter (div) {
   this.margin = {top: 20, right: 40, bottom: 40, left: 40};
   this.joinParams = {
     "Country": {jointable: "country_data", joinvar: "name", joinattrs: "pst045212,iso_a2", pop_var: "pst045212", map_key: "ISO2", data_key: "iso_a2", data_col: "country"},
-    "State": {jointable: "state_data", joinvar: "name", joinattrs: "pst045212", pop_var: "pst045212", map_key: "abbr", data_key: "label", data_col: "contributor_state"},
-    "County": {jointable: "county_data", joinvar: "fips", joinattrs: "pst045212,fips", pop_var: "pst045212", map_key: "id", data_key: "label", data_col: "contributor_county_fips"}
+    "State": {jointable: "state_data", joinvar: "name", joinattrs: "inc910211", pop_var: "pst045212", map_key: "abbr", data_key: "label", data_col: "contributor_state"},
+    "County": {jointable: "county_data", joinvar: "fips", joinattrs: "inc910211", pop_var: "pst045212", map_key: "id", data_key: "label", data_col: "contributor_county_fips"}
   },
   this.format = null;
   this.data = null;
-  this.selectedVar = "pst045212";
+  //this.selectedVar = "pst045212";
+  this.selectedVar = "inc910211";
   this.dataSource = "State";
   this.varPicker = null;
   this.curJoinParams = null;
@@ -63,11 +64,27 @@ function Scatter (div) {
 
   this.reload = function(options) {
     if ($(this.div).dialog("isOpen")) {
-      $.getJSON(this.getURL(options)).done($.proxy(this.addData, this));
-    }
-  };
+       //if (options == undefined || options == null) 
+         //options = {};
+        /*j
+       if (this.mapd.queryTerms == "" && this.mapd.party == "") {
+         this.mode = "compare";
+         options.party = "D";
+         $.getJSON(this.getURL(options)).done($.proxy(this.addData, this));
+         options.party = "R";
+         $.getJSON(this.getURL(options)).done($.proxy(this.addData, this));
+        }
+        else {
+        */
+          $.getJSON(this.getURL(options)).done($.proxy(this.addData, this));
+        //}
+     }
+    };
 
   this.getURL = function(options) {
+       if (options == undefined || options == null) 
+         options = {};
+       options.splitQuery = false;
       this.params.bbox = this.mapd.map.getExtent().toBBOX();
       if (this.colorVar != null)
           this.params.joinattrs = this.curJoinParams.pop_var + "," + this.selectedVar + "," + this.colorVar;
@@ -83,23 +100,32 @@ function Scatter (div) {
     .data([])
     .exit()
     .remove();
-    console.log("adddata");
     //var minN = this.minTweets;
     this.data = dataset.results;
     var data = this.data;
     var numVals = this.data.length;
     var popVar = this.curJoinParams.pop_var;
     var selectedVar = this.selectedVar;
+
+    var numDays;
+      if (this.mapd.services.animation.isAnimating() == false)
+        numDays = (MapD.dataend - MapD.datastart)/86400.0;
+    else
+        numDays = Animation.frameWidth / 86400.0;
+
+
+
+
     switch (MapD.dataView) {
       case "counts":
         this.format = d3.format(".2s"); 
         for (var i = 0; i < numVals; i++)
-           data[i].val = data[i].n / data[i][popVar];
+           data[i].val = (data[i].n / data[i][popVar]) / numDays ;
       break;
       case "dollars":
         this.format = d3.format("$,.2s"); 
          for (var i = 0; i < numVals; i++)
-             data[i].val = data[i].y * data[i].n / data[i][popVar];
+             data[i].val = data[i].y * data[i].n / data[i][popVar] / numDays;
          break;
       case "dollsperdon":
          for (var i = 0; i < numVals; i++)
@@ -115,7 +141,8 @@ function Scatter (div) {
 
     this.xScale
       .domain([d3.min(this.data, function(d) {return d[selectedVar];}), d3.max(this.data, function(d) {return d[selectedVar];})]);
-    if (this.mapd.services.animation.isAnimating() == false)
+
+  if (this.mapd.services.animation.isAnimating() == false)
       this.getYScale();
 
 
@@ -165,18 +192,13 @@ function Scatter (div) {
        dataArray.push(this.data[o].val);
     }
     dataArray.sort(d3.ascending);
-    var minQuantile = d3.quantile(dataArray, 0.05);
-    /*
-    if (minQuantile == 0) {
-      for (var o in this.data) {
-        if (data[o].val > 0) {
-          minQuantile = data[o].val;
-          break;
-        }
-      }
-    }
-    */
     var maxQuantile = d3.quantile(dataArray, 0.95);
+    var minThresh = 0.05;
+    var minQuantile = d3.quantile(dataArray, minThresh);
+    while (minQuantile * 10.0 < maxQuantile && minThresh < 1.0) { 
+        minThresh += 0.05;
+        minQuantile = d3.quantile(dataArray, minThresh);
+    }
     this.yScale.domain([minQuantile,maxQuantile]);
   };
 
@@ -288,7 +310,8 @@ function Scatter (div) {
       var elemArray = tag.split(':');
       if (elemArray[0].substring(0,3) == "pct")
         elemArray[1] = "% " + elemArray[1];
-      if (elemArray[0].search("default") != -1) {
+      //if (elemArray[0].search("default") != -1) {
+      if (element.name == "inc910211") {
         defaultIndex = index;
         console.log("default: " + element.name);
         defaultVar = element.name; 

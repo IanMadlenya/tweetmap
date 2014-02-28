@@ -670,7 +670,7 @@ var MapD = {
         }
         //this.timeReload();
         //this.timeReload();
-        setTimeout($.proxy(this.timeReload,this),timeUpdateInterval);
+        //setTimeout($.proxy(this.timeReload,this),timeUpdateInterval);
    },
 
   reload: function(e) {
@@ -3050,7 +3050,10 @@ var Animation = {
       if (this.choropleth.active)
           numLayersVisible++; // choropleth
       numLayersVisible++;
-      numLayersVisible++;
+      //if (MapD.party == "")
+      //    numLayersVisible++;
+      if (this.scatterOn)
+          numLayersVisible++;
       //console.log("Num layers visible: " + numLayersVisible);
       this.numLayersLoaded++;
       //console.log("Num layers loaded: " + this.numLayersLoaded);
@@ -3113,6 +3116,7 @@ var Animation = {
         this.prevTime = 0;
         this.frameStart = this.animStart;
         this.frameEnd = this.animStart + this.frameWidth;
+        this.scatterOn = $(MapD.services.scatter.div).dialog("isOpen");
         //console.log("Frame start: " + this.frameStart);
         //console.log("Frame end: " + this.frameEnd);
         this.heatMax = parseFloat($.cookie('max_value')) * 10.0;
@@ -3176,6 +3180,7 @@ var Animation = {
       this.mapd.services.graph.chart.setBrushExtent([this.mapd.timestart * 1000, this.mapd.timeend * 1000]);
       this.mapd.services.pointmap.reload();
       this.mapd.services.heatmap.reload();
+      this.mapd.services.scatter.reload();
       //this.wordGraph.locked = this.formerGraphLockedState;
       this.wordGraph.setMenuItem("Display", this.formerGraphDisplayMode, false);
       if (this.wordGraph.modeSetting != "Trends" && this.formerGraphLockedState != this.wordGraph.locked) {
