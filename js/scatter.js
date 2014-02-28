@@ -107,11 +107,11 @@ function Scatter (div) {
     var popVar = this.curJoinParams.pop_var;
     var selectedVar = this.selectedVar;
 
-    var numDays;
+    var numYears;
       if (this.mapd.services.animation.isAnimating() == false)
-        numDays = (MapD.dataend - MapD.datastart)/86400.0;
+        numYears = (MapD.dataend - MapD.datastart)/86400.0/365.0;
     else
-        numDays = Animation.frameWidth / 86400.0;
+        numYears = Animation.frameWidth / 86400.0/365.0;
 
 
 
@@ -120,12 +120,12 @@ function Scatter (div) {
       case "counts":
         this.format = d3.format(".2s"); 
         for (var i = 0; i < numVals; i++)
-           data[i].val = (data[i].n / data[i][popVar]) / numDays ;
+           data[i].val = (data[i].n / data[i][popVar]) / numYears ;
       break;
       case "dollars":
         this.format = d3.format("$,.2s"); 
          for (var i = 0; i < numVals; i++)
-             data[i].val = data[i].y * data[i].n / data[i][popVar] / numDays;
+             data[i].val = data[i].y * data[i].n / data[i][popVar] / numYears;
          break;
       case "dollsperdon":
          for (var i = 0; i < numVals; i++)

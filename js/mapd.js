@@ -3024,7 +3024,6 @@ var Animation = {
     //$("#numTokensText").bind('loadend', this, this.layerLoadEnd);
     $(this.wordGraph).on('loadend', $.proxy(this.layerLoadEnd, this));
     $(this.choropleth).on('loadend', $.proxy(this.layerLoadEnd, this));
-    $(this.choropleth).on('loadend', $.proxy(this.layerLoadEnd, this));
     $(this.scatter).on('loadend', $.proxy(this.layerLoadEnd, this));
     this.playPauseButton = playPauseButton;
     this.stopButton = stopButton;
@@ -3049,7 +3048,6 @@ var Animation = {
           numLayersVisible++; // for chart
       if (this.choropleth.active)
           numLayersVisible++; // choropleth
-      numLayersVisible++;
       //if (MapD.party == "")
       //    numLayersVisible++;
       if (this.scatterOn)
