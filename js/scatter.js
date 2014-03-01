@@ -9,7 +9,7 @@ function Scatter (div) {
   this.rScale = null;
   this.cScale = null; 
   this.colorVar = null;
-  this.margin = {top: 20, right: 40, bottom: 40, left: 40};
+  this.margin = {top: 20, right: 40, bottom: 40, left: 60};
   this.joinParams = {
     "Country": {jointable: "country_data", joinvar: "name", joinattrs: "pst045212,iso_a2", pop_var: "pst045212", map_key: "ISO2", data_key: "iso_a2", data_col: "country"},
     "State": {jointable: "state_data", joinvar: "name", joinattrs: "inc910211", pop_var: "pst045212", map_key: "abbr", data_key: "label", data_col: "contributor_state"},
@@ -22,6 +22,9 @@ function Scatter (div) {
   this.dataSource = "State";
   this.varPicker = null;
   this.curJoinParams = null;
+  this.numResponses = 0;
+  this.compareData = [0,0],
+  this.minN = 20;
   this.params = {
     bbox: null,
     request: "GroupByToken",
@@ -60,31 +63,41 @@ function Scatter (div) {
         .attr("transform", "translate(0," + this.height  +")")
         .call(this.xAxis);
         //$(this.varPicker).appendTo($(this.elems.container));
+    /*
+    this.svg.append("clipPath")
+        .attr("id", "clip")
+      .append("rect")
+        .attr("class", "rect-clip")
+        .attr("x", 10)
+        .attr("y", 10)
+        .attr("width", 2)
+        .attr("height", 2);
+    */
   },
 
   this.reload = function(options) {
     if ($(this.div).dialog("isOpen")) {
-       //if (options == undefined || options == null) 
-         //options = {};
-        /*j
-       if (this.mapd.queryTerms == "" && this.mapd.party == "") {
+       if (options == undefined || options == null) 
+         options = {};
+       options.splitQuery = false;
+       var party = this.mapd.party;
+       if (this.mapd.queryTerms == "" && party == "") {
          this.mode = "compare";
+         this.numResponses = 0;
          options.party = "D";
-         $.getJSON(this.getURL(options)).done($.proxy(this.addData, this));
+         $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, 1));
          options.party = "R";
-         $.getJSON(this.getURL(options)).done($.proxy(this.addData, this));
-        }
-        else {
-        */
-          $.getJSON(this.getURL(options)).done($.proxy(this.addData, this));
-        //}
+         $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, 0));
+       }
+       else {
+         this.mode = "single";
+          $.getJSON(this.getURL(options)).done($.proxy(this.onLoad, this, -1));
+       }
+
      }
     };
 
   this.getURL = function(options) {
-       if (options == undefined || options == null) 
-         options = {};
-       options.splitQuery = false;
       this.params.bbox = this.mapd.map.getExtent().toBBOX();
       if (this.colorVar != null)
           this.params.joinattrs = this.curJoinParams.pop_var + "," + this.selectedVar + "," + this.colorVar;
@@ -95,43 +108,116 @@ function Scatter (div) {
       return url;
   };
 
-  this.addData = function(dataset) { 
+  this.clearData = function() {
+    this.svg.selectAll(".label")
+    .remove();
+
     this.svg.selectAll("circle")
     .data([])
     .exit()
     .remove();
-    //var minN = this.minTweets;
-    this.data = dataset.results;
-    var data = this.data;
-    var numVals = this.data.length;
-    var popVar = this.curJoinParams.pop_var;
-    var selectedVar = this.selectedVar;
+  };
 
+  this.onLoad = function(datasetNum, dataset) { 
     var numYears;
       if (this.mapd.services.animation.isAnimating() == false)
         numYears = (MapD.dataend - MapD.datastart)/86400.0/365.0;
     else
         numYears = Animation.frameWidth / 86400.0/365.0;
+    var colorVar = this.colorVar;
+    var popVar = this.curJoinParams.pop_var;
+    var selectedVar = this.selectedVar;
+    var yAxisLabel = ""
+    if (datasetNum >= 0) { 
+      this.compareData[datasetNum] = dataset.results;
+      this.numResponses++;
+      if (this.numResponses < 2)
+        return;
+       var numVals = 0; 
+       if ("results" in dataset)
+         numVals = dataset.results.length;
+       this.data = [] 
+       var data = this.data;
+       var dataKey = this.curJoinParams.data_key;
+       switch (MapD.dataView) {
+         case "counts":
+           this.format = d3.format(".2s"); 
+           //yAxisLabel = "Difference in Donations to Democratic and Republican Candidates Per Capita Per Year"
+           yAxisLabel = "Margin of Donations - Democrats vs Republicans"
+             //Difference in Donations to Democratic and Republican Candidates Per Capita Per Year"
+
+           for (var i = 0; i < numVals; i++) {
+             var insertObject = {"val": (this.compareData[1][i].n - this.compareData[0][i].n) / this.compareData[0][i][popVar], "n": this.compareData[0][i].n + this.compareData[1][i].n};
+             insertObject[dataKey] = this.compareData[0][i][dataKey];
+             insertObject[selectedVar] = this.compareData[0][i][selectedVar];
+             insertObject[colorVar] = this.compareData[0][i][colorVar];
+             data.push(insertObject);
+           }
+           break;
+         case "dollars":
+          this.format = d3.format("$,.2s"); 
+           yAxisLabel = "Margin of Total Giving - Democrats vs Republicans"
+           //yAxisLabel = "Difference in Total Giving between Democrats and Republicans per Capita  per Year (Dollars)"
+          for (var i = 0; i < numVals; i++) {
+              var insertObject = {"val": (this.compareData[1][i].n * this.compareData[1][i].y - this.compareData[0][i].n * this.compareData[0][i].y) / this.compareData[0][i][popVar], "n": this.compareData[1][i].n + this.compareData[1][i].n};
+              insertObject[dataKey] = this.compareData[0][i][dataKey];
+               insertObject[selectedVar] = this.compareData[0][i][selectedVar];
+              insertObject[colorVar] = this.compareData[0][i][colorVar];
+              data.push(insertObject);
+          }
+
+          break;
+          case "dollsperdon":
+            this.format = d3.format("$,.2s"); 
+           yAxisLabel = "Difference in Average Giving between Democrats and Republicans per Year per Capita "
+             for (var i = 0; i < numVals; i++) {
+                var insertObject = {"val": this.compareData[1][i].y - this.compareData[0][i].y , "n": this.compareData[1][i].n + this.compareData[1][i].n};
+                insertObject[dataKey] = this.compareData[0][i][dataKey];
+               insertObject[selectedVar] = this.compareData[0][i][selectedVar];
+                insertObject[colorVar] = this.compareData[0][i][colorVar];
+                data.push(insertObject);
+                //data[i].val = (this.compareData[1][i].y - this.compareData[0][i].y);
+            }
+           break;
+        }
+       console.log(data);
+    }
+    else {
+      this.data = dataset.results;
+      var data = this.data;
+      var numVals = this.data.length;
+
+      switch (MapD.dataView) {
+        case "counts":
+          this.format = d3.format(".2s"); 
+          yAxisLabel = "Donations per Year per Capita"
+          for (var i = 0; i < numVals; i++)
+             data[i].val = (data[i].n / data[i][popVar]) / numYears ;
+        break;
+        case "dollars":
+          this.format = d3.format("$,.2s"); 
+          yAxisLabel = "Total Giving per Year per Capita (dollars)"
+           for (var i = 0; i < numVals; i++)
+               data[i].val = data[i].y * data[i].n / data[i][popVar] / numYears;
+           break;
+        case "dollsperdon":
+          this.format = d3.format("$,.2s"); 
+          yAxisLabel = "Average Giving per Year per Capita (dollars)"
+           for (var i = 0; i < numVals; i++)
+               data[i].val = data[i].y;
+           break;
+      }     
+    }
+
+    var minN = this.minN;
+    data = data.filter(function(e) {
+      return e.n >= this.minN;
+    });
 
 
 
 
-    switch (MapD.dataView) {
-      case "counts":
-        this.format = d3.format(".2s"); 
-        for (var i = 0; i < numVals; i++)
-           data[i].val = (data[i].n / data[i][popVar]) / numYears ;
-      break;
-      case "dollars":
-        this.format = d3.format("$,.2s"); 
-         for (var i = 0; i < numVals; i++)
-             data[i].val = data[i].y * data[i].n / data[i][popVar] / numYears;
-         break;
-      case "dollsperdon":
-         for (var i = 0; i < numVals; i++)
-             data[i].val = data[i].y;
-         break;
-    }     
+    this.clearData();
 
     this.yAxis.tickFormat(this.format);
     if (this.selectedVar.search("inc") != -1)
@@ -142,20 +228,24 @@ function Scatter (div) {
     this.xScale
       .domain([d3.min(this.data, function(d) {return d[selectedVar];}), d3.max(this.data, function(d) {return d[selectedVar];})]);
 
-  if (this.mapd.services.animation.isAnimating() == false)
+    if (this.mapd.services.animation.isAnimating() == false)
       this.getYScale();
-
-
-    /*this.yScale
-      .domain([d3.min(this.data, function(d) {return d.val;}), d3.max(this.data, function(d) {return d.val;})]);
-      */
 
     var xScale = this.xScale;
     var yScale = this.yScale;
     var rScale = this.rScale;
     var cScale = this.cScale;
-    var colorVar = this.colorVar;
 
+
+    this.svg.append("text")
+      .attr("class", "label")
+      .attr("text-anchor", "end")
+      .attr("y", -58)
+      .attr("x", yAxisLabel.length - 45)
+      .attr("dy", ".95em")
+      .attr("transform", "rotate(-90)")
+      .text(yAxisLabel);
+        
     this.svg.selectAll("circle")
         .data(this.data)
         .enter()
@@ -180,7 +270,16 @@ function Scatter (div) {
         .call(this.yAxis);
 
         this.addTrendLine();
-
+    /*
+    this.svg.append("clipPath")
+        .attr("id", "clip")
+      .append("rect")
+        .attr("class", "rect-clip")
+        .attr("x", this.xScale(0))
+        .attr("y", this.yScale(1))
+        .attr("width", this.xScale(1) - this.xScale(0))
+        .attr("height", this.yScale(0) - this.yScale(1));
+    */
 
 
       $(this).trigger('loadend');
@@ -193,12 +292,15 @@ function Scatter (div) {
     }
     dataArray.sort(d3.ascending);
     var maxQuantile = d3.quantile(dataArray, 0.95);
+    /*
     var minThresh = 0.05;
     var minQuantile = d3.quantile(dataArray, minThresh);
     while (minQuantile * 10.0 < maxQuantile && minThresh < 1.0) { 
         minThresh += 0.05;
         minQuantile = d3.quantile(dataArray, minThresh);
     }
+    */
+    var minQuantile = d3.quantile(dataArray, 0.05);
     this.yScale.domain([minQuantile,maxQuantile]);
   };
 

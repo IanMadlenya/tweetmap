@@ -3778,9 +3778,6 @@ var Choropleth = {
    },
 
 
-
-
-
    deactivate: function() {
      this.active = false;
      d3.selectAll("#choroplethG").remove();
@@ -3909,16 +3906,15 @@ var Choropleth = {
         switch (MapD.dataView) {
           case "counts": {
              for (var i = 0; i < numVals; i++) {
-                var insertObject = {"val": (this.compareData[1][i].n - this.compareData[0][i].n) / this.compareData[0][i][popVar], "n": this.compareData[1][i].n + this.compareData[1][i].n};
+                var insertObject = {"val": (this.compareData[1][i].n - this.compareData[0][i].n) / this.compareData[0][i][popVar], "n": this.compareData[0][i].n + this.compareData[1][i].n};
                 insertObject[dataKey] = this.compareData[0][i][dataKey];
                 data.push(insertObject);
-                 //data.push({dataKey: this.compareData[0][dataKey], "val": (this.compareData[1][i].n - this.compareData[0][i].n) / this.compareData[0][i][popVar], "n": this.compareData[1][i].n + this.compareData[1][i].n});
               }
              break;
           }
           case "dollars": {
              for (var i = 0; i < numVals; i++) {
-                var insertObject = {"val": (this.compareData[1][i].n * this.compareData[1][i].y - this.compareData[0][i].n * this.compareData[0][i].y) / this.compareData[0][i][popVar], "n": this.compareData[1][i].n + this.compareData[1][i].n};
+                var insertObject = {"val": (this.compareData[1][i].n * this.compareData[1][i].y - this.compareData[0][i].n * this.compareData[0][i].y) / this.compareData[0][i][popVar], "n": this.compareData[0][i].n + this.compareData[1][i].n};
                 insertObject[dataKey] = this.compareData[0][i][dataKey];
                 data.push(insertObject);
              }
@@ -3927,7 +3923,7 @@ var Choropleth = {
            }
           case "dollsperdon": {
              for (var i = 0; i < numVals; i++) {
-                var insertObject = {"val": this.compareData[1][i].y - this.compareData[0][i].y , "n": this.compareData[1][i].n + this.compareData[1][i].n};
+                var insertObject = {"val": this.compareData[1][i].y - this.compareData[0][i].y , "n": this.compareData[0][i].n + this.compareData[1][i].n};
                 insertObject[dataKey] = this.compareData[0][i][dataKey];
                 data.push(insertObject);
                 //data[i].val = (this.compareData[1][i].y - this.compareData[0][i].y);
@@ -3935,7 +3931,6 @@ var Choropleth = {
              break;
         }
       }
-
      }
      else { 
         this.data = dataset.results;
