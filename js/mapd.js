@@ -26,7 +26,8 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  host: "http://mapd.worldmap.harvard.edu:8080/",
+  //host: "http://mapd.worldmap.harvard.edu:8080/",
+  host: "http://tweetmap.map-d.com:8080/",
   //host: "http://127.0.0.1:8080/",
   //host: "http://sirubu.velocidy.net:8080/",
   //host: "http://172.16.20.32:8080/",
