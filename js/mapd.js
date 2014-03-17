@@ -26,17 +26,7 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  //host: "http://mapd.worldmap.harvard.edu:8080/",
-  host: "http://tweetmap.map-d.com:8080/",
-  //host: "http://127.0.0.1:8080/",
-  //host: "http://sirubu.velocidy.net:8080/",
-  //host: "http://172.16.20.32:8080/",
-  //host: "http://geops.cga.harvard.edu:8080/",
-  //host: "http://mapd.csail.mit.edu:8080/",
-  //host: "http://mapd2.csail.mit.edu:8080/",
-  //host: "http://mapd2.csail.mit.edu:8080/",
-  //host: "http://140.221.141.152:8080/",
-  //host: "http://www.velocidy.net:7000/",
+  host: hostAddress,
   table: "tweets",
   timestart: null,
   timeend: null,
