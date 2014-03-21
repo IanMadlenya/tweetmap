@@ -8,6 +8,7 @@ function buildURI(params) {
 
 function Network (div) {
   this.div = $(div).get(0);
+  this.strengthScale = null;
   this.svg = null;
   this.width = null;
   this.height = null;
@@ -15,14 +16,15 @@ function Network (div) {
   this.gnodes = null;
   this.nodes = null;
   this.edges = null;
-  this.host = 'http://dell0.velocidy.net:8080/';
+  this.host = 'http://dell0:8080/';
   this.margin = {top: 40, right: 40, bottom: 40, left: 40};
   this.params = {
     bbox: null,
     request: "GetCollocationScores",
     sql: "select tweet_text from tweets",
     id: 85,
-    tokens: ["church", "prayer", "jesus", "hot", "sunny", "google", "apple", "android"],
+    tokens: ["freedom", "jesus", "god", "church", "prayer",  "choice", "snowden", "obama", "leak", "sin", "android", "iphone", "ios", "apple", "google", "microsoft" ],
+    //tokens: ["church", "prayer", "jesus", "hot", "sunny", "google", "apple", "android", "iphone", "ipad", "tv", "glass", "football", "basketball", "music", "concert", "satan", "soccer", "goal", "basket", "obama"],
   };
 
   this.dataset = {
@@ -48,19 +50,38 @@ function Network (div) {
   };
 
   this.init = function() {
+    console.log("init");
     this.width = $(this.div).width() - this.margin.left - this.margin.right;
     this.height = $(this.div).height() - this.margin.top - this.margin.bottom;
+    var strengthMax =d3.max(this.dataset.edges, function(d) {return d.strength;}); 
+    this.distScale = d3.scale.linear()
+      .range([150.0,0.0])
+      .domain([0.0, strengthMax]); 
+
+    this.linkWidthScale = d3.scale.linear()
+      .range([0.5,5.0])
+      .domain([0.0, strengthMax]);
+
+    this.tokenSizeScale = d3.scale.linear()
+      .range([14,28])
+      .domain(d3.extent(this.dataset.nodes, function(d) {return d.n;}));
+
+    var distScale = this.distScale;
+    var linkWidthScale = this.linkWidthScale;
+    var tokenSizeScale = this.tokenSizeScale;
 
     this.force = d3.layout.force()
       .nodes(this.dataset.nodes)
       .links(this.dataset.edges)
       .size([this.width, this.height])
-      .linkDistance(function(d) {console.log (d); return (1.0 - d.strength) * 300.0;})
+      //.linkDistance(function(d) {console.log (d); return (20.0 - d.strength) * 20.0;})
+      .linkDistance(function(d) {console.log (d.strength); console.log(distScale(d.strength)); return distScale(d.strength);})
       //.gravity(0.4)
       //.linkDistance([50])
       //.linkDistance([50])
       .charge([-60])
       .start();
+
 
     this.svg = d3.select(this.div)
       .attr("class", "network")
@@ -74,7 +95,9 @@ function Network (div) {
       .enter()
       .append("line")
       .style("stroke", "#ccc")
-      .style("stroke-width", function(d) {return d.strength});
+      .style("stroke-width", function(d) {return linkWidthScale(d.strength);});
+
+      //.style("stroke-width", function(d) {return d.strength});
 
     this.gnodes = this.svg.selectAll('g.gnode')
       .data(this.dataset.nodes)
@@ -85,8 +108,8 @@ function Network (div) {
 
     this.nodes = this.gnodes.append("circle")
       .attr("class", "node")
-      .attr("r",40)
-      .style("fill", function(d) {return d.color;})
+      .attr("r",30)
+      //.style("fill", function(d) {return d.color;})
       .style("opacity", 0.0);
     /*
     this.nodes = this.gnodes.append("rect")
@@ -98,7 +121,8 @@ function Network (div) {
       .call(this.force.drag);
     */
     this.labels = this.gnodes.append("text")
-      .text(function(d) {return d.name;})
+      .text(function(d) {return d.token;})
+      .style("font-size", function(d) {return tokenSizeScale(d.n) + "px";})
       .attr("transform", "translate(-15,5)");
       //.call(this.force.drag);
 
@@ -145,12 +169,22 @@ function Network (div) {
 
   this.onLoad = function(data) {
     console.log(data);
-    //this.dataset.nodes = [];
-    //this.dataset.edges = [];
-    this.dataset = {};
+    this.dataset.nodes = [];
+    this.dataset.edges = [];
+    //this.dataset = {};
     var numNodes = data.tokens.length;
     for (var n = 0; n < numNodes; ++n) 
       this.dataset.nodes.push({token: data.tokens[n], n: data.counts[n]});
+    var i = 0;
+    for (var y = 0; y < numNodes; ++y) {
+      for (var x = y + 1; x < numNodes; ++x) {
+        this.dataset.edges.push({source: y, target: x, strength: data.scores[i]});
+        i++;
+      }
+    }
+    console.log("initting");
+    this.init();
+
     console.log(this.dataset);
 
   };
@@ -158,11 +192,11 @@ function Network (div) {
 }
 
 function init () {
-  console.log("hello");
   $("#networkDiv").width(1000).height(800);
 
   network = new Network($("#networkDiv"));
-  network.init();
+  //network.init();
+  network.reload();
 }
 
 
