@@ -1,3 +1,5 @@
+
+
 function Scatter (div) {
   this.mapd = MapD;
   this.div =  $(div).get(0);
@@ -13,7 +15,8 @@ function Scatter (div) {
   this.joinParams = {
     "Country": {jointable: "country_data", joinvar: "name", joinattrs: "pst045212,iso_a2", pop_var: "pst045212", map_key: "ISO2", data_key: "iso_a2", data_col: "country"},
     "State": {jointable: "state_data", joinvar: "name", joinattrs: "inc910211", pop_var: "pst045212", map_key: "abbr", data_key: "label", data_col: "contributor_state"},
-    "County": {jointable: "county_data", joinvar: "fips", joinattrs: "inc910211", pop_var: "pst045212", map_key: "id", data_key: "label", data_col: "contributor_county_fips"}
+    "County": {jointable: "county_data", joinvar: "fips", joinattrs: "inc910211", pop_var: "pst045212", map_key: "id", data_key: "label", data_col: "contributor_county_fips"},
+    "Congress": {jointable: "county_data", joinvar: "fips", joinattrs: "inc910211", pop_var: "pst045212", map_key: "id", data_key: "label", data_col: "contributor_county_fips"}
   },
   this.format = null;
   this.data = null;
@@ -311,6 +314,7 @@ function Scatter (div) {
   this.setDataset = function(dataSource) {
     this.dataSource = dataSource;
     this.curJoinParams = this.joinParams[this.dataSource];
+    console.log(this.dataSource);
     this.params.jointable = this.curJoinParams.jointable;
     this.params.joinattrs = this.curJoinParams.pop_var;
     this.params.joinvar = this.curJoinParams.joinvar;

@@ -91,7 +91,7 @@ function toHex(num) {
 
 var MapD = {
   map: null,
-  host: "http://velocidy.net:7000/",
+  host: hostAddress,
   table: "donations_ip",
   dataView: "counts",
   timestart: null,
@@ -2822,7 +2822,7 @@ var Search = {
 
   getRecNamesURL: function() {
      var params = {request:"GetFeatureInfo"};
-     params.sql = "select recipient_name from recipient_data where n > 1000 order by n desc";
+     params.sql = "select recipient_name from recipient_data";
      var url = this.mapd.host + '?' + buildURI(params);
      return url;
   },
@@ -3613,7 +3613,8 @@ var Choropleth = {
   joinParams : {
     "Country": {jointable: "country_data", joinvar: "name", joinattrs: "pst045212,iso_a2", pop_var: "pst045212", map_key: "ISO2", data_key: "iso_a2", data_col: "country"},
     "State": {jointable: "state_data", joinvar: "name", joinattrs: "pst045212", pop_var: "pst045212", map_key: "abbr", data_key: "label", data_col: "contributor_state"},
-    "County": {jointable: "county_data", joinvar: "fips", joinattrs: "pst045212,fips", pop_var: "pst045212", map_key: "id", data_key: "label", data_col: "contributor_county_fips"}
+    "County": {jointable: "county_data", joinvar: "fips", joinattrs: "pst045212,fips", pop_var: "pst045212", map_key: "id", data_key: "label", data_col: "contributor_county_fips"},
+    "Congress": {jointable: "county_data", joinvar: "fips", joinattrs: "pst045212,fips", pop_var: "pst045212", map_key: "id", data_key: "label", data_col: "contributor_county_fips"}
   },
   layers: {
      "State": {name: "states", isTopo: false},
