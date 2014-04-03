@@ -55,14 +55,14 @@ var MapD = {
     tweetclick: null,
     animation: null,
     choropleth: null,
-    realtime: null
+    realtime: null,
+    collocations: null
   },
 
 
 
   init: function(map, pointmap, heatmap, geotrends, topktokens, tweets, graph, search, settings, tweetclick, animation, choropleth, realtime) {
   
-    //$("#dataDisplayBarchart").click(function() {console.log($(this).attr("id"));});  
     if (window.location.search == "?local")
         this.host = "http://sirubu.velocidy.net:8080";
       
@@ -100,6 +100,15 @@ var MapD = {
     this.services.animation = animation;
     this.services.choropleth = choropleth;
     this.services.realtime = realtime;
+
+    /*
+    $("#collocDiv").dialog({width:350, height:350, position: [20, 450]});
+    this.services.collocator = new Collocator($("#collocDiv"));
+    */
+
+
+
+
     this.map.events.register('moveend', this, this.reload);
     //this.map.events.register('changebaselayer', this, this.moveBaseAttr);
 
@@ -163,6 +172,9 @@ var MapD = {
 
     
     $(document).on('mapdreload', $.proxy(this.reload, this));
+    this.services.info = new Info($("#infoDiv"));
+    this.services.info.display(infoText);
+
   },
 
   moveBaseAttr: function() {

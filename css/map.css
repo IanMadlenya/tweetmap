@@ -294,12 +294,23 @@ div#submit-icon {
 */
 
 .ui-dialog-title {
-    font-size:10px;
+    font-size:13px;
 }
+
+#infoDiv {
+    font-size: 18px;
+}
+
+#infoDiv a {
+    color: #ee1786;
+}
+
 
 #link-dialog {
     font-size:10px;
 }
+
+
 
 
 #twitter-share {
