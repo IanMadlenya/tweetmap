@@ -22,7 +22,7 @@ var Choropleth = {
   data: null,
   path: null,
   layer: null,
-  minTweets: 4000,
+  minTweets: 0,
   colorScale: null,
   features: null,
   percents: false,
@@ -46,7 +46,7 @@ var Choropleth = {
 
      $("#polyMinSlider").slider({
         min: 0,
-        max: 30000,
+        max: 10000,
         value: this.minTweets,
         stop: $.proxy(function(e, ui) {
           this.minTweets = ui.value;
