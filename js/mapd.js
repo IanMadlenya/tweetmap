@@ -1012,6 +1012,7 @@ var TopKTokens = {
     $(".data-dropdown").click($.proxy(function(e) {
       var menu;
       var choice = this.getMenuItemClicked(e.target);
+      console.log("Choice: " + choice);
       if ($(e.currentTarget).hasClass("display-menu")) {
         menu="Display";
       }
@@ -1021,6 +1022,7 @@ var TopKTokens = {
       else if ($(e.currentTarget).hasClass("mode-menu")) {
         menu="Mode";
       }
+      console.log(menu);
       this.setMenuItem(menu, choice, true);
     }
     , this));  
@@ -1088,13 +1090,17 @@ var TopKTokens = {
   
   getMenuItemClicked: function(target) {
     var innerText = "";
-    if (target.localName != "span")
-        innerText = target.firstChild.innerText;
+    console.log(target);
+    if (target.localName != "span") {
+        innerText = target.firstChild.innerHTML;
+        console.log("span");
+    }
     else {
+        console.log("else");
         if (target.className == "checkmark")
-            innerText = target.parentElement.firstChild.innerText;
+            innerText = target.parentElement.firstChild.innerHTML;
         else
-            innerText = target.innerText;
+            innerText = target.innerHTML;
             
     }
     return innerText;
@@ -1110,12 +1116,12 @@ var TopKTokens = {
 
     }
     else {
-
+        console.log("at source");
         var menuDiv = "#data" + menu;
         var dropdownDiv = menuDiv + "Dropdown";
         var choiceDiv = menuDiv + choice;
-        //console.log(menuDiv);
-        //console.log(choiceDiv);
+        console.log(menuDiv);
+        console.log(choiceDiv);
         $(dropdownDiv + " span.checkmark").css("visibility", "hidden");
         $(choiceDiv + " .checkmark").css("visibility","visible");
         $(menuDiv + " span.choice-text").text(choice);

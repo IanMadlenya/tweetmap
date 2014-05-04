@@ -116,12 +116,12 @@ var Choropleth = {
  
   getMenuItemClicked: function(target) {
     if (target.localName != "span")
-        innerText = target.firstChild.innerText;
+        innerText = target.firstChild.innerHTML;
     else {
         if (target.className == "checkmark")
-            innerText = target.parentElement.firstChild.innerText;
+            innerText = target.parentElement.firstChild.innerHTML;
         else
-            innerText = target.innerText;
+            innerText = target.innerHTML;
             
     }
     return innerText;
