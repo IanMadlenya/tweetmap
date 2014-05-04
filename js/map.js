@@ -16,21 +16,23 @@ function init()
   var extent = new OpenLayers.Bounds(BBOX.WORLD.split(','));  
   map = new OpenLayers.Map('map', { controls: [new OpenLayers.Control.Navigation(), new OpenLayers.Control.ZoomPanel(), new OpenLayers.Control.KeyboardDefaults(), new OpenLayers.Control.ScaleLine(), /* new OpenLayers.Control.LayerSwitcher({'ascending':true})*/], projection: "EPSG:900913", restrictedExtent: extent,  maxResolution: 156543.0339,  numZoomLevels:24});
 
-  //var darkStyle = [ { featureType: "all", elementType: "all", stylers: [ {visibility: "simplified" }, /*{hue: "#333"},*/ {saturation: -50}, {lightness: -50} ] } ];
-  //var darkBlueStyle = [ { featureType: "all", elementType: "all", stylers: [ {visibility: "on" }, {hue: "#00c3ff"}, {saturation: -62}, {lightness: -83}, {gamma: 0.27} ] } ];
+  /*
   var darkBlueStyle = [ { featureType: "all", elementType: "all", stylers: [ {visibility: "on" }, {saturation: -62}, {hue: "#00c3ff"}, {"gamma": 0.27}, {lightness: -55} ] } ];
   var darkMap = new OpenLayers.Layer.Google("Dark", {type: 'styled'}, {isBaseLayer:true});
   var styledMapOptions = {
     name: "Dark Map"
   };
   var styledMapType = new google.maps.StyledMapType(darkBlueStyle,styledMapOptions);
+  */
 
-  baseLayers = new Array( darkMap, new OpenLayers.Layer.Google("Google Roadmap", {type: google.maps.MapTypeId.ROADMAP}, {isBaseLayer:true}), new OpenLayers.Layer.Google("Google Topo", {type: google.maps.MapTypeId.TERRAIN}, {isBaseLayer:true}), new OpenLayers.Layer.Google("Google Hybrid", {type: google.maps.MapTypeId.HYBRID}, {isBaseLayer: true}), new OpenLayers.Layer.OSM("OpenStreeMap"),  new OpenLayers.Layer.OSM("Blank","data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=") /* new OpenLayers.Layer("Blank", {isBaseLayer: true},*/ );
+  baseLayers = new Array(new OpenLayers.Layer.OSM("Light", "http://127.0.0.1/osm/${z}/${x}/${y}.png", {numZoomLevels: 19}),  new OpenLayers.Layer.OSM("Blank","data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs="));
+  //baseLayers = new Array( darkMap, new OpenLayers.Layer.Google("Google Roadmap", {type: google.maps.MapTypeId.ROADMAP}, {isBaseLayer:true}), new OpenLayers.Layer.Google("Google Topo", {type: google.maps.MapTypeId.TERRAIN}, {isBaseLayer:true}), new OpenLayers.Layer.Google("Google Hybrid", {type: google.maps.MapTypeId.HYBRID}, {isBaseLayer: true}), new OpenLayers.Layer.OSM("OpenStreeMap"),  new OpenLayers.Layer.OSM("Blank","data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=") /* new OpenLayers.Layer("Blank", {isBaseLayer: true},*/ );
+
 
   map.addLayers(baseLayers);
 
-  darkMap.mapObject.mapTypes.set('styled',styledMapType);
-  darkMap.mapObject.setMapTypeId('styled');
+  //darkMap.mapObject.mapTypes.set('styled',styledMapType);
+  //darkMap.mapObject.setMapTypeId('styled');
 
   //baseLayer = new OpenLayers.Layer.Google("Google Maps", {numZoomLevels: 20});
   //map.addLayer(baseLayer);

@@ -43,7 +43,7 @@ var MapD = {
   controlWidth:400,
   streaming: false,
   services: {
-    baseLayerName: "Dark",
+    baseLayerName: "OpenStreetMap",
     pointmap: null,
     heatmap: null,
     geotrends: null,
@@ -2508,7 +2508,7 @@ init: function(sortDiv, viewDiv) {
 
 var GeoCoder = {
   map: null,
-  _geocoder: new google.maps.Geocoder(),
+  _geocoder: null, //new google.maps.Geocoder(),
   address: null,
   status: null,
 
@@ -2519,7 +2519,7 @@ var GeoCoder = {
   geocode: function(address) {
    console.log("at geocode");
     this.address = address;
-    this._geocoder.geocode({'address': address}, $.proxy(this.onGeoCoding, this));
+    //this._geocoder.geocode({'address': address}, $.proxy(this.onGeoCoding, this));
   },
 
   onGeoCoding: function(data, status) {
